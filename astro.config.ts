@@ -6,7 +6,8 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import expressiveCode from "astro-expressive-code";
 import pagefind from "astro-pagefind";
-import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
+import { pluginCollapsibleSections, pluginCollapsibleSectionsTexts } from "@expressive-code/plugin-collapsible-sections";
+import { pluginFramesTexts } from "@expressive-code/plugin-frames";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import rehypeKatex from "rehype-katex";
 import remarkDirective from "remark-directive";
@@ -20,6 +21,12 @@ import remarkMermaid from "./src/lib/remark-mermaid";
 import rehypeHeadingAnchors from "./src/lib/rehype-heading-anchors";
 import { rehypeTaskCheckboxes } from "./src/lib/rehype-task-checkboxes";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge";
+import { expressiveCodeTexts } from "./src/i18n/expressive-code";
+
+pluginFramesTexts.addLocale("fr", expressiveCodeTexts.frames.fr);
+pluginFramesTexts.addLocale("en", expressiveCodeTexts.frames.en);
+pluginCollapsibleSectionsTexts.addLocale("fr", expressiveCodeTexts.collapsibleSections.fr);
+pluginCollapsibleSectionsTexts.addLocale("en", expressiveCodeTexts.collapsibleSections.en);
 
 export default defineConfig({
   devToolbar: { enabled: false },

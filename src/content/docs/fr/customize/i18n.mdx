@@ -6,7 +6,7 @@ order: 1
 draft: false
 ---
 
-Lisible utilise le routage i18n natif d’Astro : le français est servi sans préfixe et l’anglais sous `/en/`.[^astro-i18n]
+Lisible utilise le routage i18n natif d’Astro : les routes documentaires françaises sont sans préfixe et les routes anglaises sous `/en/`.[^astro-i18n] La landing `/` constitue l’exception : son HTML par défaut est anglais.
 
 ```ts title="astro.config.ts"
 i18n: {
@@ -36,7 +36,7 @@ const englishBlog = getRelativeLocaleUrl("en", "blog");
 
 Sur un article, il pointe vers le fichier miroir de même basename. Si la traduction n’existe pas, il revient à l’index de la locale cible plutôt que de générer un lien mort.
 
-Le clic enregistre `lisible-locale`, puis `ClientRouter` effectue la transition sans rechargement complet. À chaque première visite, Lisible applique le choix explicite s’il existe ; sinon il sélectionne la première langue FR/EN reconnue du navigateur et utilise l’anglais en dernier recours. La 404 applique le même ordre directement dans son contenu, sans redirection supplémentaire. Le `defaultLocale: "fr"` d’Astro décrit uniquement la forme des URLs sans préfixe ; il ne remplace pas ce fallback lecteur.
+Le clic enregistre `lisible-locale`, puis `ClientRouter` effectue la transition sans rechargement complet. Sur les pages documentaires, l’URL demandée reste la source de vérité. La landing `/` sert l’anglais par défaut, puis applique le français directement dans le même document avant son affichage si le choix enregistré ou la première langue FR/EN du navigateur vaut `fr` : aucune navigation, aucun rechargement et aucun flash de l’anglais. La 404 utilise le même choix directement dans son contenu. Le `defaultLocale: "fr"` d’Astro décrit la forme des URLs documentaires sans préfixe.
 
 ## Hreflang et langue du document
 

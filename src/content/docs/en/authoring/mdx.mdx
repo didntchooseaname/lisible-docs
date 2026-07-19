@@ -11,84 +11,251 @@ import { Tabs, Tab } from "@/components/ui/tabs";
 import { Steps, Step } from "@/components/ui/steps";
 import Spoiler from "@/components/Spoiler.astro";
 
-MDX is Lisible’s default article format and the format of every page in this documentation. It keeps Markdown and lets prose import components. Reserve interactions for cases that genuinely improve understanding; a paragraph or table remains preferable for static information.
+MDX is Lisible’s default article format. It keeps all syntax presented in [Extended Markdown](/en/docs/authoring/markdown/) and allows components inside prose. Every reference below shows complete copyable code, followed immediately by its actual rendering.
+
+## Imports
+
+React and Astro components must be imported after frontmatter and before the first content. An import adds no browser JavaScript until its component is used. The `github` and `drawio` Markdown directives are provided by the processing pipeline and require no import.
+
+**Code**
+
+```mdx
+---
+title: "My interactive post"
+description: "An example using Lisible MDX components."
+pubDate: 2026-07-19
+---
+
+import { Tabs, Tab } from "@/components/ui/tabs";
+import { Steps, Step } from "@/components/ui/steps";
+import Spoiler from "@/components/Spoiler.astro";
+```
+
+**Rendered output**
+
+Imports produce no visible element. They simply make `Tabs`, `Tab`, `Steps`, `Step` and `Spoiler` available to the examples that follow.
 
 ## Tabs
 
-<Tabs tabs={["bun", "npm", "pnpm"]} label="Package manager" client:load>
-<Tab>
+`Tabs` groups alternative content without making the page longer. Use it for equivalent commands, configuration variants or examples in several languages. Each item in `tabs` maps to one `Tab` component in the same order.
 
-```bash
-bun install
-bun run dev
-```
+| Property | Type | Required | Purpose |
+| --- | --- | :---: | --- |
+| `tabs` | `string[]` | yes | tab labels and order |
+| `label` | `string` | recommended | accessible name for the group |
+| `defaultTab` | `string` | no | tab selected on initial load |
+| `className` | `string` | no | extra classes on the container |
+| `client:load` | Astro directive | yes here | enables clicks and keyboard navigation immediately |
 
-</Tab>
-<Tab>
+`Tab` accepts MDX content and an optional `className` property. Keep the number of `Tab` children equal to the number of labels: panels are matched by position.
 
-```bash
-npm install
-npm run dev
-```
+**Code**
 
-</Tab>
-<Tab>
+~~~mdx
+import { Tabs, Tab } from "@/components/ui/tabs";
 
-```bash
-pnpm install
-pnpm dev
-```
+<Tabs
+  tabs={["bun", "npm", "pnpm"]}
+  label="Package manager"
+  defaultTab="npm"
+  client:load
+>
+  <Tab>
 
-</Tab>
+  ```bash
+  bun install
+  bun run dev
+  ```
+
+  </Tab>
+  <Tab>
+
+  ```bash
+  npm install
+  npm run dev
+  ```
+
+  </Tab>
+  <Tab>
+
+  ```bash
+  pnpm install
+  pnpm dev
+  ```
+
+  </Tab>
+</Tabs>
+~~~
+
+**Rendered output**
+
+<Tabs
+  tabs={["bun", "npm", "pnpm"]}
+  label="Package manager"
+  defaultTab="npm"
+  client:load
+>
+  <Tab>
+
+  ```bash
+  bun install
+  bun run dev
+  ```
+
+  </Tab>
+  <Tab>
+
+  ```bash
+  npm install
+  npm run dev
+  ```
+
+  </Tab>
+  <Tab>
+
+  ```bash
+  pnpm install
+  pnpm dev
+  ```
+
+  </Tab>
 </Tabs>
 
-The component exposes a real `tablist`, supports arrow keys, <kbd>Home</kbd> and <kbd>End</kbd>, and loads React only on pages that use it.
+The component exposes `tablist`, `tab` and `tabpanel` roles. Left and right arrow keys switch tabs, while <kbd>Home</kbd> and <kbd>End</kbd> reach the first and last. The `label` should therefore describe the available choice instead of repeating “tabs”.
 
 ## Steps
 
+`Steps` presents an ordered procedure with visual numbering and connectors. Each `Step` represents one coherent action; its title should begin with a verb, and its body can contain paragraphs, lists, links or code blocks.
+
+| Component | Property | Type | Required | Purpose |
+| --- | --- | --- | :---: | --- |
+| `Steps` | `ol` attributes | HTML attributes | no | customize the ordered list |
+| `Step` | `title` | `string` | yes | visible step heading |
+| `Step` | `li` attributes | HTML attributes | no | identifier, classes or additional data |
+
+This component has no interactive state: do not add a `client:*` directive. It renders as static HTML.
+
+**Code**
+
+~~~mdx
+import { Steps, Step } from "@/components/ui/steps";
+
 <Steps>
-<Step title="Create the bilingual pair">
+  <Step title="Create the bilingual pair">
 
-Run `bun run new-post guide --translate`: both generated files use `.mdx`.
+  Run `bun run new-post guide --translate` to create both `.mdx` files.
 
-</Step>
-<Step title="Import components">
+  </Step>
+  <Step title="Import the components">
 
-Place imports after frontmatter and before the first paragraph.
+  Put imports after frontmatter and before the first paragraph.
 
-</Step>
-<Step title="Validate">
+  </Step>
+  <Step title="Validate the result">
 
-Test keyboard use, light and dark themes, then the static build.
+  - test keyboard use;
+  - check light and dark themes;
+  - run the static build.
 
-</Step>
+  </Step>
+</Steps>
+~~~
+
+**Rendered output**
+
+<Steps>
+  <Step title="Create the bilingual pair">
+
+  Run `bun run new-post guide --translate` to create both `.mdx` files.
+
+  </Step>
+  <Step title="Import the components">
+
+  Put imports after frontmatter and before the first paragraph.
+
+  </Step>
+  <Step title="Validate the result">
+
+  - test keyboard use;
+  - check light and dark themes;
+  - run the static build.
+
+  </Step>
 </Steps>
 
 ## Spoiler
 
-The component hides an answer until explicit activation: <Spoiler>the content remains in HTML and must therefore stay non-sensitive.</Spoiler>
+`Spoiler` blurs a short answer until a click or activation with <kbd>Enter</kbd> or <kbd>Space</kbd>. It accepts only its child content and needs no hydration directive because its behavior is owned by the Astro component.
+
+**Code**
+
+```mdx
+import Spoiler from "@/components/Spoiler.astro";
+
+The answer is <Spoiler>islands architecture</Spoiler>.
+```
+
+**Rendered output**
+
+The answer is <Spoiler>islands architecture</Spoiler>.
 
 :::warning[Not for secrets]
-A spoiler is a presentation effect, not access control. Never put a key, private answer or confidential data inside it.
+Spoiler content is present in plain text in the HTML. This component is a presentation effect, not access control: never put a key, private answer or confidential data inside it.
 :::
 
 ## GitHub card
 
-The following directive creates a functional card for this documentation’s production repository.
+The `github` directive turns an `owner/repository` identifier into a clickable card. The link works immediately, then a client-side script enriches the card with the available description, language, stars and forks. No MDX import is required.
+
+| Attribute | Format | Required | Purpose |
+| --- | --- | :---: | --- |
+| `repo` | `owner/repository` | yes | GitHub repository to display and link destination |
+
+**Code**
+
+```markdown
+::github{repo="didntchooseaname/lisible-docs"}
+```
+
+**Rendered output**
 
 ::github{repo="didntchooseaname/lisible-docs"}
 
+Use a single card when the repository is the primary destination. For a reference list, plain links remain faster to scan.
+
 ## draw.io diagram
 
-The directive accepts an exported SVG and keeps its nested image as a static fallback. The viewer adds zoom, panning and immediate theme adaptation.
+The `drawio` directive loads an SVG export created with draw.io into a viewer with zoom, pan and reset controls. The Markdown image nested inside the directive acts as a fallback if loading or script execution fails.
+
+| Attribute | Type | Required | Purpose |
+| --- | --- | :---: | --- |
+| `src` | public path to an SVG | yes | exported draw.io file to load |
+| `title` | `string` | recommended | accessible diagram name |
+
+The fallback image’s alternative text must describe the information in the diagram. It should not stop at “diagram” or repeat the filename.
+
+**Code**
+
+```markdown
+:::drawio{src="/images/demo-ilots.svg" title="Islands pipeline"}
+![Pipeline showing content flowing into the six Astro variants](/images/demo-ilots.svg)
+:::
+```
+
+**Rendered output**
 
 :::drawio{src="/images/demo-ilots.svg" title="Islands pipeline"}
-![Fallback for the draw.io diagram showing the Astro islands pipeline](/images/demo-ilots.svg)
+![Pipeline showing content flowing into the six Astro variants](/images/demo-ilots.svg)
 :::
 
-## Hydration rules
+## Choosing hydration
 
-- `client:load` for an immediately necessary interaction;
-- `client:idle` for a non-critical enhancement;
-- `client:visible` for a component far below the fold;
-- no client directive for a static Astro component.
+A `client:*` directive belongs only on a framework component that needs browser JavaScript. Astro components such as `Spoiler` own their scripts, while purely static components such as `Steps` need no hydration.
+
+| Directive | Activation time | Use |
+| --- | --- | --- |
+| `client:load` | on page load | immediately necessary interaction such as `Tabs` |
+| `client:idle` | when the browser becomes available | non-critical enhancement |
+| `client:visible` | near the visible area | interactive component far below the fold |
+
+When unsure, start without a directive: add one only when the framework component contains state, an event or a browser API that must run on the client.

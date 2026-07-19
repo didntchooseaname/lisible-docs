@@ -6,7 +6,7 @@ order: 1
 draft: false
 ---
 
-Lisible uses Astro’s native i18n routing: French is served without a prefix and English under `/en/`.[^astro-i18n]
+Lisible uses Astro’s native i18n routing: French documentation routes have no prefix and English routes live under `/en/`.[^astro-i18n] The `/` landing is the exception: its default HTML is English.
 
 ```ts title="astro.config.ts"
 i18n: {
@@ -36,7 +36,7 @@ const englishBlog = getRelativeLocaleUrl("en", "blog");
 
 On a post, it points to the mirrored file with the same basename. When no translation exists, it falls back to the target locale index instead of creating a dead link.
 
-A click stores `lisible-locale`, then `ClientRouter` performs the transition without a full reload. On every first visit, Lisible applies the explicit choice when present; otherwise it selects the first recognized FR/EN browser language and uses English as the final fallback. The 404 applies the same order directly to its content without another redirect. Astro’s `defaultLocale: "fr"` only describes the shape of unprefixed URLs; it does not replace this reader fallback.
+A click stores `lisible-locale`, then `ClientRouter` performs the transition without a full reload. Documentation pages keep the requested URL as their source of truth. The `/` landing serves English by default, then applies French inside the same document before it becomes visible when either the stored choice or the browser’s first recognized FR/EN language is `fr`: there is no navigation, reload or English flash. The 404 applies the same choice directly to its content. Astro’s `defaultLocale: "fr"` describes the shape of unprefixed documentation URLs.
 
 ## Hreflang and document language
 

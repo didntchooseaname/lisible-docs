@@ -8,7 +8,9 @@ interface Props {
 }
 
 const { headings, locale } = Astro.props;
-const items = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const items = headings.filter(
+  (heading) => (heading.depth === 2 || heading.depth === 3) && heading.slug !== "footnote-label",
+);
 ---
 
 {

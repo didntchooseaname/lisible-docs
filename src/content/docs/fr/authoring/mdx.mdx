@@ -11,84 +11,251 @@ import { Tabs, Tab } from "@/components/ui/tabs";
 import { Steps, Step } from "@/components/ui/steps";
 import Spoiler from "@/components/Spoiler.astro";
 
-MDX est le format d’article par défaut de Lisible et le format de toutes les pages de cette documentation. Il conserve Markdown et permet d’importer des composants dans la prose. Réservez les interactions aux cas qui améliorent réellement la compréhension ; un paragraphe ou un tableau restent préférables pour une information statique.
+MDX est le format d’article par défaut de Lisible. Il conserve toute la syntaxe présentée dans [Markdown enrichi](/docs/authoring/markdown/) et permet d’insérer des composants dans la prose. Chaque fiche ci-dessous montre le code complet à copier, puis son rendu réel immédiatement en dessous.
+
+## Imports
+
+Les composants React et Astro doivent être importés après le frontmatter, avant le premier contenu. Un import n’ajoute aucun JavaScript au navigateur tant que le composant n’est pas utilisé. Les directives Markdown `github` et `drawio` sont fournies par le pipeline et ne nécessitent pas d’import.
+
+**Code**
+
+```mdx
+---
+title: "Mon article interactif"
+description: "Un exemple avec les composants MDX de Lisible."
+pubDate: 2026-07-19
+---
+
+import { Tabs, Tab } from "@/components/ui/tabs";
+import { Steps, Step } from "@/components/ui/steps";
+import Spoiler from "@/components/Spoiler.astro";
+```
+
+**Rendu**
+
+Les imports ne produisent aucun élément visible. Ils rendent simplement `Tabs`, `Tab`, `Steps`, `Step` et `Spoiler` disponibles pour les exemples placés après eux.
 
 ## Onglets
 
-<Tabs tabs={["bun", "npm", "pnpm"]} label="Gestionnaire de paquets" client:load>
-<Tab>
+`Tabs` regroupe plusieurs contenus alternatifs sans allonger la page. Utilisez-le pour des commandes équivalentes, des variantes de configuration ou des exemples dans plusieurs langages. Chaque libellé de `tabs` correspond à un composant `Tab`, dans le même ordre.
 
-```bash
-bun install
-bun run dev
-```
+| Propriété | Type | Obligatoire | Rôle |
+| --- | --- | :---: | --- |
+| `tabs` | `string[]` | oui | libellés et ordre des onglets |
+| `label` | `string` | recommandé | nom accessible du groupe |
+| `defaultTab` | `string` | non | onglet sélectionné au chargement |
+| `className` | `string` | non | classes supplémentaires sur le conteneur |
+| `client:load` | directive Astro | oui ici | active le clic et la navigation clavier dès le chargement |
 
-</Tab>
-<Tab>
+`Tab` accepte le contenu MDX et une propriété `className` facultative. Conservez autant de `Tab` que de libellés : le composant associe les panneaux par leur position.
 
-```bash
-npm install
-npm run dev
-```
+**Code**
 
-</Tab>
-<Tab>
+~~~mdx
+import { Tabs, Tab } from "@/components/ui/tabs";
 
-```bash
-pnpm install
-pnpm dev
-```
+<Tabs
+  tabs={["bun", "npm", "pnpm"]}
+  label="Gestionnaire de paquets"
+  defaultTab="npm"
+  client:load
+>
+  <Tab>
 
-</Tab>
+  ```bash
+  bun install
+  bun run dev
+  ```
+
+  </Tab>
+  <Tab>
+
+  ```bash
+  npm install
+  npm run dev
+  ```
+
+  </Tab>
+  <Tab>
+
+  ```bash
+  pnpm install
+  pnpm dev
+  ```
+
+  </Tab>
+</Tabs>
+~~~
+
+**Rendu**
+
+<Tabs
+  tabs={["bun", "npm", "pnpm"]}
+  label="Gestionnaire de paquets"
+  defaultTab="npm"
+  client:load
+>
+  <Tab>
+
+  ```bash
+  bun install
+  bun run dev
+  ```
+
+  </Tab>
+  <Tab>
+
+  ```bash
+  npm install
+  npm run dev
+  ```
+
+  </Tab>
+  <Tab>
+
+  ```bash
+  pnpm install
+  pnpm dev
+  ```
+
+  </Tab>
 </Tabs>
 
-Le composant expose un vrai `tablist`, supporte les flèches, <kbd>Home</kbd> et <kbd>End</kbd>, et ne charge React que sur les pages qui l’utilisent.
+Le composant expose les rôles `tablist`, `tab` et `tabpanel`. Les flèches gauche et droite changent d’onglet, tandis que <kbd>Home</kbd> et <kbd>End</kbd> atteignent le premier et le dernier. Le `label` doit donc décrire le choix proposé, pas répéter « onglets ».
 
 ## Étapes
 
+`Steps` présente une procédure ordonnée avec une numérotation et un connecteur visuels. Chaque `Step` représente une action cohérente ; son titre doit commencer par un verbe et son corps peut contenir des paragraphes, listes, liens ou blocs de code.
+
+| Composant | Propriété | Type | Obligatoire | Rôle |
+| --- | --- | --- | :---: | --- |
+| `Steps` | attributs de `ol` | attributs HTML | non | personnalisation de la liste ordonnée |
+| `Step` | `title` | `string` | oui | titre visible de l’étape |
+| `Step` | attributs de `li` | attributs HTML | non | identifiant, classes ou données complémentaires |
+
+Ce composant n’a pas d’état interactif : ne lui ajoutez pas de directive `client:*`. Il est rendu en HTML statique.
+
+**Code**
+
+~~~mdx
+import { Steps, Step } from "@/components/ui/steps";
+
 <Steps>
-<Step title="Créer le miroir bilingue">
+  <Step title="Créer le miroir bilingue">
 
-Lancez `bun run new-post guide --translate` : les deux fichiers créés sont des `.mdx`.
+  Lancez `bun run new-post guide --translate` pour créer les deux fichiers `.mdx`.
 
-</Step>
-<Step title="Importer les composants">
+  </Step>
+  <Step title="Importer les composants">
 
-Placez les imports après le frontmatter, avant le premier paragraphe.
+  Placez les imports après le frontmatter, avant le premier paragraphe.
 
-</Step>
-<Step title="Valider">
+  </Step>
+  <Step title="Valider le résultat">
 
-Testez le clavier, le thème clair et sombre, puis le build statique.
+  - testez le clavier ;
+  - vérifiez les thèmes clair et sombre ;
+  - exécutez le build statique.
 
-</Step>
+  </Step>
+</Steps>
+~~~
+
+**Rendu**
+
+<Steps>
+  <Step title="Créer le miroir bilingue">
+
+  Lancez `bun run new-post guide --translate` pour créer les deux fichiers `.mdx`.
+
+  </Step>
+  <Step title="Importer les composants">
+
+  Placez les imports après le frontmatter, avant le premier paragraphe.
+
+  </Step>
+  <Step title="Valider le résultat">
+
+  - testez le clavier ;
+  - vérifiez les thèmes clair et sombre ;
+  - exécutez le build statique.
+
+  </Step>
 </Steps>
 
 ## Spoiler
 
-Le composant masque une réponse jusqu’à une activation explicite : <Spoiler>le contenu reste présent dans le HTML et doit donc rester non sensible.</Spoiler>
+`Spoiler` floute une réponse courte jusqu’au clic ou à l’activation avec <kbd>Entrée</kbd> ou <kbd>Espace</kbd>. Il accepte uniquement son contenu enfant et fonctionne sans directive d’hydratation, car son comportement est porté par le composant Astro.
+
+**Code**
+
+```mdx
+import Spoiler from "@/components/Spoiler.astro";
+
+La réponse est <Spoiler>l’architecture en îlots</Spoiler>.
+```
+
+**Rendu**
+
+La réponse est <Spoiler>l’architecture en îlots</Spoiler>.
 
 :::warning[Pas pour des secrets]
-Un spoiler est un effet de présentation, pas un contrôle d’accès. N’y placez jamais une clé, une réponse privée ou une donnée confidentielle.
+Le contenu du spoiler est présent en clair dans le HTML. Ce composant crée un effet de présentation, pas un contrôle d’accès : n’y placez jamais une clé, une réponse privée ou une donnée confidentielle.
 :::
 
 ## Carte GitHub
 
-La directive suivante produit une carte fonctionnelle vers le dépôt de production de cette documentation.
+La directive `github` transforme un identifiant `propriétaire/dépôt` en carte cliquable. Le lien fonctionne immédiatement, puis le script côté client enrichit la carte avec la description, le langage, les étoiles et les forks disponibles. Aucun import MDX n’est nécessaire.
+
+| Attribut | Format | Obligatoire | Rôle |
+| --- | --- | :---: | --- |
+| `repo` | `propriétaire/dépôt` | oui | dépôt GitHub à afficher et destination du lien |
+
+**Code**
+
+```markdown
+::github{repo="didntchooseaname/lisible-docs"}
+```
+
+**Rendu**
 
 ::github{repo="didntchooseaname/lisible-docs"}
 
+Utilisez une seule carte lorsque le dépôt est la destination principale. Pour une liste de références, de simples liens restent plus rapides à parcourir.
+
 ## Diagramme draw.io
 
-La directive accepte un export SVG et conserve l’image interne comme repli statique. La visionneuse ajoute le zoom, le déplacement et une adaptation immédiate au thème.
+La directive `drawio` charge un export SVG créé avec draw.io dans une visionneuse dotée du zoom, du déplacement et de la réinitialisation. L’image Markdown placée dans la directive sert de repli si le chargement ou l’exécution du script échoue.
+
+| Attribut | Type | Obligatoire | Rôle |
+| --- | --- | :---: | --- |
+| `src` | chemin public vers un SVG | oui | fichier draw.io exporté à charger |
+| `title` | `string` | recommandé | nom accessible du diagramme |
+
+Le texte alternatif de l’image de repli doit décrire l’information du diagramme. Il ne doit pas se limiter à « diagramme » ou répéter le nom du fichier.
+
+**Code**
+
+```markdown
+:::drawio{src="/images/demo-ilots.svg" title="Pipeline en îlots"}
+![Pipeline montrant le passage du contenu aux six variantes Astro](/images/demo-ilots.svg)
+:::
+```
+
+**Rendu**
 
 :::drawio{src="/images/demo-ilots.svg" title="Pipeline en îlots"}
-![Repli du diagramme draw.io montrant le pipeline des îlots Astro](/images/demo-ilots.svg)
+![Pipeline montrant le passage du contenu aux six variantes Astro](/images/demo-ilots.svg)
 :::
 
-## Règles d’hydratation
+## Choisir l’hydratation
 
-- `client:load` pour une interaction immédiatement nécessaire ;
-- `client:idle` pour une amélioration non critique ;
-- `client:visible` pour un composant éloigné sous la ligne de flottaison ;
-- aucun directive client pour un composant Astro statique.
+Une directive `client:*` ne se place que sur un composant de framework qui a besoin de JavaScript dans le navigateur. Les composants Astro comme `Spoiler` gèrent leurs scripts eux-mêmes, et les composants purement statiques comme `Steps` n’ont pas besoin d’hydratation.
+
+| Directive | Moment d’activation | Usage |
+| --- | --- | --- |
+| `client:load` | dès le chargement | interaction immédiatement nécessaire, comme `Tabs` |
+| `client:idle` | lorsque le navigateur devient disponible | amélioration non critique |
+| `client:visible` | à l’approche de la zone visible | composant interactif éloigné sous la ligne de flottaison |
+
+Dans le doute, partez sans directive : ajoutez-en une uniquement lorsque le composant de framework contient un état, un événement ou une API navigateur qui doit fonctionner côté client.

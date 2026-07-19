@@ -16,7 +16,14 @@ const dict = t(locale);
 
 <header class="docs-header">
   <div class="docs-header-inner">
-    <button type="button" class="docs-icon-button lg:hidden" data-docs-nav-open aria-label={dict.sidebar.open}>
+    <button
+      type="button"
+      class="docs-icon-button docs-nav-trigger"
+      data-docs-nav-open
+      aria-label={dict.sidebar.open}
+      aria-controls="docs-sidebar"
+      aria-expanded="false"
+    >
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <path d="M4 6h16M4 12h16M4 18h16" />
       </svg>

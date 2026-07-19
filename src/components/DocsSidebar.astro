@@ -14,11 +14,11 @@ const { locale, docs, currentId } = Astro.props;
 const dict = t(locale);
 ---
 
-<div class="docs-sidebar-backdrop" data-docs-nav-close></div>
-<aside class="docs-sidebar" aria-label={dict.sidebar.title}>
+<div class="docs-sidebar-backdrop" data-docs-nav-close aria-hidden="true"></div>
+<aside id="docs-sidebar" class="docs-sidebar" aria-label={dict.sidebar.title}>
   <div class="docs-sidebar-head">
     <span>{dict.sidebar.title}</span>
-    <button type="button" class="docs-icon-button lg:hidden" data-docs-nav-close aria-label={dict.sidebar.close}>
+    <button type="button" class="docs-icon-button" data-docs-nav-close aria-label={dict.sidebar.close}>
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <path d="M18 6 6 18M6 6l12 12" />
       </svg>
@@ -50,21 +50,57 @@ const dict = t(locale);
 </aside>
 
 <script>
-  function setDocsNav(open: boolean) {
-    document.documentElement.classList.toggle("docs-nav-open", open);
-    document.body.style.overflow = open ? "hidden" : "";
+  const phoneViewport = window.matchMedia("(max-width: 47.999rem)");
+
+  function setDocsNav(open: boolean, restoreFocus = false) {
+    const trigger = document.querySelector<HTMLButtonElement>("[data-docs-nav-open]");
+    const sidebar = document.querySelector<HTMLElement>("#docs-sidebar");
+    const shouldOpen = open && phoneViewport.matches;
+
+    document.documentElement.classList.toggle("docs-nav-open", shouldOpen);
+    document.body.style.overflow = shouldOpen ? "hidden" : "";
+    trigger?.setAttribute("aria-expanded", String(shouldOpen));
+
+    if (shouldOpen) {
+      requestAnimationFrame(() =>
+        sidebar?.querySelector<HTMLButtonElement>("[data-docs-nav-close]")?.focus(),
+      );
+    } else if (restoreFocus) {
+      trigger?.focus();
+    }
   }
 
   document.addEventListener("click", (event) => {
     const target = event.target as HTMLElement | null;
     if (target?.closest("[data-docs-nav-open]")) setDocsNav(true);
-    if (target?.closest("[data-docs-nav-close]")) setDocsNav(false);
-    if (target?.closest(".docs-sidebar a")) setDocsNav(false);
+    if (target?.closest("[data-docs-nav-close]")) setDocsNav(false, true);
+    if (target?.closest("#docs-sidebar a")) setDocsNav(false);
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") setDocsNav(false);
+    if (event.key === "Escape" && document.documentElement.classList.contains("docs-nav-open")) {
+      setDocsNav(false, true);
+      return;
+    }
+
+    if (event.key !== "Tab" || !document.documentElement.classList.contains("docs-nav-open")) return;
+    const sidebar = document.querySelector<HTMLElement>("#docs-sidebar");
+    const focusable = Array.from(
+      sidebar?.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? [],
+    );
+    const first = focusable[0];
+    const last = focusable.at(-1);
+    if (!first || !last) return;
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   });
 
+  phoneViewport.addEventListener("change", () => setDocsNav(false));
+  document.addEventListener("astro:page-load", () => setDocsNav(false));
   document.addEventListener("astro:before-swap", () => setDocsNav(false));
 </script>
