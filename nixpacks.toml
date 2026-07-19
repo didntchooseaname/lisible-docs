@@ -1,0 +1,22 @@
+providers = ["node"]
+
+[variables]
+CI = "true"
+NODE_ENV = "production"
+NIXPACKS_NODE_VERSION = "22"
+NIXPACKS_SPA_CADDY = "false"
+STATIC_ROOT = "dist"
+
+[phases.install]
+dependsOn = ["setup"]
+cmds = ["bun install --frozen-lockfile"]
+cacheDirectories = ["/root/.bun/install/cache"]
+paths = ["/app/node_modules/.bin"]
+
+[phases.build]
+dependsOn = ["install"]
+cmds = ["bun run check:all"]
+cacheDirectories = ["node_modules/.astro"]
+
+[start]
+cmd = "bun run start"
