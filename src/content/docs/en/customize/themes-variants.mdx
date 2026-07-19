@@ -1,0 +1,66 @@
+---
+title: "Themes and variants"
+description: "Choose a variant, customize tokens and preserve the shared functional contract."
+category: customize
+order: 0
+draft: false
+---
+
+A variant is a complete skin over the same data model. It can change composition, animation and components, but must not silently remove a shared capability.
+
+## The six experiences
+
+| Variant | Direction |
+| --- | --- |
+| `motion-primitives` | Swiss minimalism and micro-interactions |
+| `cult-ui` | editorial textures and gradients |
+| `aceternity` | spotlight, bento and tracing beam |
+| `reactbits` | dense animated components |
+| `organique` | fluid shapes and draggable constellation graph |
+| `h4x0r` | immersive terminal HUD |
+
+Run `bun run preview:all` to compare them with the same posts and settings.
+
+In `organique`, hold a constellation node to move it. Tag-derived links follow its position live; the active node, its neighbours and unrelated relationships receive distinct visual states. The pointer aura and graph use the current accent and react to light or dark mode.
+
+## CSS tokens
+
+The theme uses semantic variables:
+
+```css
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --accent: oklch(0.527 0.154 150.1);
+  --border: oklch(0.922 0 0);
+}
+
+.dark {
+  --background: oklch(0 0 0);
+  --foreground: oklch(0.985 0 0);
+}
+```
+
+Change roles, not occurrences. A component uses `var(--color-muted-foreground)`, never an arbitrary gray.
+
+## Reader accent
+
+The accent picker stores a color in `localStorage` and checks its contrast in light and dark modes. `SITE.accent` remains the initial fallback.
+
+## Variant contract
+
+- identical routes and frontmatter;
+- complete French and English dictionaries;
+- visible focus and keyboard access;
+- respect for `prefers-reduced-motion`;
+- reinitialization on `astro:page-load`;
+- identical feature-flag behavior.
+
+:::important[Change once]
+A content, schema or route improvement belongs in the shared core. A purely visual animation or component belongs in the variant. [Architecture](/en/docs/discover/architecture/) details that boundary.
+:::
+
+## References
+
+- [Styles and CSS in Astro](https://docs.astro.build/en/guides/styling/)
+- [Tailwind with Astro](https://docs.astro.build/en/guides/styling/#tailwind)

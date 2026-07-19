@@ -1,0 +1,56 @@
+---
+title: "Commands"
+description: "Quick reference for development, publishing, comparison and quality scripts."
+category: start
+order: 2
+draft: false
+---
+
+Run every command from the repository root. Proxy scripts forward the action to the active variant.
+
+## Daily cycle
+
+| Command | Purpose |
+| --- | --- |
+| `bun run init` | guided configuration and installation |
+| `bun run dev` | Astro server for the active variant |
+| `bun run build` | static generation into `dist/` |
+| `bun run preview` | local preview of the latest build |
+| `bun run variant` | print the active variant |
+
+## Compare variants
+
+```bash
+bun run preview:all
+```
+
+The command prepares all six variants, then serves them on ports `4321` through `4326`. It is designed as a complete workflow, not a thin wrapper around stale builds.
+
+## Create a post
+
+```bash
+bun run new-post mon-premier-article
+bun run new-post my-first-post --locale en
+bun run new-post paired-post --translate
+bun run new-post plain-markdown --markdown
+```
+
+The scaffolder refuses to overwrite an existing file and creates a valid `.mdx` draft by default. `--markdown` is the explicit opt-in for a `.md` file.
+
+Generated fields are documented in [Content model](/en/docs/authoring/content/) and the [Complete reference](/en/docs/reference/configuration/).
+
+## Quality
+
+```bash
+bun run check-links
+bun run check-assets
+bun run check:all
+```
+
+:::tip[CI]
+Use `bun run check:all` as a blocking step before deployment. Keep `dev` for iteration and `preview` for validating the static result.
+:::
+
+## Dependency management
+
+Run `bun install` inside a variant only when working directly in that package. The normal root workflow installs missing dependencies automatically.

@@ -1,0 +1,57 @@
+---
+title: "Dépannage"
+description: "Diagnostiquer les erreurs de build, Pagefind, contenu, i18n, Mermaid, images et navigation client."
+category: operate
+order: 2
+draft: false
+---
+
+Commencez toujours par reproduire le problème sur la commande propriétaire : `dev` pour un incident d’édition, `build` pour une route statique, `preview` pour le résultat final.
+
+## Pagefind échoue en développement
+
+**Symptôme :** Vite ne résout pas `/pagefind/pagefind.js`.
+
+**Cause :** Pagefind produit son module après le build, alors que l’import existe aussi dans le composant de recherche.
+
+**Solution :** conservez le plugin Vite `pagefindDev()` en mode `serve`. Il fournit un module virtuel sans toucher à l’index de production.
+
+## Une page n’est pas générée
+
+1. Vérifiez `draft`.
+2. Vérifiez la locale dérivée de l’ID.
+3. Validez le frontmatter contre le schéma.
+4. Inspectez `getStaticPaths()` et les flags qui peuvent retourner `[]`.
+5. Relancez un build sans vous fier à un ancien `dist/`.
+
+## La traduction pointe au mauvais endroit
+
+Les deux fichiers doivent partager le même basename. Utilisez les helpers `localeUrl` et `astro:i18n`, puis vérifiez les alternates dans le HTML construit. Voir [Internationalisation](/docs/customize/i18n/).
+
+## Mermaid affiche le code source
+
+- la fence doit être exactement `mermaid` ;
+- `remarkMermaid` doit s’exécuter dans le pipeline ;
+- Expressive Code ne doit pas capturer le bloc ;
+- le script client doit être réinitialisé sur `astro:page-load` ;
+- inspectez la console pour une erreur de syntaxe du diagramme.
+
+## Une interaction fonctionne seulement à la première page
+
+Avec `ClientRouter`, un script de module est évalué une fois. Enregistrez une fonction idempotente sur `astro:page-load`, nettoyez les observateurs précédents et utilisez la délégation d’événements pour éviter les doublons.
+
+## Les images cassent après clonage
+
+Vérifiez les liens symboliques partagés et leur destination. Pour un export, préservez les symlinks ou utilisez une copie qui les déréférence consciemment. Ne copiez pas seulement une variante en oubliant `shared/public` et `shared/content/public-images`.
+
+## Le build bloque sur une intégration
+
+Une configuration de commentaires ou webmentions partielle est considérée comme une erreur. Renseignez toutes les valeurs requises ou désactivez le flag. [Partage, commentaires et webmentions](/docs/features/integrations/) liste les champs.
+
+:::note[Diagnostic minimal]
+Joignez toujours la commande exacte, le premier message d’erreur, la variante active et la route concernée. Le dernier message de la stack est rarement la cause initiale.
+:::
+
+## Réinitialisation sûre
+
+Ne supprimez jamais le dépôt entier. Les dossiers reconstructibles sont `dist/`, `.astro/` et, si nécessaire, `node_modules/` de la variante. Conservez les contenus, configurations et fichiers non suivis de l’utilisateur.

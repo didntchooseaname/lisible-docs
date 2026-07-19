@@ -1,0 +1,148 @@
+---
+import appCssUrl from "@/styles/app.css?url";
+import "katex/dist/katex.min.css";
+import { ClientRouter } from "astro:transitions";
+import type { MarkdownHeading } from "astro";
+import type { DocEntry } from "@/lib/docs";
+import { adjacentDocs, docLocale, docSlug } from "@/lib/docs";
+import { CATEGORY_LABELS } from "@/config/docs";
+import DocsHeader from "@/components/DocsHeader.astro";
+import DocsSidebar from "@/components/DocsSidebar.astro";
+import DocsToc from "@/components/DocsToc.astro";
+import DocsPager from "@/components/DocsPager.astro";
+import DocsFooter from "@/components/DocsFooter.astro";
+import DocsSearch from "@/components/DocsSearch.astro";
+import ImageLightbox from "@/components/ImageLightbox.astro";
+import CursorAura from "@/components/CursorAura.astro";
+import { ensureTrailingSlash } from "@/lib/utils";
+import { ogLocales, otherLocale, t, type Locale } from "@/i18n/ui";
+import { SITE } from "@/site.config";
+
+interface Props {
+  doc: DocEntry;
+  docs: DocEntry[];
+  headings: MarkdownHeading[];
+  alternates: Partial<Record<Locale, string>>;
+}
+
+const { doc, docs, headings, alternates } = Astro.props;
+const locale = docLocale(doc);
+const dict = t(locale);
+const adjacent = adjacentDocs(docs, doc);
+const canonicalUrl = new URL(ensureTrailingSlash(Astro.url.pathname), SITE.url);
+const pageTitle = `${doc.data.title} | ${SITE.product}`;
+const alternateLocale = otherLocale(locale);
+const editUrl = SITE.docsRepo
+  ? `${SITE.docsRepo}/edit/main/src/content/docs/${locale}/${docSlug(doc)}.mdx`
+  : null;
+---
+
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href={appCssUrl} />
+    <script is:inline define:vars={{ siteAccent: SITE.accent }}>
+      (function () {
+        function applyTheme() {
+          const stored = localStorage.getItem("theme");
+          const dark = stored ? stored === "dark" : !window.matchMedia("(prefers-color-scheme: light)").matches;
+          document.documentElement.classList.toggle("dark", dark);
+        }
+        function luminance(rgb) {
+          const channels = rgb.map(function (value) {
+            value /= 255;
+            return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+          });
+          return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+        }
+        function contrast(a, b) {
+          return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+        }
+        function applyAccent() {
+          const stored = localStorage.getItem("accent");
+          const hex = stored && /^#[0-9a-f]{6}$/i.test(stored) ? stored : siteAccent;
+          const value = parseInt(hex.slice(1), 16);
+          let rgb = [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+          const dark = document.documentElement.classList.contains("dark");
+          for (let i = 0; i < 60; i++) {
+            if (dark ? contrast(luminance(rgb), 0) >= 3 : contrast(luminance(rgb), 1) >= 4.5) break;
+            rgb = rgb.map(function (channel) {
+              return dark
+                ? Math.min(255, Math.round(channel + (255 - channel) * 0.06) + 1)
+                : Math.max(0, Math.round(channel * 0.94) - 1);
+            });
+          }
+          const foreground = contrast(luminance(rgb), 0) >= 4.5 ? "#000000" : "#ffffff";
+          const accent = "rgb(" + rgb.join(" ") + ")";
+          document.documentElement.style.setProperty("--accent", accent);
+          document.documentElement.style.setProperty("--accent-foreground", foreground);
+          document.documentElement.style.setProperty("--ring", accent);
+        }
+        window.__applyAccent = applyAccent;
+        applyTheme();
+        applyAccent();
+        document.addEventListener("astro:after-swap", function () { applyTheme(); applyAccent(); });
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{pageTitle}</title>
+    <meta name="description" content={doc.data.description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    {alternates.fr && <link rel="alternate" hreflang="fr" href={new URL(alternates.fr, SITE.url)} />}
+    {alternates.en && <link rel="alternate" hreflang="en" href={new URL(alternates.en, SITE.url)} />}
+    {alternates.fr && <link rel="alternate" hreflang="x-default" href={new URL(alternates.fr, SITE.url)} />}
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content={SITE.product} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={doc.data.description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:locale" content={ogLocales[locale]} />
+    {alternates[alternateLocale] && <meta property="og:locale:alternate" content={ogLocales[alternateLocale]} />}
+    <meta property="og:image" content={new URL("/og-default.png", SITE.url)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      headline: doc.data.title,
+      description: doc.data.description,
+      inLanguage: locale,
+      url: canonicalUrl.toString(),
+      isPartOf: { "@type": "WebSite", name: SITE.product, url: SITE.url },
+    })} />
+    <ClientRouter />
+  </head>
+  <body>
+    <CursorAura />
+    <a href="#main" class="docs-skip-link">{dict.a11y.skipToContent}</a>
+    <DocsHeader locale={locale} alternates={alternates} />
+    <DocsSidebar locale={locale} docs={docs} currentId={doc.id} />
+    <div class="docs-shell">
+      <main id="main" class="docs-main">
+        <article data-pagefind-body>
+          <header class="docs-article-header">
+            <p>{CATEGORY_LABELS[locale][doc.data.category]}</p>
+            <h1 data-pagefind-meta="title">{doc.data.title}</h1>
+            <div>{doc.data.description}</div>
+          </header>
+          <div class="prose docs-prose"><slot /></div>
+          <div class="docs-maintained">
+            <span>{dict.page.lastReviewed}</span>
+            {editUrl && <a href={editUrl} target="_blank" rel="noopener noreferrer">{dict.page.edit} ↗</a>}
+          </div>
+          <DocsPager locale={locale} previous={adjacent.previous} next={adjacent.next} />
+        </article>
+        <DocsFooter locale={locale} />
+      </main>
+      <aside class="docs-toc-column"><DocsToc locale={locale} headings={headings} /></aside>
+    </div>
+    <DocsSearch locale={locale} />
+    <ImageLightbox locale={locale} />
+    <script>import "@/scripts/heading-anchors";</script>
+    <script>import "@/scripts/github-card";</script>
+    <script>import "@/scripts/mermaid";</script>
+    <script>import "@/scripts/drawio";</script>
+  </body>
+</html>

@@ -1,0 +1,56 @@
+---
+title: "Commandes"
+description: "Référence rapide des scripts de développement, publication, comparaison et contrôle qualité."
+category: start
+order: 2
+draft: false
+---
+
+Toutes les commandes se lancent depuis la racine. Les scripts de proxy transmettent l’action à la variante active.
+
+## Cycle quotidien
+
+| Commande | Rôle |
+| --- | --- |
+| `bun run init` | configuration guidée et installation |
+| `bun run dev` | serveur Astro de la variante active |
+| `bun run build` | génération statique dans `dist/` |
+| `bun run preview` | aperçu local du dernier build |
+| `bun run variant` | affiche la variante active |
+
+## Comparer les variantes
+
+```bash
+bun run preview:all
+```
+
+La commande prépare les six variantes puis les sert sur les ports `4321` à `4326`. Elle est conçue comme un workflow complet, pas comme un simple wrapper autour d’anciens builds.
+
+## Créer un article
+
+```bash
+bun run new-post mon-premier-article
+bun run new-post my-first-post --locale en
+bun run new-post paired-post --translate
+bun run new-post plain-markdown --markdown
+```
+
+Le scaffolder refuse d’écraser un fichier existant et crée par défaut un brouillon `.mdx` au frontmatter valide. `--markdown` est l’option explicite pour obtenir un fichier `.md`.
+
+Les champs générés sont documentés dans [Modèle de contenu](/docs/authoring/content/) et dans la [Référence complète](/docs/reference/configuration/).
+
+## Qualité
+
+```bash
+bun run check-links
+bun run check-assets
+bun run check:all
+```
+
+:::tip[CI]
+Utilisez `bun run check:all` comme étape bloquante avant un déploiement. Conservez `dev` pour l’itération et `preview` pour la recette du résultat statique.
+:::
+
+## Gestion des dépendances
+
+Exécutez `bun install` dans une variante seulement pour travailler directement dans son paquet. Le flux normal depuis la racine installe automatiquement ce qui manque.

@@ -1,0 +1,66 @@
+---
+title: "Internationalisation"
+description: "Maintenir des routes, contenus, interfaces, métadonnées et exports réellement bilingues."
+category: customize
+order: 1
+draft: false
+---
+
+Lisible utilise le routage i18n natif d’Astro : le français est servi sans préfixe et l’anglais sous `/en/`.[^astro-i18n]
+
+```ts title="astro.config.ts"
+i18n: {
+  locales: ["fr", "en"],
+  defaultLocale: "fr",
+}
+```
+
+## Quatre couches à traduire
+
+1. **Contenu** : fichiers miroirs dans `shared/content/blog/fr` et `en`.
+2. **Interface** : dictionnaires typés de chaque variante.
+3. **Routes** : wrappers et URLs équivalentes.
+4. **Sorties invisibles** : SEO, RSS, erreurs, `llms.txt` et Markdown exporté.
+
+## Construire les URLs
+
+Utilisez les helpers `astro:i18n` plutôt qu’une concaténation manuelle. Ils respectent la locale par défaut et les options de routage.[^i18n-api]
+
+```ts
+import { getRelativeLocaleUrl } from "astro:i18n";
+
+const englishBlog = getRelativeLocaleUrl("en", "blog");
+```
+
+## Sélecteur de langue
+
+Sur un article, il pointe vers le fichier miroir de même basename. Si la traduction n’existe pas, il revient à l’index de la locale cible plutôt que de générer un lien mort.
+
+Le clic enregistre `lisible-locale`, puis `ClientRouter` effectue la transition sans rechargement complet. À chaque première visite, Lisible applique le choix explicite s’il existe ; sinon il sélectionne la première langue FR/EN reconnue du navigateur et utilise l’anglais en dernier recours. La 404 applique le même ordre directement dans son contenu, sans redirection supplémentaire. Le `defaultLocale: "fr"` d’Astro décrit uniquement la forme des URLs sans préfixe ; il ne remplace pas ce fallback lecteur.
+
+## Hreflang et langue du document
+
+Chaque page doit avoir le bon `<html lang>`, les alternates `fr`, `en`, `x-default` et les locales OpenGraph correspondantes. Pagefind utilise aussi `lang` pour segmenter son index.
+
+## Audit
+
+- comparez les ensembles de fichiers FR/EN ;
+- comparez les clés de frontmatter ;
+- cherchez les chaînes en dur dans les composants ;
+- vérifiez `/`, `/en/`, les flux et `llms.txt` sur le build servi ;
+- confirmez qu’un changement FR/EN conserve le même document côté client et persiste après navigation ;
+- inspectez les canonical et hreflang dans le HTML final.
+
+:::warning[Parité ne signifie pas traduction]
+Deux fichiers de même nom ne suffisent pas à créer une expérience bilingue. Les titres, descriptions, labels, dates, erreurs, textes alternatifs et métadonnées doivent aussi être localisés.
+:::
+
+Voir [Modèle de contenu](/docs/authoring/content/) pour les miroirs et [SEO, flux et exports texte](/docs/features/seo-discovery/) pour les sorties secondaires.
+
+## Références
+
+- [Guide i18n d’Astro](https://docs.astro.build/en/guides/internationalization/)
+- [API `astro:i18n`](https://docs.astro.build/en/reference/modules/astro-i18n/)
+
+[^astro-i18n]: Astro applique le préfixe selon `defaultLocale` et la stratégie de routage configurée.
+[^i18n-api]: Les helpers tiennent aussi compte de paramètres tels que `base` et `trailingSlash`.

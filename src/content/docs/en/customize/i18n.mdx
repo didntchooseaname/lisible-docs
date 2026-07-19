@@ -1,0 +1,66 @@
+---
+title: "Internationalization"
+description: "Maintain truly bilingual routes, content, interfaces, metadata and exports."
+category: customize
+order: 1
+draft: false
+---
+
+Lisible uses Astro’s native i18n routing: French is served without a prefix and English under `/en/`.[^astro-i18n]
+
+```ts title="astro.config.ts"
+i18n: {
+  locales: ["fr", "en"],
+  defaultLocale: "fr",
+}
+```
+
+## Four layers to translate
+
+1. **Content**: mirrored files in `shared/content/blog/fr` and `en`.
+2. **Interface**: typed dictionaries in every variant.
+3. **Routes**: equivalent wrappers and URLs.
+4. **Invisible outputs**: SEO, RSS, errors, `llms.txt` and exported Markdown.
+
+## Build URLs
+
+Use `astro:i18n` helpers instead of manual concatenation. They respect the default locale and routing options.[^i18n-api]
+
+```ts
+import { getRelativeLocaleUrl } from "astro:i18n";
+
+const englishBlog = getRelativeLocaleUrl("en", "blog");
+```
+
+## Language switcher
+
+On a post, it points to the mirrored file with the same basename. When no translation exists, it falls back to the target locale index instead of creating a dead link.
+
+A click stores `lisible-locale`, then `ClientRouter` performs the transition without a full reload. On every first visit, Lisible applies the explicit choice when present; otherwise it selects the first recognized FR/EN browser language and uses English as the final fallback. The 404 applies the same order directly to its content without another redirect. Astro’s `defaultLocale: "fr"` only describes the shape of unprefixed URLs; it does not replace this reader fallback.
+
+## Hreflang and document language
+
+Every page needs the correct `<html lang>`, `fr`, `en` and `x-default` alternates, plus matching OpenGraph locales. Pagefind also uses `lang` to segment its index.
+
+## Audit
+
+- compare French and English file sets;
+- compare frontmatter keys;
+- search for hard-coded strings in components;
+- verify `/`, `/en/`, feeds and `llms.txt` on the served build;
+- confirm that switching FR/EN keeps the same client document and persists across navigation;
+- inspect canonical and hreflang in final HTML.
+
+:::warning[Parity is not translation]
+Two files with the same name are not enough for a bilingual experience. Titles, descriptions, labels, dates, errors, alt text and metadata must also be localized.
+:::
+
+See [Content model](/en/docs/authoring/content/) for mirrors and [SEO, feeds and text exports](/en/docs/features/seo-discovery/) for secondary outputs.
+
+## References
+
+- [Astro i18n guide](https://docs.astro.build/en/guides/internationalization/)
+- [`astro:i18n` API](https://docs.astro.build/en/reference/modules/astro-i18n/)
+
+[^astro-i18n]: Astro applies the prefix according to `defaultLocale` and the configured routing strategy.
+[^i18n-api]: Helpers also account for settings such as `base` and `trailingSlash`.

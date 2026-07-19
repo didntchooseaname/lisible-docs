@@ -1,0 +1,74 @@
+---
+title: "Initial configuration"
+description: "Configure the variant, site identity, repository, integrations and shared feature flags."
+category: start
+order: 1
+draft: false
+---
+
+Configuration is deliberately concentrated in three surfaces. This separation keeps changes predictable.
+
+## Active variant
+
+`lisible.config.json` contains only the visual selection:
+
+```json title="lisible.config.json"
+{
+  "variant": "organique"
+}
+```
+
+Public values: `motion-primitives`, `cult-ui`, `aceternity`, `reactbits`, `organique`, `h4x0r`.
+
+## Global identity
+
+`shared/site.config.ts` defines the title, author, canonical URL, accent, repository and integrations.
+
+```ts title="shared/site.config.ts"
+export const SITE_DEFAULTS = {
+  title: "My site",
+  author: "Your name",
+  url: "https://example.com",
+  accent: "#22C55E",
+  coverPosition: "down",
+  repo: {
+    url: "https://github.com/owner/repo",
+    branch: "main",
+  },
+};
+```
+
+:::caution[Canonical URL]
+Use the final URL with its protocol and no temporary path. It feeds canonical links, hreflang, OpenGraph, JSON-LD, RSS and text exports.
+:::
+
+## Feature flags
+
+`shared/features.ts` enables common capabilities. A flag controls more than presentation: it may gate routes, Markdown plugins and client assets.
+
+```ts title="shared/features.ts"
+export const SHARED_FEATURES = {
+  imageZoom: true,
+  mermaid: true,
+  ogPerPost: true,
+  pagination: { enabled: true, pageSize: 6 },
+  comments: false,
+  webmentions: false,
+  demoPlaceholders: true,
+} as const;
+```
+
+## Integrations with secrets
+
+Giscus, Bluesky or webmention.io identifiers belong in `INTEGRATIONS`. Never commit a private key. Public configuration values may stay in the repository, while secrets should come from environment variables.
+
+A fresh clone displays fully local example comments and webmentions. Replace the social profiles in `SITE_DEFAULTS.social`, fill the live integration, enable its flag, then set `demoPlaceholders` to `false`. This keeps third-party scripts and invalid network calls out of the development server.
+
+## Final check
+
+```bash
+bun run variant
+bun run build
+```
+
+The build is the reference validation: it traverses every route, the content schema, images, Markdown pipeline and Pagefind index.

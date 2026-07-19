@@ -1,0 +1,55 @@
+---
+import type { MarkdownHeading } from "astro";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  headings: MarkdownHeading[];
+  locale: Locale;
+}
+
+const { headings, locale } = Astro.props;
+const items = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+---
+
+{
+  items.length > 0 && (
+    <nav class="docs-toc" data-docs-toc aria-label={t(locale).page.onThisPage}>
+      <h2>{t(locale).page.onThisPage}</h2>
+      <ul>
+        {items.map((heading) => (
+          <li data-depth={heading.depth}>
+            <a href={`#${heading.slug}`} data-docs-toc-link>{heading.text}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+<script>
+  let tocObserver: IntersectionObserver | undefined;
+
+  function initDocsToc() {
+    tocObserver?.disconnect();
+    const links = [...document.querySelectorAll<HTMLAnchorElement>("[data-docs-toc-link]")];
+    const headings = links
+      .map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))))
+      .filter((heading): heading is HTMLElement => Boolean(heading));
+    if (headings.length === 0) return;
+
+    const activate = (id: string) => {
+      links.forEach((link) => link.toggleAttribute("aria-current", link.hash === `#${id}`));
+    };
+    tocObserver = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.find((entry) => entry.isIntersecting);
+        if (visible) activate(visible.target.id);
+      },
+      { rootMargin: "-96px 0px -72%", threshold: 0 },
+    );
+    headings.forEach((heading) => tocObserver?.observe(heading));
+    activate(headings[0].id);
+  }
+
+  document.addEventListener("astro:page-load", initDocsToc);
+</script>

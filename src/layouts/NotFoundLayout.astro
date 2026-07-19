@@ -1,0 +1,184 @@
+---
+import appCssUrl from "@/styles/app.css?url";
+import ThemeToggle from "@/components/ThemeToggle.astro";
+import { localeUrl, t, type Locale } from "@/i18n/ui";
+import { SITE } from "@/site.config";
+
+interface Props {
+  locale: Locale;
+  auto?: boolean;
+}
+
+const { locale, auto = false } = Astro.props;
+const dict = t(locale).notFound;
+const copy = locale === "fr"
+  ? {
+      home: "Documentation",
+      install: "Commencer l’installation",
+      troubleshoot: "Ouvrir le dépannage",
+      alternate: "Read this page in English",
+      hint: "La route demandée ne fait pas partie de la documentation publiée.",
+    }
+  : {
+      home: "Documentation home",
+      install: "Start installation",
+      troubleshoot: "Open troubleshooting",
+      alternate: "Lire cette page en français",
+      hint: "The requested route is not part of the published documentation.",
+    };
+const otherLocale: Locale = locale === "fr" ? "en" : "fr";
+const localeContent = {
+  fr: {
+    title: t("fr").notFound.title,
+    description: t("fr").notFound.description,
+    back: t("fr").notFound.back,
+    home: "Documentation",
+    install: "Commencer l’installation",
+    troubleshoot: "Ouvrir le dépannage",
+    alternate: "Read this page in English",
+    hint: "La route demandée ne fait pas partie de la documentation publiée.",
+    theme: t("fr").a11y.toggleTheme,
+    homeHref: localeUrl("fr"),
+    installHref: localeUrl("fr", "getting-started/installation"),
+    troubleshootHref: localeUrl("fr", "operations/troubleshooting"),
+    alternateHref: localeUrl("en"),
+  },
+  en: {
+    title: t("en").notFound.title,
+    description: t("en").notFound.description,
+    back: t("en").notFound.back,
+    home: "Documentation home",
+    install: "Start installation",
+    troubleshoot: "Open troubleshooting",
+    alternate: "Lire cette page en français",
+    hint: "The requested route is not part of the published documentation.",
+    theme: t("en").a11y.toggleTheme,
+    homeHref: localeUrl("en"),
+    installHref: localeUrl("en", "getting-started/installation"),
+    troubleshootHref: localeUrl("en", "operations/troubleshooting"),
+    alternateHref: localeUrl("fr"),
+  },
+};
+---
+
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href={appCssUrl} />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{dict.title} | {SITE.product}</title>
+    <script is:inline define:vars={{ siteAccent: SITE.accent, autoLocale: auto, initialLocale: locale }}>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const dark = stored ? stored === "dark" : !window.matchMedia("(prefers-color-scheme: light)").matches;
+        document.documentElement.classList.toggle("dark", dark);
+        const accent = localStorage.getItem("accent");
+        document.documentElement.style.setProperty("--accent", accent && /^#[0-9a-f]{6}$/i.test(accent) ? accent : siteAccent);
+        const storedLocale = localStorage.getItem("lisible-locale");
+        const pathLocale = /^\/en(?:\/|$)/.test(location.pathname) ? "en" : null;
+        const detectedLocale = navigator.languages?.find((language) => /^(fr|en)(-|$)/i.test(language)) ?? navigator.language;
+        const preferredLocale = storedLocale === "fr" || storedLocale === "en"
+          ? storedLocale
+          : pathLocale ?? (/^fr(-|$)/i.test(detectedLocale ?? "") ? "fr" : "en");
+        const activeLocale = autoLocale ? preferredLocale : initialLocale;
+        document.documentElement.lang = activeLocale;
+        document.documentElement.dataset.lisibleLocale = activeLocale;
+      })();
+    </script>
+  </head>
+  <body class="docs-404" data-pagefind-ignore>
+    <header class="docs-404__header">
+      <a href={localeUrl(locale, "docs")} class="docs-404__brand" aria-label={copy.home} data-docs-404-home>
+        <span class="brand-blob" aria-hidden="true"></span>
+        <strong>{SITE.title}</strong>
+        <span>Docs</span>
+      </a>
+      <div class="docs-404__actions">
+        <a href={localeUrl(otherLocale)} lang={otherLocale} data-docs-404-alternate>{copy.alternate}</a>
+        <ThemeToggle locale={locale} />
+      </div>
+    </header>
+
+    <main>
+      <div class="docs-404__number" aria-hidden="true">404</div>
+      <section aria-labelledby="not-found-title">
+        <p class="docs-404__eyebrow">{SITE.product}</p>
+        <h1 id="not-found-title" data-docs-404-title>{dict.title}</h1>
+        <p data-docs-404-description>{dict.description}</p>
+        <p class="docs-404__hint" data-docs-404-hint>{copy.hint}</p>
+        <nav aria-label={dict.title} data-docs-404-nav>
+          <a class="docs-404__primary" href={localeUrl(locale, "docs")} data-docs-404-back><span>{dict.back}</span> <span aria-hidden="true">→</span></a>
+          <a href={localeUrl(locale, "docs/getting-started/installation")} data-docs-404-install>{copy.install}</a>
+          <a href={localeUrl(locale, "docs/operations/troubleshooting")} data-docs-404-troubleshoot>{copy.troubleshoot}</a>
+        </nav>
+      </section>
+    </main>
+    <script is:inline define:vars={{ localeContent, product: SITE.product }}>
+      (() => {
+        function applyLocale(locale) {
+          const content = localeContent[locale];
+          document.documentElement.lang = locale;
+          document.documentElement.dataset.lisibleLocale = locale;
+          document.title = `${content.title} | ${product}`;
+          document.querySelector("[data-docs-404-title]").textContent = content.title;
+          document.querySelector("[data-docs-404-description]").textContent = content.description;
+          document.querySelector("[data-docs-404-hint]").textContent = content.hint;
+
+          const home = document.querySelector("[data-docs-404-home]");
+          home.href = content.homeHref;
+          home.setAttribute("aria-label", content.home);
+          const alternate = document.querySelector("[data-docs-404-alternate]");
+          alternate.href = content.alternateHref;
+          alternate.lang = locale === "fr" ? "en" : "fr";
+          alternate.textContent = content.alternate;
+          const theme = document.querySelector("[data-theme-toggle]");
+          theme?.setAttribute("aria-label", content.theme);
+          const nav = document.querySelector("[data-docs-404-nav]");
+          nav?.setAttribute("aria-label", content.title);
+          const back = document.querySelector("[data-docs-404-back]");
+          back.href = content.homeHref;
+          back.querySelector("span").textContent = content.back;
+          const install = document.querySelector("[data-docs-404-install]");
+          install.href = content.installHref;
+          install.textContent = content.install;
+          const troubleshoot = document.querySelector("[data-docs-404-troubleshoot]");
+          troubleshoot.href = content.troubleshootHref;
+          troubleshoot.textContent = content.troubleshoot;
+        }
+
+        applyLocale(document.documentElement.dataset.lisibleLocale === "fr" ? "fr" : "en");
+        document.querySelector("[data-docs-404-alternate]")?.addEventListener("click", (event) => {
+          event.preventDefault();
+          const next = document.documentElement.lang === "fr" ? "en" : "fr";
+          localStorage.setItem("lisible-locale", next);
+          applyLocale(next);
+        });
+      })();
+    </script>
+  </body>
+</html>
+
+<style>
+  .docs-404 { min-height: 100dvh; color: var(--color-foreground); background: var(--color-background); }
+  .docs-404::before { position: fixed; inset: 0; z-index: -1; content: ""; background: radial-gradient(circle at 20% 10%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 30rem), linear-gradient(var(--color-border) 1px, transparent 1px), linear-gradient(90deg, var(--color-border) 1px, transparent 1px); background-size: auto, 3rem 3rem, 3rem 3rem; opacity: .55; mask-image: linear-gradient(to bottom, black, transparent 80%); }
+  .docs-404__header { display: flex; width: min(100% - 2rem, 76rem); min-height: 4rem; margin-inline: auto; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-border); }
+  .docs-404__brand { display: inline-flex; align-items: center; gap: .55rem; color: inherit; text-decoration: none; }
+  .docs-404__brand > span:last-child { color: var(--color-muted-foreground); }
+  .docs-404__actions { display: flex; align-items: center; gap: .75rem; }
+  .docs-404__actions > a { color: var(--color-muted-foreground); font-size: .8rem; text-underline-offset: .25em; }
+  .docs-404 main { display: grid; width: min(100% - 2rem, 70rem); min-height: calc(100dvh - 4rem); margin-inline: auto; padding-block: 4rem; align-items: center; gap: 2rem; }
+  .docs-404__number { color: color-mix(in srgb, var(--accent) 24%, transparent); font: 800 clamp(8rem, 32vw, 25rem)/.72 var(--font-mono); letter-spacing: -.12em; user-select: none; }
+  .docs-404 main section { max-width: 37rem; padding: clamp(1.25rem, 4vw, 2.5rem); border: 1px solid var(--color-border); border-radius: calc(var(--radius) * 1.5); background: color-mix(in srgb, var(--color-card) 92%, transparent); box-shadow: 0 2rem 5rem -3rem rgb(0 0 0 / .45); backdrop-filter: blur(14px); }
+  .docs-404__eyebrow { margin: 0 0 .75rem; color: var(--accent); font: 700 .7rem/1.2 var(--font-mono); letter-spacing: .13em; text-transform: uppercase; }
+  .docs-404 h1 { margin: 0; font-size: clamp(2.25rem, 7vw, 4.75rem); line-height: .95; letter-spacing: -.055em; }
+  .docs-404 h1 + p { margin: 1.25rem 0 .35rem; color: var(--color-muted-foreground); font-size: 1.05rem; }
+  .docs-404__hint { margin: 0; color: var(--color-muted-foreground); font-size: .88rem; }
+  .docs-404 nav { display: flex; margin-top: 2rem; flex-wrap: wrap; align-items: center; gap: .75rem 1.2rem; }
+  .docs-404 nav a { color: var(--color-foreground); font-size: .88rem; font-weight: 650; text-underline-offset: .25em; }
+  .docs-404 nav .docs-404__primary { display: inline-flex; min-height: 2.8rem; padding-inline: 1.1rem; align-items: center; gap: .65rem; border-radius: 999px; color: var(--color-accent-foreground); background: var(--accent); text-decoration: none; }
+  @media (min-width: 64rem) { .docs-404 main { grid-template-columns: 1fr 1fr; } .docs-404__number { margin-left: -3rem; } }
+  @media (max-width: 40rem) { .docs-404__actions > a { display: none; } }
+</style>

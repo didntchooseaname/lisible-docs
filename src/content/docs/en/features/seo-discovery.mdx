@@ -1,0 +1,61 @@
+---
+title: "SEO, feeds and text exports"
+description: "Understand metadata, OpenGraph, sitemap, RSS, JSON-LD, llms.txt and Markdown versions."
+category: features
+order: 1
+draft: false
+---
+
+Discoverability is generated from the same content entry. Title, description, locale and canonical URL must never diverge between HTML, feeds and metadata.[^canonical]
+
+## Page metadata
+
+Every page publishes:
+
+- `<title>` and `description`;
+- canonical URL;
+- French, English and `x-default` hreflang alternates;
+- OpenGraph and Twitter Card data;
+- `BlogPosting` JSON-LD for posts;
+- a dedicated OG image when `ogPerPost` is enabled.
+
+:::important[Descriptions]
+Write an informative description that differs from the title and makes sense out of context. Search engines, Pagefind, social cards and exports all reuse it.
+:::
+
+## Sitemap and robots
+
+`@astrojs/sitemap` collects static routes for both locales. `robots.txt` references the absolute sitemap built with `SITE.url`.
+
+## Styled RSS
+
+`/rss.xml` contains the French feed and `/en/rss.xml` the English feed. When `styledRss` is enabled, an XSL stylesheet makes the feed readable in a browser without altering its XML data.
+
+## Text exports
+
+| Route | Content |
+| --- | --- |
+| `/llms.txt` | compact post index |
+| `/llms-full.txt` | complete corpus |
+| `/blog/<slug>.md` | Markdown version of a post |
+| `/en/blog/<slug>.md` | English Markdown version |
+
+Copy actions use those outputs to provide clean Markdown or prepare a reusable prompt. Private content must never appear in these routes.
+
+## Verification
+
+```bash
+bun run build
+bun run preview
+curl -I http://localhost:4321/sitemap-index.xml
+curl http://localhost:4321/llms.txt
+```
+
+The [Build and deployment](/en/docs/operations/build-deploy/) chapter covers production validation. For data ownership, see [Content model](/en/docs/authoring/content/).
+
+## References
+
+- [Astro sitemap integration](https://docs.astro.build/en/guides/integrations-guide/sitemap/)
+- [Astro RSS recipe](https://docs.astro.build/en/recipes/rss/)
+
+[^canonical]: An incorrect canonical can make locales or domains look like duplicates. Its value therefore comes from one global configuration source.

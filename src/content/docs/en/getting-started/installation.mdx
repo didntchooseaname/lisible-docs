@@ -1,0 +1,57 @@
+---
+title: "Installation"
+description: "Clone Lisible, run the setup assistant and get a working development environment."
+category: start
+order: 0
+badge: "5 min"
+draft: false
+---
+
+Lisible uses Bun for scripts and reproducible installs. A recent Git and Bun installation is enough to start.
+
+## Requirements
+
+- Git;
+- Bun;
+- a modern browser;
+- optional: Node.js when your environment requires it for external tooling.
+
+```bash title="Install Bun on macOS or Linux"
+curl -fsSL https://bun.sh/install | bash
+```
+
+## Clone and initialize
+
+```bash
+git clone https://github.com/didntchooseaname/lisible
+cd lisible
+bun run init
+```
+
+The assistant asks for the variant, title, public URL, author, accent color and source repository. It writes `lisible.config.json`, updates shared configuration and installs dependencies for the selected variant.
+
+[Initial configuration](/en/docs/getting-started/configuration/) details every value written by the assistant, and [Commands](/en/docs/getting-started/commands/) covers the daily cycle.
+
+:::note[Flexible order]
+`bun run preview:all` also works on a fresh clone, before or after `init`. It installs and rebuilds all six variants before serving them.
+:::
+
+## Start the server
+
+```bash
+bun run dev
+```
+
+The root script reads the active variant and starts its Astro server. Shared content changes are reflected immediately.
+
+## Verify the installation
+
+- the French page responds at `/`;
+- the English version responds at `/en/`;
+- <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>K</kbd> opens the palette;
+- theme and accent persist across navigation;
+- no `node_modules` or `dist` directory is added to Git.
+
+:::tip[Search during development]
+Pagefind indexes pages during the build. In `dev` mode, the palette remains functional and explains that full-text results become available after `bun run build && bun run preview`.
+:::

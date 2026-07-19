@@ -1,0 +1,60 @@
+---
+title: "Images, tags et séries"
+description: "Gérer les couvertures, assets partagés, taxonomies, articles épinglés et parcours de séries."
+category: author
+order: 3
+draft: false
+---
+
+Les médias et taxonomies structurent la découverte sans transformer le blog en arborescence complexe.
+
+## Images partagées
+
+Placez les assets d’article dans `shared/content/public-images/`. Ils sont exposés sous `/images/` par chaque variante.
+
+```yaml
+cover: "/images/guide-islands.svg"
+coverAlt: "Schéma des îlots Astro reliés au HTML statique"
+```
+
+`coverAlt` décrit l’information de l’image, pas son style. Une couverture purement décorative devrait être rendue comme telle par le composant plutôt que recevoir un texte artificiel.
+
+## Position de la couverture
+
+`SITE.coverPosition` accepte :
+
+- `down` : après le titre, les dates et les tags ;
+- `up` : avant le titre.
+
+La position est globale pour conserver une lecture cohérente entre articles et variantes.
+
+## Tags
+
+Les tags alimentent les pages de filtrage et les articles liés. Préférez une taxonomie courte :
+
+```yaml
+tags: ["astro", "performance", "accessibilité"]
+```
+
+Évitez les synonymes concurrents comme `a11y` et `accessibilité` sans table d’alias explicite.
+
+## Épinglage
+
+```yaml
+featured: true
+```
+
+Les articles épinglés remontent dans la section d’accueil. Si aucun n’est défini, les articles les plus récents servent de repli.
+
+## Séries
+
+```yaml
+series: "astro-en-pratique"
+seriesOrder: 2
+```
+
+Une série ajoute un index `/series/`, une page dédiée, une navigation ordonnée et le temps de lecture cumulé. Les ordres doivent être uniques et continus. Le lien de navbar `Séries` est calculé depuis les articles publiés de la locale : sans champ `series`, il n’est pas rendu.
+
+:::tip[Traductions]
+Conservez le même slug technique de série dans les deux locales si vous voulez des URLs prévisibles, mais traduisez son titre visible dans l’interface ou les données de présentation.
+:::

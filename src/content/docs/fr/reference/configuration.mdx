@@ -1,0 +1,99 @@
+---
+title: "Référence complète"
+description: "Retrouver tous les champs de frontmatter, flags, surfaces de configuration, commandes et routes générées."
+category: reference
+order: 0
+badge: "API"
+draft: false
+---
+
+Cette page rassemble le contrat public de Lisible. Les chapitres précédents expliquent les choix ; cette référence donne les valeurs attendues.
+
+## Frontmatter d’article
+
+| Champ | Type | Défaut | Rôle |
+| --- | --- | --- | --- |
+| `title` | `string` ≤ 70 | requis | titre, SEO et listes |
+| `description` | `string` ≤ 160 | requis | résumé et métadonnées |
+| `pubDate` | date | requis | tri et publication |
+| `updatedDate` | date | absent | dernière mise à jour |
+| `tags` | `string[]` | `[]` | filtres et articles liés |
+| `draft` | `boolean` | `false` | exclusion de production |
+| `cover` | chemin ou URL | absent | couverture |
+| `coverAlt` | `string` | absent | alternative de couverture |
+| `featured` | `boolean` | `false` | épinglage accueil |
+| `series` | `string` | absent | identifiant de série |
+| `seriesOrder` | `number` | absent | ordre dans la série |
+| `bluesky` | URI `at://` | absent | discussion par article |
+
+## Flags
+
+| Flag | Effet principal |
+| --- | --- |
+| `callouts` | directives note/tip/warning/caution/important |
+| `mdxComponents` | Tabs, Steps et Spoiler |
+| `imageZoom` | visionneuse plein écran |
+| `headingAnchors` | ancres copiables h2–h4 |
+| `relatedPosts` | recommandations par similarité de tags |
+| `math` | remark-math et KaTeX |
+| `mermaid` | diagrammes interactifs |
+| `drawio` | visionneuse draw.io |
+| `ogPerPost` | image OG par article et locale |
+| `llmsTxt` | index, corpus et Markdown exporté |
+| `socialShare` | intentions de partage |
+| `styledRss` | feuille XSL des flux |
+| `webmentions` | réactions webmention.io |
+| `comments` | Giscus ou Bluesky |
+| `demoPlaceholders` | aperçu local des commentaires, profils sociaux et webmentions |
+| `newPostCli` | scaffolder d’article |
+| `linkCheck` | contrôle de liens |
+| `covers` | affichage des couvertures |
+| `pinned` | remontée des `featured` |
+| `pagination` | routes paginées et `pageSize` |
+| `archives` | timeline des publications |
+| `series` | pages et navigation de série |
+| `commandPalette` | recherche et actions Ctrl/Cmd+K |
+
+## Routes françaises et anglaises
+
+| Français | English |
+| --- | --- |
+| `/` | `/en/` |
+| `/blog` | `/en/blog` |
+| `/blog/<slug>` | `/en/blog/<slug>` |
+| `/tags` | `/en/tags` |
+| `/archives` | `/en/archives` |
+| `/series` | `/en/series` |
+| `/series/<slug>` | `/en/series/<slug>` |
+| `/rss.xml` | `/en/rss.xml` |
+
+Routes globales : `/sitemap-index.xml`, `/robots.txt`, `/llms.txt`, `/llms-full.txt`, `/og/...` et `/pagefind/...`.
+
+## Commandes racine
+
+```text
+init          configuration guidée
+dev           serveur de la variante active
+build         build de la variante active
+preview       aperçu du build actif
+variant       affiche la variante
+preview:all   installe, build et sert les six variantes
+new-post      crée MDX par défaut, ou Markdown sur demande
+check-links   contrôle les liens du contenu
+check-assets  applique les budgets d’assets
+check:all     validation complète
+```
+
+## Références Astro
+
+- [Content collections](https://docs.astro.build/en/guides/content-collections/)
+- [API `astro:content`](https://docs.astro.build/en/reference/modules/astro-content/)
+- [Markdown dans Astro](https://docs.astro.build/en/guides/markdown-content/)
+- [Intégration MDX](https://docs.astro.build/en/guides/integrations-guide/mdx/)
+- [Configuration Astro](https://docs.astro.build/en/reference/configuration-reference/)
+- [Transitions](https://docs.astro.build/en/guides/view-transitions/)
+- [i18n](https://docs.astro.build/en/guides/internationalization/)
+
+:::tip[Par où continuer]
+Pour modifier le schéma, repartez du [Modèle de contenu](/docs/authoring/content/). Pour un flag, relisez [Configuration initiale](/docs/getting-started/configuration/), puis validez avec [Qualité et accessibilité](/docs/operations/quality/).
+:::

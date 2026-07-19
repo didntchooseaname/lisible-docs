@@ -1,0 +1,478 @@
+---
+import appCssUrl from "@/styles/app.css?url";
+import "@/styles/landing.css";
+import { ClientRouter } from "astro:transitions";
+import DocsSearch from "@/components/DocsSearch.astro";
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+import AccentPicker from "@/components/AccentPicker.astro";
+import ThemeToggle from "@/components/ThemeToggle.astro";
+import CursorAura from "@/components/CursorAura.astro";
+import { BorderBeam } from "@/components/ui/border-beam";
+import { InteractiveGridPattern } from "@/components/ui/interactive-grid-pattern";
+import { localeUrl, ogLocales, otherLocale, t, type Locale } from "@/i18n/ui";
+import { SITE } from "@/site.config";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const content = {
+  fr: {
+    metaTitle: "Le guide complet pour publier avec Lisible",
+    description: "Explorez la documentation bilingue de Lisible, de la première installation au déploiement d’un blog rapide, accessible et personnalisable.",
+    home: "Accueil Lisible",
+    docs: "Documentation",
+    repository: "Dépôt GitHub",
+    eyebrow: "Documentation officielle",
+    title: "Publier devient plus simple quand tout est lisible.",
+    intro: "Architecture, rédaction, personnalisation et mise en ligne. Un parcours bilingue qui vous mène du premier fichier à un site prêt à être partagé.",
+    primary: "Commencer à lire",
+    search: "Rechercher un sujet",
+    highlights: ["18 chapitres", "Français et anglais", "Recherche instantanée"],
+    previewLabel: "Aperçu fidèle de la page Archives du thème Organique",
+    featureEyebrow: "Pensée pour avancer",
+    featureTitle: "Tout le nécessaire, sans perdre le fil.",
+    featureIntro: "La documentation transforme un framework riche en décisions simples à prendre, dans le bon ordre.",
+    cards: [
+      {
+        number: "01",
+        title: "Comprendre l’architecture",
+        body: "Repérez immédiatement le propriétaire de chaque contenu, configuration et composant visuel.",
+        label: "Voir l’architecture",
+        slug: "discover/architecture",
+      },
+      {
+        number: "02",
+        title: "Écrire avec confiance",
+        body: "Maîtrisez MDX, les médias, les taxonomies et les composants éditoriaux.",
+        label: "Explorer la rédaction",
+        slug: "authoring/content",
+      },
+      {
+        number: "03",
+        title: "Valider avant de publier",
+        body: "Contrôlez les liens, l’accessibilité, les assets et chaque route bilingue.",
+        label: "Consulter la qualité",
+        slug: "operations/quality",
+      },
+    ],
+    flowEyebrow: "Parcours interactif",
+    flowTitle: "Une réponse utile à chaque étape.",
+    flowIntro: "Choisissez votre objectif. Le guide vous montre les repères essentiels avant d’ouvrir le chapitre complet.",
+    flowLabel: "Étapes du parcours",
+    tabs: [
+      {
+        label: "Installer",
+        title: "Démarrez sur une base vérifiée.",
+        body: "Préparez le dépôt, lancez l’initialisation et contrôlez la variante active avant la première modification.",
+        path: "getting-started/installation",
+        action: "Ouvrir l’installation",
+        steps: ["Cloner le dépôt", "Installer les dépendances", "Lancer l’initialisation"],
+      },
+      {
+        label: "Rédiger",
+        title: "Gardez le contenu au centre.",
+        body: "Structurez les fichiers miroirs, utilisez MDX par défaut et rendez chaque média compréhensible.",
+        path: "authoring/content",
+        action: "Ouvrir le guide de rédaction",
+        steps: ["Créer les fichiers miroirs", "Renseigner le frontmatter", "Prévisualiser les deux langues"],
+      },
+      {
+        label: "Déployer",
+        title: "Publiez avec des contrôles concrets.",
+        body: "Construisez toutes les routes, vérifiez les sorties publiques et servez exactement le build validé.",
+        path: "operations/build-deploy",
+        action: "Ouvrir le déploiement",
+        steps: ["Exécuter les contrôles", "Construire le site", "Vérifier le build servi"],
+      },
+    ],
+    finalEyebrow: "Votre prochain chapitre",
+    finalTitle: "Commencez par la structure. Personnalisez ensuite.",
+    finalBody: "Le parcours recommandé tient en quelques étapes et garde toujours une sortie claire vers le chapitre suivant.",
+    finalPrimary: "Lire l’introduction",
+    finalSecondary: "Voir la configuration",
+    footer: "Documentation officielle de Lisible.",
+  },
+  en: {
+    metaTitle: "The complete guide to publishing with Lisible",
+    description: "Explore the bilingual Lisible documentation, from the first installation to deploying a fast, accessible and customizable blog.",
+    home: "Lisible home",
+    docs: "Documentation",
+    repository: "GitHub repository",
+    eyebrow: "Official documentation",
+    title: "Publishing gets simpler when everything stays clear.",
+    intro: "Architecture, writing, customization and deployment. A bilingual path that takes you from the first file to a site ready to share.",
+    primary: "Start reading",
+    search: "Search for a topic",
+    highlights: ["18 chapters", "French and English", "Instant search"],
+    previewLabel: "Accurate preview of the Organique theme Archives page",
+    featureEyebrow: "Built for progress",
+    featureTitle: "Everything you need, without losing the thread.",
+    featureIntro: "The documentation turns a rich framework into simple decisions, presented in the right order.",
+    cards: [
+      {
+        number: "01",
+        title: "Understand the architecture",
+        body: "Immediately identify the owner of every content file, setting and visual component.",
+        label: "View the architecture",
+        slug: "discover/architecture",
+      },
+      {
+        number: "02",
+        title: "Write with confidence",
+        body: "Master MDX, media, taxonomies and editorial components.",
+        label: "Explore authoring",
+        slug: "authoring/content",
+      },
+      {
+        number: "03",
+        title: "Validate before publishing",
+        body: "Check links, accessibility, assets and every bilingual route.",
+        label: "Review quality",
+        slug: "operations/quality",
+      },
+    ],
+    flowEyebrow: "Interactive path",
+    flowTitle: "A useful answer at every step.",
+    flowIntro: "Choose your goal. The guide shows the essential landmarks before you open the complete chapter.",
+    flowLabel: "Path steps",
+    tabs: [
+      {
+        label: "Install",
+        title: "Start from a verified foundation.",
+        body: "Prepare the repository, run initialization and check the active variant before the first change.",
+        path: "getting-started/installation",
+        action: "Open installation",
+        steps: ["Clone the repository", "Install dependencies", "Run initialization"],
+      },
+      {
+        label: "Write",
+        title: "Keep content at the center.",
+        body: "Structure mirrored files, use MDX by default and make every media asset understandable.",
+        path: "authoring/content",
+        action: "Open the authoring guide",
+        steps: ["Create mirrored files", "Complete frontmatter", "Preview both languages"],
+      },
+      {
+        label: "Deploy",
+        title: "Publish with concrete checks.",
+        body: "Build every route, verify public outputs and serve the exact build you validated.",
+        path: "operations/build-deploy",
+        action: "Open deployment",
+        steps: ["Run the checks", "Build the site", "Verify the served build"],
+      },
+    ],
+    finalEyebrow: "Your next chapter",
+    finalTitle: "Start with structure. Customize after that.",
+    finalBody: "The recommended path takes only a few steps and always provides a clear route to the next chapter.",
+    finalPrimary: "Read the introduction",
+    finalSecondary: "View configuration",
+    footer: "Official Lisible documentation.",
+  },
+} as const;
+
+const copy = content[locale];
+const canonicalUrl = new URL(localeUrl(locale), SITE.url);
+const alternateLocale = otherLocale(locale);
+const docsUrl = localeUrl(locale, "docs");
+const docUrl = (slug: string) => localeUrl(locale, `docs/${slug}`);
+const blogPreviewUrl = localeUrl(locale, "preview/blog");
+const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
+---
+
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href={appCssUrl} />
+    <script is:inline define:vars={{ siteAccent: SITE.accent }}>
+      (function () {
+        function luminance(rgb) {
+          var channels = rgb.map(function (value) {
+            value /= 255;
+            return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+          });
+          return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+        }
+        function contrast(a, b) {
+          return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+        }
+        function applyPreferences() {
+          const storedTheme = localStorage.getItem("theme");
+          const dark = storedTheme ? storedTheme === "dark" : !window.matchMedia("(prefers-color-scheme: light)").matches;
+          document.documentElement.classList.toggle("dark", dark);
+          const storedAccent = localStorage.getItem("accent");
+          const hex = storedAccent && /^#[0-9a-f]{6}$/i.test(storedAccent) ? storedAccent : siteAccent;
+          const value = parseInt(hex.slice(1), 16);
+          let rgb = [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+          for (let i = 0; i < 60; i++) {
+            if (dark ? contrast(luminance(rgb), 0) >= 3 : contrast(luminance(rgb), 1) >= 4.5) break;
+            rgb = rgb.map(function (channel) {
+              return dark
+                ? Math.min(255, Math.round(channel + (255 - channel) * 0.06) + 1)
+                : Math.max(0, Math.round(channel * 0.94) - 1);
+            });
+          }
+          const foreground = contrast(luminance(rgb), 0) >= 4.5 ? "#000000" : "#ffffff";
+          const accent = "rgb(" + rgb.join(" ") + ")";
+          document.documentElement.style.setProperty("--accent", accent);
+          document.documentElement.style.setProperty("--accent-foreground", foreground);
+          document.documentElement.style.setProperty("--ring", accent);
+          if (typeof window.__syncOrganiquePreview === "function") window.__syncOrganiquePreview();
+        }
+        window.__applyAccent = applyPreferences;
+        applyPreferences();
+        function syncPreview() {
+          document.querySelectorAll('iframe[data-organique-preview]').forEach(function (frame) {
+            if (frame.contentWindow) frame.contentWindow.postMessage({ type: "lisible:preferences" }, location.origin);
+          });
+        }
+        window.__syncOrganiquePreview = syncPreview;
+        document.addEventListener("lisible:preferences", syncPreview);
+        document.addEventListener("astro:after-swap", applyPreferences);
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{SITE.title} | {copy.metaTitle}</title>
+    <meta name="description" content={copy.description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" hreflang="fr" href={new URL(alternates.fr, SITE.url)} />
+    <link rel="alternate" hreflang="en" href={new URL(alternates.en, SITE.url)} />
+    <link rel="alternate" hreflang="x-default" href={new URL(alternates.fr, SITE.url)} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.product} />
+    <meta property="og:title" content={`${SITE.title} | ${copy.metaTitle}`} />
+    <meta property="og:description" content={copy.description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:locale" content={ogLocales[locale]} />
+    <meta property="og:locale:alternate" content={ogLocales[alternateLocale]} />
+    <meta property="og:image" content={new URL("/og-default.png", SITE.url)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: SITE.product,
+      description: copy.description,
+      inLanguage: locale,
+      url: canonicalUrl.toString(),
+    })} />
+    <ClientRouter />
+  </head>
+  <body class="landing-body">
+    <CursorAura />
+    <a href="#main" class="docs-skip-link">{dict.a11y.skipToContent}</a>
+
+    <header class="landing-header">
+      <div class="landing-header__inner">
+        <a href={localeUrl(locale)} class="landing-brand" aria-label={copy.home}>
+          <span class="brand-blob" aria-hidden="true"></span>
+          <strong>{SITE.title}</strong>
+          <span>{copy.docs}</span>
+        </a>
+
+        <nav class="landing-nav" aria-label={copy.docs}>
+          <a href={docsUrl}>{copy.docs}</a>
+          <a href={SITE.repo} target="_blank" rel="noopener noreferrer" aria-label={copy.repository}>
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5A4.8 4.8 0 0 0 9 18v4" />
+              <path d="M9 18c-4.5 2-5-2-7-2" />
+            </svg>
+          </a>
+        </nav>
+
+        <div class="landing-header__actions">
+          <LanguageSwitcher locale={locale} alternates={alternates} />
+          <AccentPicker locale={locale} />
+          <ThemeToggle locale={locale} />
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="landing-hero" aria-labelledby="landing-title">
+        <div class="landing-grid" aria-hidden="true">
+          <InteractiveGridPattern
+            client:load
+            width={44}
+            height={44}
+            squares={[30, 20]}
+            className="landing-grid-pattern"
+            squaresClassName="landing-grid-square"
+          />
+        </div>
+
+        <div class="landing-container landing-hero__inner">
+          <div class="landing-hero__copy landing-enter">
+            <p class="landing-eyebrow">{copy.eyebrow}</p>
+            <h1 id="landing-title">{copy.title}</h1>
+            <p class="landing-hero__intro">{copy.intro}</p>
+            <div class="landing-hero__actions">
+              <a class="landing-button landing-button--primary" href={docsUrl}>
+                <span>{copy.primary}</span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
+              <button type="button" class="landing-button landing-button--secondary" data-search-open aria-label={dict.a11y.openSearch}>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
+                </svg>
+                <span>{copy.search}</span>
+              </button>
+            </div>
+            <ul class="landing-highlights" aria-label={copy.eyebrow}>
+              {copy.highlights.map((item) => (
+                <li><span aria-hidden="true"></span>{item}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="landing-preview landing-enter landing-enter--delay" data-pointer-card role="img" aria-label={copy.previewLabel}>
+            <BorderBeam client:load duration={8} size={130} borderWidth={3} colorFrom="var(--accent)" colorTo="var(--color-foreground)" />
+            <div class="landing-preview__bar" aria-hidden="true">
+              <span></span><span></span><span></span>
+              <div>blog.lisible.dev/archives</div>
+            </div>
+            <div class="landing-preview__viewport" aria-hidden="true">
+              <iframe
+                class="landing-preview__frame"
+                data-organique-preview
+                src={blogPreviewUrl}
+                title={copy.previewLabel}
+                tabindex="-1"
+                loading="eager"
+                onload="window.__syncOrganiquePreview?.()"
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="landing-section landing-features" aria-labelledby="features-title">
+        <div class="landing-container">
+          <div class="landing-section__heading">
+            <div>
+              <p class="landing-eyebrow">{copy.featureEyebrow}</p>
+              <h2 id="features-title">{copy.featureTitle}</h2>
+            </div>
+            <p>{copy.featureIntro}</p>
+          </div>
+          <div class="landing-card-grid">
+            {copy.cards.map((card, index) => (
+              <a class:list={["landing-card", { "landing-card--wide": index === 0 }]} href={docUrl(card.slug)} data-pointer-card>
+                <span class="landing-card__number">{card.number}</span>
+                <div>
+                  <h3>{card.title}</h3>
+                  <p>{card.body}</p>
+                </div>
+                <span class="landing-card__link">
+                  {card.label}
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="landing-section landing-flow" aria-labelledby="flow-title">
+        <div class="landing-container">
+          <div class="landing-flow__heading">
+            <p class="landing-eyebrow">{copy.flowEyebrow}</p>
+            <h2 id="flow-title">{copy.flowTitle}</h2>
+            <p>{copy.flowIntro}</p>
+          </div>
+
+          <div class="landing-workflow" data-landing-tabs>
+            <div class="landing-tablist" role="tablist" aria-label={copy.flowLabel}>
+              {copy.tabs.map((tab, index) => (
+                <button
+                  type="button"
+                  role="tab"
+                  id={`landing-tab-${locale}-${index}`}
+                  aria-controls={`landing-panel-${locale}-${index}`}
+                  aria-selected={index === 0 ? "true" : "false"}
+                  tabindex={index === 0 ? 0 : -1}
+                >
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <div class="landing-panels">
+              {copy.tabs.map((tab, index) => (
+                <section
+                  role="tabpanel"
+                  id={`landing-panel-${locale}-${index}`}
+                  aria-labelledby={`landing-tab-${locale}-${index}`}
+                  hidden={index !== 0}
+                >
+                  <div class="landing-panel__copy">
+                    <p>{String(index + 1).padStart(2, "0")}</p>
+                    <h3>{tab.title}</h3>
+                    <div>{tab.body}</div>
+                    <a href={docUrl(tab.path)}>
+                      {tab.action}
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M5 12h14M13 6l6 6-6 6" />
+                      </svg>
+                    </a>
+                  </div>
+                  <ol class="landing-panel__steps">
+                    {tab.steps.map((step, stepIndex) => (
+                      <li>
+                        <span>{String(stepIndex + 1).padStart(2, "0")}</span>
+                        <strong>{step}</strong>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                          <path d="m5 12 4 4L19 6" />
+                        </svg>
+                      </li>
+                    ))}
+                  </ol>
+                </section>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="landing-section landing-final" aria-labelledby="final-title">
+        <div class="landing-container">
+          <div class="landing-final__inner" data-pointer-card>
+            <div>
+              <p class="landing-eyebrow">{copy.finalEyebrow}</p>
+              <h2 id="final-title">{copy.finalTitle}</h2>
+              <p>{copy.finalBody}</p>
+            </div>
+            <div class="landing-final__actions">
+              <a class="landing-button landing-button--primary" href={docsUrl}>{copy.finalPrimary}</a>
+              <a class="landing-button landing-button--secondary" href={docUrl("getting-started/configuration")}>{copy.finalSecondary}</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="landing-footer">
+      <div class="landing-container">
+        <p>{copy.footer}</p>
+        <div>
+          <a href={docsUrl}>{copy.docs}</a>
+          <a href={SITE.repo} target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+    </footer>
+
+    <DocsSearch locale={locale} />
+    <script>import "@/scripts/landing";</script>
+  </body>
+</html>

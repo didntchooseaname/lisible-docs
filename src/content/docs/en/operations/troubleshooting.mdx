@@ -1,0 +1,57 @@
+---
+title: "Troubleshooting"
+description: "Diagnose build, Pagefind, content, i18n, Mermaid, image and client-navigation errors."
+category: operate
+order: 2
+draft: false
+---
+
+Always reproduce the problem through its owning command: `dev` for an editing issue, `build` for a static route, `preview` for final output.
+
+## Pagefind fails during development
+
+**Symptom:** Vite cannot resolve `/pagefind/pagefind.js`.
+
+**Cause:** Pagefind produces its module after building while the search component also contains the import during development.
+
+**Solution:** keep the `pagefindDev()` Vite plugin in `serve` mode. It provides a virtual module without touching the production index.
+
+## A page is not generated
+
+1. Check `draft`.
+2. Check the locale derived from the ID.
+3. Validate frontmatter against the schema.
+4. Inspect `getStaticPaths()` and flags that may return `[]`.
+5. Run a fresh build instead of trusting an old `dist/`.
+
+## Translation points to the wrong place
+
+Both files must share a basename. Use `localeUrl` and `astro:i18n` helpers, then inspect alternates in built HTML. See [Internationalization](/en/docs/customize/i18n/).
+
+## Mermaid displays source code
+
+- the fence must be exactly `mermaid`;
+- `remarkMermaid` must run in the pipeline;
+- Expressive Code must not capture the block;
+- the client script must reinitialize on `astro:page-load`;
+- inspect the console for diagram syntax errors.
+
+## An interaction works only on the first page
+
+With `ClientRouter`, a module script executes once. Register an idempotent function on `astro:page-load`, clean up prior observers and use event delegation to prevent duplicates.
+
+## Images break after cloning
+
+Check shared symbolic links and their targets. Preserve symlinks in an export or deliberately dereference them. Do not copy a single variant while forgetting `shared/public` and `shared/content/public-images`.
+
+## Build stops on an integration
+
+Partially configured comments or webmentions are treated as errors. Fill every required value or disable the flag. [Sharing, comments and webmentions](/en/docs/features/integrations/) lists the fields.
+
+:::note[Minimal diagnostic]
+Always include the exact command, first error message, active variant and affected route. The last line of a stack trace is rarely the initial cause.
+:::
+
+## Safe reset
+
+Never delete the whole repository. Rebuildable directories are `dist/`, `.astro/` and, when needed, the variant’s `node_modules/`. Preserve user content, configuration and untracked files.

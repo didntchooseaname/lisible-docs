@@ -1,0 +1,60 @@
+---
+title: "Images, tags and series"
+description: "Manage covers, shared assets, taxonomies, pinned posts and series reading paths."
+category: author
+order: 3
+draft: false
+---
+
+Media and taxonomies structure discovery without turning the blog into a complex tree.
+
+## Shared images
+
+Place post assets in `shared/content/public-images/`. Every variant exposes them under `/images/`.
+
+```yaml
+cover: "/images/guide-islands.svg"
+coverAlt: "Diagram of Astro islands connected to static HTML"
+```
+
+`coverAlt` describes the image’s information, not its style. A purely decorative cover should be rendered as decorative by the component instead of receiving artificial text.
+
+## Cover position
+
+`SITE.coverPosition` accepts:
+
+- `down`: after title, dates and tags;
+- `up`: before the title.
+
+The position is global to preserve consistent reading across posts and variants.
+
+## Tags
+
+Tags feed filtering pages and related posts. Prefer a small taxonomy:
+
+```yaml
+tags: ["astro", "performance", "accessibility"]
+```
+
+Avoid competing synonyms such as `a11y` and `accessibility` without an explicit alias table.
+
+## Pinning
+
+```yaml
+featured: true
+```
+
+Pinned posts rise into the home section. When none are defined, the latest posts provide a fallback.
+
+## Series
+
+```yaml
+series: "astro-in-practice"
+seriesOrder: 2
+```
+
+A series adds a `/series/` index, a dedicated page, ordered navigation and cumulative reading time. Orders should be unique and continuous. The `Series` navbar link is computed from published posts in the active locale: without a `series` field, it is not rendered.
+
+:::tip[Translations]
+Keep the same technical series slug in both locales when you want predictable URLs, but translate its visible title in UI or presentation data.
+:::

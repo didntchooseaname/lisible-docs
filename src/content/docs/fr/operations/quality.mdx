@@ -1,0 +1,68 @@
+---
+title: "Qualité et accessibilité"
+description: "Auditer le contenu, les liens, les performances, l’i18n, le clavier et le rendu réel avant publication."
+category: operate
+order: 1
+draft: false
+---
+
+Un build réussi est nécessaire mais pas suffisant. Lisible sépare les contrôles automatiques, les inspections de sortie et la recette navigateur.
+
+## Pipeline recommandé
+
+```bash
+bun run check-links
+bun run check-assets
+bun run build
+bun run preview
+```
+
+`check-links` inspecte les références du contenu avec concurrence et timeout limités. `check-assets` applique des budgets sur le résultat construit.
+
+## Audit de contenu
+
+- [ ] fichiers FR/EN de même basename ;
+- [ ] clés de frontmatter symétriques ;
+- [ ] titres et descriptions dans les limites du schéma ;
+- [ ] images présentes et textes alternatifs utiles ;
+- [ ] aucune URL interne morte ;
+- [ ] brouillons absents de la production.
+
+## Accessibilité
+
+- parcours complet au clavier ;
+- focus visible sur chaque contrôle ;
+- un seul `h1`, puis une hiérarchie de titres logique ;
+- labels accessibles sur les icônes ;
+- contrastes AA dans les deux thèmes et pour l’accent personnalisé ;
+- animations désactivées ou réduites avec `prefers-reduced-motion` ;
+- route annoncée après une transition Astro.[^route-announcer]
+
+:::tip[Tester sans souris]
+Ouvrez la recherche, changez la langue, utilisez les tabs MDX, parcourez le sommaire, ouvrez puis fermez la visionneuse et revenez en haut uniquement au clavier.
+:::
+
+## Performance
+
+Le HTML et le CSS doivent porter l’essentiel. Les composants React utilisent la directive d’hydratation la plus tardive compatible avec leur rôle. Mermaid, Giscus et les visionneuses se chargent à la demande.
+
+Mesurez au minimum :
+
+- taille HTML/CSS/JS par page ;
+- Largest Contentful Paint et Cumulative Layout Shift ;
+- nombre de scripts exécutés sur une page simple ;
+- stabilité d’une navigation après plusieurs transitions ;
+- poids des images et polices.
+
+## Validation visuelle
+
+Une fonctionnalité graphique doit être testée dans un vrai navigateur : mobile, desktop, thème clair, thème sombre et réduction de mouvement. Un diagramme Mermaid est valide seulement si les boîtes et flèches SVG sont visibles, pas si le code source reste affiché. Un diagramme draw.io doit afficher son SVG ou son image, une viewport non nulle et des contrôles de zoom fonctionnels en dev comme sur le build servi.
+
+## Références internes
+
+- [Markdown enrichi](/docs/authoring/markdown/) pour les cas de rendu ;
+- [Internationalisation](/docs/customize/i18n/) pour la matrice FR/EN ;
+- [Build et déploiement](/docs/operations/build-deploy/) pour la recette distante ;
+- [Dépannage](/docs/operations/troubleshooting/) pour les symptômes connus.
+
+[^route-announcer]: `ClientRouter` ajoute un annonceur de route ; un `<title>` et un `h1` pertinents restent nécessaires pour fournir un message utile.

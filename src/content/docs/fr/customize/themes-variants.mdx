@@ -1,0 +1,66 @@
+---
+title: "Thèmes et variantes"
+description: "Choisir une variante, personnaliser les tokens et préserver le contrat fonctionnel commun."
+category: customize
+order: 0
+draft: false
+---
+
+Une variante est une peau complète au-dessus du même modèle de données. Elle peut changer la composition, les animations et les composants, mais pas supprimer silencieusement une capacité partagée.
+
+## Les six expériences
+
+| Variante | Direction |
+| --- | --- |
+| `motion-primitives` | minimalisme suisse et micro-interactions |
+| `cult-ui` | éditorial, textures et gradients |
+| `aceternity` | spotlight, bento et tracing beam |
+| `reactbits` | composants animés denses |
+| `organique` | formes souples et graphe de constellation déplaçable |
+| `h4x0r` | terminal HUD immersif |
+
+Lancez `bun run preview:all` pour les comparer avec les mêmes articles et les mêmes réglages.
+
+Dans `organique`, maintenez un nœud de la constellation pour le déplacer. Les liens issus des tags suivent sa position en direct ; le nœud actif, ses voisins et les relations non concernées prennent des états visuels distincts. La lueur de pointeur et le graphe utilisent l’accent courant et réagissent au thème clair ou sombre.
+
+## Tokens CSS
+
+Le thème utilise des variables sémantiques :
+
+```css
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --accent: oklch(0.527 0.154 150.1);
+  --border: oklch(0.922 0 0);
+}
+
+.dark {
+  --background: oklch(0 0 0);
+  --foreground: oklch(0.985 0 0);
+}
+```
+
+Modifiez les rôles, pas les occurrences. Un composant utilise `var(--color-muted-foreground)`, jamais une couleur grise arbitraire.
+
+## Accent lecteur
+
+Le sélecteur d’accent stocke une couleur dans `localStorage` et vérifie son contraste en clair et sombre. La valeur `SITE.accent` reste le repli initial.
+
+## Contrat d’une variante
+
+- mêmes routes et frontmatter ;
+- dictionnaires FR/EN complets ;
+- focus visible et clavier ;
+- `prefers-reduced-motion` respecté ;
+- réinitialisation sur `astro:page-load` ;
+- même comportement des flags.
+
+:::important[Changer une seule fois]
+Une amélioration de contenu, de schéma ou de route appartient au cœur partagé. Une animation ou un composant purement visuel appartient à la variante. [Architecture](/docs/discover/architecture/) détaille cette frontière.
+:::
+
+## Références
+
+- [Styles et CSS dans Astro](https://docs.astro.build/en/guides/styling/)
+- [Tailwind avec Astro](https://docs.astro.build/en/guides/styling/#tailwind)

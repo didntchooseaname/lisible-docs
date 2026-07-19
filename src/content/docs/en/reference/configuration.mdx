@@ -1,0 +1,99 @@
+---
+title: "Complete reference"
+description: "Find every frontmatter field, flag, configuration surface, command and generated route."
+category: reference
+order: 0
+badge: "API"
+draft: false
+---
+
+This page gathers Lisible’s public contract. Previous chapters explain the decisions; this reference lists expected values.
+
+## Post frontmatter
+
+| Field | Type | Default | Purpose |
+| --- | --- | --- | --- |
+| `title` | `string` ≤ 70 | required | title, SEO and lists |
+| `description` | `string` ≤ 160 | required | summary and metadata |
+| `pubDate` | date | required | sorting and publication |
+| `updatedDate` | date | absent | latest update |
+| `tags` | `string[]` | `[]` | filters and related posts |
+| `draft` | `boolean` | `false` | production exclusion |
+| `cover` | path or URL | absent | cover image |
+| `coverAlt` | `string` | absent | cover alternative |
+| `featured` | `boolean` | `false` | home pinning |
+| `series` | `string` | absent | series identifier |
+| `seriesOrder` | `number` | absent | order in series |
+| `bluesky` | `at://` URI | absent | per-post discussion |
+
+## Feature flags
+
+| Flag | Main effect |
+| --- | --- |
+| `callouts` | note/tip/warning/caution/important directives |
+| `mdxComponents` | Tabs, Steps and Spoiler |
+| `imageZoom` | full-screen image viewer |
+| `headingAnchors` | copyable h2–h4 anchors |
+| `relatedPosts` | recommendations by tag similarity |
+| `math` | remark-math and KaTeX |
+| `mermaid` | interactive diagrams |
+| `drawio` | draw.io viewer |
+| `ogPerPost` | OG image per post and locale |
+| `llmsTxt` | index, corpus and exported Markdown |
+| `socialShare` | sharing intents |
+| `styledRss` | feed XSL stylesheet |
+| `webmentions` | webmention.io reactions |
+| `comments` | Giscus or Bluesky |
+| `demoPlaceholders` | local preview of comments, social profiles and webmentions |
+| `newPostCli` | post scaffolder |
+| `linkCheck` | link validation |
+| `covers` | cover display |
+| `pinned` | raise `featured` posts |
+| `pagination` | paginated routes and `pageSize` |
+| `archives` | publication timeline |
+| `series` | series pages and navigation |
+| `commandPalette` | search and Ctrl/Cmd+K actions |
+
+## French and English routes
+
+| French | English |
+| --- | --- |
+| `/` | `/en/` |
+| `/blog` | `/en/blog` |
+| `/blog/<slug>` | `/en/blog/<slug>` |
+| `/tags` | `/en/tags` |
+| `/archives` | `/en/archives` |
+| `/series` | `/en/series` |
+| `/series/<slug>` | `/en/series/<slug>` |
+| `/rss.xml` | `/en/rss.xml` |
+
+Global routes: `/sitemap-index.xml`, `/robots.txt`, `/llms.txt`, `/llms-full.txt`, `/og/...` and `/pagefind/...`.
+
+## Root commands
+
+```text
+init          guided setup
+dev           active variant server
+build         active variant build
+preview       active build preview
+variant       print the variant
+preview:all   install, build and serve all six variants
+new-post      create MDX by default, or Markdown on request
+check-links   validate content links
+check-assets  apply asset budgets
+check:all     complete validation
+```
+
+## Astro references
+
+- [Content collections](https://docs.astro.build/en/guides/content-collections/)
+- [`astro:content` API](https://docs.astro.build/en/reference/modules/astro-content/)
+- [Markdown in Astro](https://docs.astro.build/en/guides/markdown-content/)
+- [MDX integration](https://docs.astro.build/en/guides/integrations-guide/mdx/)
+- [Astro configuration](https://docs.astro.build/en/reference/configuration-reference/)
+- [Transitions](https://docs.astro.build/en/guides/view-transitions/)
+- [i18n](https://docs.astro.build/en/guides/internationalization/)
+
+:::tip[Where to continue]
+To change the schema, return to [Content model](/en/docs/authoring/content/). For a flag, review [Initial configuration](/en/docs/getting-started/configuration/), then validate with [Quality and accessibility](/en/docs/operations/quality/).
+:::

@@ -1,0 +1,77 @@
+---
+title: "Architecture"
+description: "Understand the shared core, variants, Astro routes and the ownership rule for every file."
+category: discover
+order: 1
+draft: false
+---
+
+The architecture strictly separates **shared behavior** from **visual expression**. This rule prevents SEO, i18n or editorial fixes from being repeated six times.
+
+![Islands architecture: static HTML and independent interactive components](/images/demo-ilots.svg)
+
+## Directory tree
+
+```text title="lisible/"
+lisible/
+├─ lisible.config.json
+├─ package.json
+├─ scripts/
+├─ shared/
+│  ├─ site.config.ts
+│  ├─ features.ts
+│  ├─ variants.ts
+│  ├─ content/
+│  ├─ markdown/
+│  ├─ routes/
+│  └─ public/
+└─ versions/
+   ├─ _core/
+   ├─ motion-primitives/
+   ├─ cult-ui/
+   ├─ aceternity/
+   ├─ reactbits/
+   ├─ organique/
+   └─ h4x0r/
+```
+
+## Responsibilities
+
+| Surface | Owner | Examples |
+| --- | --- | --- |
+| Content | `shared/content/` | posts, schema, images |
+| Identity | `shared/site.config.ts` | title, URL, author, repository |
+| Capabilities | `shared/features.ts` | search, series, comments |
+| Shared routes | `shared/routes/` | home, blog, tags, RSS |
+| Design | `versions/*/src/` | layouts, components, animation |
+| Orchestration | `scripts/` | init, global preview, checks |
+
+:::warning[Prevent drift]
+A feature visible in every variant should not be implemented independently without a shared contract. Start with the owning schema, helpers and routes, then adapt presentation.
+:::
+
+## Post flow
+
+```mermaid
+sequenceDiagram
+  participant M as Markdown
+  participant C as Content collection
+  participant L as Variant layout
+  participant B as Astro build
+  participant P as Pagefind
+  M->>C: frontmatter + body
+  C->>L: typed entry
+  L->>B: HTML + metadata
+  B->>P: static pages
+  P-->>B: search index
+```
+
+## The role of `_core`
+
+`versions/_core` is the functional reference. The six public variants may use different components, but they must preserve the same routes, data, error states and accessibility requirements.
+
+[Initial configuration](/en/docs/getting-started/configuration/) describes shared surfaces and [Themes and variants](/en/docs/customize/themes-variants/) formalizes the presentation contract.
+
+## Imports and aliases
+
+In regular Astro source, `@/*` points to `src/*` and `@shared/*` to `shared/*`. Modules loaded directly by Astro configuration use the Node package-import aliases `#src/*` and `#shared/*`, which are resolved before TypeScript aliases are available. The local `astro.config.ts` boundary may still use `./` imports, but source modules never navigate upward with `../`.

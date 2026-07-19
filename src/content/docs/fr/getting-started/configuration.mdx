@@ -1,0 +1,74 @@
+---
+title: "Configuration initiale"
+description: "Configurer la variante, l’identité du site, le dépôt, les intégrations et les fonctionnalités partagées."
+category: start
+order: 1
+draft: false
+---
+
+La configuration est volontairement concentrée dans trois surfaces. Cette séparation garde les changements prévisibles.
+
+## Variante active
+
+`lisible.config.json` ne contient que la sélection visuelle :
+
+```json title="lisible.config.json"
+{
+  "variant": "organique"
+}
+```
+
+Valeurs publiques : `motion-primitives`, `cult-ui`, `aceternity`, `reactbits`, `organique`, `h4x0r`.
+
+## Identité globale
+
+`shared/site.config.ts` définit le titre, l’auteur, l’URL canonique, l’accent, le dépôt et les intégrations.
+
+```ts title="shared/site.config.ts"
+export const SITE_DEFAULTS = {
+  title: "Mon site",
+  author: "Votre nom",
+  url: "https://example.com",
+  accent: "#22C55E",
+  coverPosition: "down",
+  repo: {
+    url: "https://github.com/owner/repo",
+    branch: "main",
+  },
+};
+```
+
+:::caution[URL canonique]
+Utilisez l’URL finale avec protocole, sans chemin temporaire. Elle alimente les canonical, hreflang, OpenGraph, JSON-LD, RSS et exports texte.
+:::
+
+## Fonctionnalités
+
+`shared/features.ts` active les capacités communes. Un flag ne change pas seulement l’affichage : il peut contrôler des routes, des plugins Markdown et des assets client.
+
+```ts title="shared/features.ts"
+export const SHARED_FEATURES = {
+  imageZoom: true,
+  mermaid: true,
+  ogPerPost: true,
+  pagination: { enabled: true, pageSize: 6 },
+  comments: false,
+  webmentions: false,
+  demoPlaceholders: true,
+} as const;
+```
+
+## Intégrations à secrets
+
+Les identifiants Giscus, Bluesky ou webmention.io se placent dans la section `INTEGRATIONS`. Ne commitez jamais une clé privée. Les valeurs publiques de configuration peuvent rester dans le dépôt, mais les secrets doivent venir de variables d’environnement.
+
+Le clone neuf affiche des commentaires et webmentions d’exemple entièrement locaux. Remplacez les profils sociaux de `SITE_DEFAULTS.social`, renseignez l’intégration réelle, activez son flag, puis passez `demoPlaceholders` à `false`. Ainsi, aucun script tiers ni appel réseau invalide ne pollue le serveur de développement.
+
+## Contrôle final
+
+```bash
+bun run variant
+bun run build
+```
+
+Le build est la validation de référence : il parcourt toutes les routes, le schéma de contenu, les images, le pipeline Markdown et l’index Pagefind.

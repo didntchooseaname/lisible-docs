@@ -1,0 +1,94 @@
+---
+title: "MDX components"
+description: "Add tabs, steps and hidden content to a page without giving up Markdown simplicity."
+category: author
+order: 2
+badge: "Interactive"
+draft: false
+---
+
+import { Tabs, Tab } from "@/components/ui/tabs";
+import { Steps, Step } from "@/components/ui/steps";
+import Spoiler from "@/components/Spoiler.astro";
+
+MDX is Lisible’s default article format and the format of every page in this documentation. It keeps Markdown and lets prose import components. Reserve interactions for cases that genuinely improve understanding; a paragraph or table remains preferable for static information.
+
+## Tabs
+
+<Tabs tabs={["bun", "npm", "pnpm"]} label="Package manager" client:load>
+<Tab>
+
+```bash
+bun install
+bun run dev
+```
+
+</Tab>
+<Tab>
+
+```bash
+npm install
+npm run dev
+```
+
+</Tab>
+<Tab>
+
+```bash
+pnpm install
+pnpm dev
+```
+
+</Tab>
+</Tabs>
+
+The component exposes a real `tablist`, supports arrow keys, <kbd>Home</kbd> and <kbd>End</kbd>, and loads React only on pages that use it.
+
+## Steps
+
+<Steps>
+<Step title="Create the bilingual pair">
+
+Run `bun run new-post guide --translate`: both generated files use `.mdx`.
+
+</Step>
+<Step title="Import components">
+
+Place imports after frontmatter and before the first paragraph.
+
+</Step>
+<Step title="Validate">
+
+Test keyboard use, light and dark themes, then the static build.
+
+</Step>
+</Steps>
+
+## Spoiler
+
+The component hides an answer until explicit activation: <Spoiler>the content remains in HTML and must therefore stay non-sensitive.</Spoiler>
+
+:::warning[Not for secrets]
+A spoiler is a presentation effect, not access control. Never put a key, private answer or confidential data inside it.
+:::
+
+## GitHub card
+
+The following directive creates a functional card for this documentation’s production repository.
+
+::github{repo="didntchooseaname/lisible-docs"}
+
+## draw.io diagram
+
+The directive accepts an exported SVG and keeps its nested image as a static fallback. The viewer adds zoom, panning and immediate theme adaptation.
+
+:::drawio{src="/images/demo-ilots.svg" title="Islands pipeline"}
+![Fallback for the draw.io diagram showing the Astro islands pipeline](/images/demo-ilots.svg)
+:::
+
+## Hydration rules
+
+- `client:load` for an immediately necessary interaction;
+- `client:idle` for a non-critical enhancement;
+- `client:visible` for a component far below the fold;
+- no client directive for a static Astro component.

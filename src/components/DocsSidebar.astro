@@ -1,0 +1,70 @@
+---
+import type { DocEntry } from "@/lib/docs";
+import { docUrl } from "@/lib/docs";
+import { CATEGORY_LABELS, CATEGORY_ORDER } from "@/config/docs";
+import { t, type Locale } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  docs: DocEntry[];
+  currentId: string;
+}
+
+const { locale, docs, currentId } = Astro.props;
+const dict = t(locale);
+---
+
+<div class="docs-sidebar-backdrop" data-docs-nav-close></div>
+<aside class="docs-sidebar" aria-label={dict.sidebar.title}>
+  <div class="docs-sidebar-head">
+    <span>{dict.sidebar.title}</span>
+    <button type="button" class="docs-icon-button lg:hidden" data-docs-nav-close aria-label={dict.sidebar.close}>
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M18 6 6 18M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  <nav>
+    {
+      CATEGORY_ORDER.map((category) => {
+        const items = docs.filter((doc) => doc.data.category === category);
+        if (items.length === 0) return null;
+        return (
+          <section class="docs-nav-section">
+            <h2>{CATEGORY_LABELS[locale][category]}</h2>
+            <ul>
+              {items.map((doc) => (
+                <li>
+                  <a href={docUrl(doc)} aria-current={doc.id === currentId ? "page" : undefined}>
+                    <span>{doc.data.title}</span>
+                    {doc.data.badge && <small>{doc.data.badge}</small>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })
+    }
+  </nav>
+</aside>
+
+<script>
+  function setDocsNav(open: boolean) {
+    document.documentElement.classList.toggle("docs-nav-open", open);
+    document.body.style.overflow = open ? "hidden" : "";
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest("[data-docs-nav-open]")) setDocsNav(true);
+    if (target?.closest("[data-docs-nav-close]")) setDocsNav(false);
+    if (target?.closest(".docs-sidebar a")) setDocsNav(false);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setDocsNav(false);
+  });
+
+  document.addEventListener("astro:before-swap", () => setDocsNav(false));
+</script>

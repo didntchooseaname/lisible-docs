@@ -1,0 +1,94 @@
+---
+title: "Composants MDX"
+description: "Ajouter des onglets, étapes et contenus masqués dans une page sans abandonner la simplicité du Markdown."
+category: author
+order: 2
+badge: "Interactif"
+draft: false
+---
+
+import { Tabs, Tab } from "@/components/ui/tabs";
+import { Steps, Step } from "@/components/ui/steps";
+import Spoiler from "@/components/Spoiler.astro";
+
+MDX est le format d’article par défaut de Lisible et le format de toutes les pages de cette documentation. Il conserve Markdown et permet d’importer des composants dans la prose. Réservez les interactions aux cas qui améliorent réellement la compréhension ; un paragraphe ou un tableau restent préférables pour une information statique.
+
+## Onglets
+
+<Tabs tabs={["bun", "npm", "pnpm"]} label="Gestionnaire de paquets" client:load>
+<Tab>
+
+```bash
+bun install
+bun run dev
+```
+
+</Tab>
+<Tab>
+
+```bash
+npm install
+npm run dev
+```
+
+</Tab>
+<Tab>
+
+```bash
+pnpm install
+pnpm dev
+```
+
+</Tab>
+</Tabs>
+
+Le composant expose un vrai `tablist`, supporte les flèches, <kbd>Home</kbd> et <kbd>End</kbd>, et ne charge React que sur les pages qui l’utilisent.
+
+## Étapes
+
+<Steps>
+<Step title="Créer le miroir bilingue">
+
+Lancez `bun run new-post guide --translate` : les deux fichiers créés sont des `.mdx`.
+
+</Step>
+<Step title="Importer les composants">
+
+Placez les imports après le frontmatter, avant le premier paragraphe.
+
+</Step>
+<Step title="Valider">
+
+Testez le clavier, le thème clair et sombre, puis le build statique.
+
+</Step>
+</Steps>
+
+## Spoiler
+
+Le composant masque une réponse jusqu’à une activation explicite : <Spoiler>le contenu reste présent dans le HTML et doit donc rester non sensible.</Spoiler>
+
+:::warning[Pas pour des secrets]
+Un spoiler est un effet de présentation, pas un contrôle d’accès. N’y placez jamais une clé, une réponse privée ou une donnée confidentielle.
+:::
+
+## Carte GitHub
+
+La directive suivante produit une carte fonctionnelle vers le dépôt de production de cette documentation.
+
+::github{repo="didntchooseaname/lisible-docs"}
+
+## Diagramme draw.io
+
+La directive accepte un export SVG et conserve l’image interne comme repli statique. La visionneuse ajoute le zoom, le déplacement et une adaptation immédiate au thème.
+
+:::drawio{src="/images/demo-ilots.svg" title="Pipeline en îlots"}
+![Repli du diagramme draw.io montrant le pipeline des îlots Astro](/images/demo-ilots.svg)
+:::
+
+## Règles d’hydratation
+
+- `client:load` pour une interaction immédiatement nécessaire ;
+- `client:idle` pour une amélioration non critique ;
+- `client:visible` pour un composant éloigné sous la ligne de flottaison ;
+- aucun directive client pour un composant Astro statique.

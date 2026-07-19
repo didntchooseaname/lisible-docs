@@ -1,0 +1,61 @@
+---
+title: "SEO, flux et exports texte"
+description: "Comprendre les métadonnées, OpenGraph, sitemap, RSS, JSON-LD, llms.txt et versions Markdown."
+category: features
+order: 1
+draft: false
+---
+
+La découvrabilité est générée à partir de la même entrée de contenu. Le titre, la description, la locale et l’URL canonique ne doivent jamais diverger entre HTML, flux et métadonnées.[^canonical]
+
+## Métadonnées de page
+
+Chaque page publie :
+
+- `<title>` et `description` ;
+- URL canonical ;
+- alternates `hreflang` FR, EN et `x-default` ;
+- OpenGraph et Twitter Card ;
+- JSON-LD `BlogPosting` pour les articles ;
+- image OG dédiée si `ogPerPost` est actif.
+
+:::important[Descriptions]
+Écrivez une description informative, distincte du titre et compréhensible hors contexte. Elle est réutilisée par les moteurs, Pagefind, les cartes sociales et les exports.
+:::
+
+## Sitemap et robots
+
+`@astrojs/sitemap` collecte les routes statiques des deux locales. `robots.txt` référence le sitemap absolu construit avec `SITE.url`.
+
+## RSS stylé
+
+`/rss.xml` contient le flux français et `/en/rss.xml` le flux anglais. Lorsque `styledRss` est actif, une feuille XSL rend le flux lisible directement dans un navigateur sans modifier les données XML.
+
+## Exports texte
+
+| Route | Contenu |
+| --- | --- |
+| `/llms.txt` | index condensé des articles |
+| `/llms-full.txt` | corpus complet |
+| `/blog/<slug>.md` | version Markdown d’un article |
+| `/en/blog/<slug>.md` | version Markdown anglaise |
+
+Les actions de copie utilisent ces sorties pour fournir un Markdown propre ou préparer une requête réutilisable. Aucun contenu privé ne doit apparaître dans ces routes.
+
+## Vérification
+
+```bash
+bun run build
+bun run preview
+curl -I http://localhost:4321/sitemap-index.xml
+curl http://localhost:4321/llms.txt
+```
+
+Le chapitre [Build et déploiement](/docs/operations/build-deploy/) décrit la validation en production. Pour l’origine des données, consultez [Modèle de contenu](/docs/authoring/content/).
+
+## Références
+
+- [Intégration sitemap d’Astro](https://docs.astro.build/en/guides/integrations-guide/sitemap/)
+- [Guide Astro des flux RSS](https://docs.astro.build/en/recipes/rss/)
+
+[^canonical]: Une canonical incorrecte peut faire considérer deux locales ou domaines comme des doublons. Sa valeur vient donc d’une configuration globale unique.

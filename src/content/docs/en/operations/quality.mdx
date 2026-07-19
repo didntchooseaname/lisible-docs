@@ -1,0 +1,68 @@
+---
+title: "Quality and accessibility"
+description: "Audit content, links, performance, i18n, keyboard use and real rendering before publishing."
+category: operate
+order: 1
+draft: false
+---
+
+A successful build is necessary but not sufficient. Lisible separates automated checks, output inspection and browser acceptance.
+
+## Recommended pipeline
+
+```bash
+bun run check-links
+bun run check-assets
+bun run build
+bun run preview
+```
+
+`check-links` inspects content references with limited concurrency and timeouts. `check-assets` applies budgets to the built result.
+
+## Content audit
+
+- [ ] matching French and English basenames;
+- [ ] symmetrical frontmatter keys;
+- [ ] titles and descriptions within schema limits;
+- [ ] present images and useful alt text;
+- [ ] no broken internal URL;
+- [ ] drafts absent from production.
+
+## Accessibility
+
+- complete keyboard path;
+- visible focus on every control;
+- one `h1`, followed by a logical heading hierarchy;
+- accessible labels on icons;
+- AA contrast in both themes and for custom accents;
+- animations disabled or reduced with `prefers-reduced-motion`;
+- route announcement after an Astro transition.[^route-announcer]
+
+:::tip[Test without a mouse]
+Open search, switch language, use MDX tabs, browse the table of contents, open and close the image viewer and return to the top using only the keyboard.
+:::
+
+## Performance
+
+HTML and CSS should carry most of the experience. React components use the latest hydration directive compatible with their role. Mermaid, Giscus and viewers load on demand.
+
+Measure at least:
+
+- HTML/CSS/JS size per page;
+- Largest Contentful Paint and Cumulative Layout Shift;
+- number of scripts executed on a simple page;
+- navigation stability after several transitions;
+- image and font weight.
+
+## Visual validation
+
+A visual feature must be tested in a real browser: mobile, desktop, light theme, dark theme and reduced motion. A Mermaid diagram is valid only when SVG boxes and arrows are visible, not when source code remains displayed. A draw.io diagram must expose its SVG or image, a non-zero viewport and working zoom controls in both dev and the served build.
+
+## Internal references
+
+- [Extended Markdown](/en/docs/authoring/markdown/) for rendering cases;
+- [Internationalization](/en/docs/customize/i18n/) for the locale matrix;
+- [Build and deployment](/en/docs/operations/build-deploy/) for remote acceptance;
+- [Troubleshooting](/en/docs/operations/troubleshooting/) for known symptoms.
+
+[^route-announcer]: `ClientRouter` adds a route announcer; meaningful `<title>` and `h1` text are still required to provide a useful message.

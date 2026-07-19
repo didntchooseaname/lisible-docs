@@ -1,0 +1,172 @@
+---
+import { localeUrl, otherLocale, t, type Locale } from "@/i18n/ui";
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const dict = t(locale);
+const actions = [
+  { command: "theme", label: dict.search.toggleTheme },
+  { command: "language", label: dict.search.switchLanguage },
+  { command: "copy", label: dict.search.copyUrl },
+] as const;
+---
+
+<dialog class="docs-search" data-search-modal data-other-home={localeUrl(otherLocale(locale))} data-no-results={dict.search.noResults} data-dev-notice={dict.search.devNotice} data-copied={dict.search.copied}>
+  <div class="docs-search-input-wrap">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+    </svg>
+    <input id={`docs-search-${locale}`} name="docs-search" type="search" data-search-input placeholder={dict.search.placeholder} aria-label={dict.search.title} autocomplete="off" />
+    <button type="button" data-search-close aria-label={dict.a11y.closeSearch}>Esc</button>
+  </div>
+  <div class="docs-search-body">
+    <section data-search-actions>
+      <h2>{dict.search.actions}</h2>
+      <ul>
+        {actions.map((action) => (
+          <li>
+            <button type="button" class="docs-command" data-command={action.command}>
+              <span class="docs-command__icon" aria-hidden="true">
+                {action.command === "theme" && (
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor" stroke="none" />
+                  </svg>
+                )}
+                {action.command === "language" && (
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M3 12h18M12 3c2.2 2.5 3.3 5.5 3.3 9s-1.1 6.5-3.3 9c-2.2-2.5-3.3-5.5-3.3-9S9.8 5.5 12 3Z" />
+                  </svg>
+                )}
+                {action.command === "copy" && (
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="11" height="11" rx="2" />
+                    <path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3" />
+                  </svg>
+                )}
+              </span>
+              <span class="docs-command__label">{action.label}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+    <section data-search-pages hidden>
+      <h2>{dict.search.pages}</h2>
+      <ul data-search-results></ul>
+    </section>
+    <p data-search-message>{dict.search.hint}</p>
+  </div>
+</dialog>
+
+<script>
+  import { navigate } from "astro:transitions/client";
+
+  let pagefind;
+  let unavailable = false;
+
+  function modal() { return document.querySelector("[data-search-modal]"); }
+  function input() { return document.querySelector("[data-search-input]"); }
+
+  async function ensurePagefind() {
+    if (pagefind || unavailable) return;
+    try {
+      const module = await import(/* @vite-ignore */ "/pagefind/pagefind.js");
+      await module.options({ excerptLength: 22 });
+      module.init();
+      pagefind = module;
+    } catch {
+      unavailable = true;
+    }
+  }
+
+  async function open() {
+    const dialog = modal();
+    if (!dialog || dialog.open) return;
+    dialog.showModal();
+    input()?.focus();
+    await ensurePagefind();
+  }
+
+  function close() { modal()?.close(); }
+
+  function setMessage(text) {
+    const message = document.querySelector("[data-search-message]");
+    if (message) message.textContent = text;
+  }
+
+  async function search(query) {
+    const resultsList = document.querySelector("[data-search-results]");
+    const pages = document.querySelector("[data-search-pages]");
+    const actions = document.querySelector("[data-search-actions]");
+    if (!resultsList || !pages || !actions) return;
+    const q = query.trim();
+    actions.hidden = q.length > 0;
+    pages.hidden = q.length === 0;
+    resultsList.replaceChildren();
+    if (!q) {
+      setMessage("");
+      return;
+    }
+    if (unavailable || !pagefind) {
+      setMessage(modal()?.dataset.devNotice || "");
+      return;
+    }
+    const response = await pagefind.debouncedSearch(q);
+    if (!response) return;
+    const entries = await Promise.all(response.results.slice(0, 10).map((result) => result.data()));
+    setMessage(entries.length ? "" : modal()?.dataset.noResults || "");
+    for (const entry of entries) {
+      const item = document.createElement("li");
+      const link = document.createElement("a");
+      const title = document.createElement("strong");
+      const excerpt = document.createElement("span");
+      link.href = entry.url;
+      title.textContent = entry.meta.title || entry.url;
+      excerpt.innerHTML = entry.excerpt;
+      link.append(title, excerpt);
+      item.append(link);
+      resultsList.append(item);
+    }
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target;
+    if (target.closest?.("[data-search-open]")) void open();
+    if (target.closest?.("[data-search-close]")) close();
+    const command = target.closest?.("[data-command]")?.dataset.command;
+    if (command === "theme") {
+      document.querySelector("[data-theme-toggle]")?.click();
+      close();
+    }
+    if (command === "language") {
+      const otherHome = modal()?.dataset.otherHome;
+      if (otherHome) {
+        localStorage.setItem("lisible-locale", otherHome.startsWith("/en") ? "en" : "fr");
+        close();
+        void navigate(otherHome);
+      }
+    }
+    if (command === "copy") {
+      void navigator.clipboard.writeText(location.href);
+      const button = target.closest("[data-command]");
+      const label = button?.querySelector(".docs-command__label");
+      if (label) label.textContent = modal()?.dataset.copied || label.textContent;
+    }
+    if (event.target === modal()) close();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      modal()?.open ? close() : void open();
+    }
+  });
+
+  document.addEventListener("input", (event) => {
+    if (event.target.matches?.("[data-search-input]")) void search(event.target.value);
+  });
+
+  document.addEventListener("astro:before-swap", close);
+</script>

@@ -1,0 +1,57 @@
+---
+title: "Installation"
+description: "Cloner Lisible, lancer l’assistant et obtenir un environnement de développement fonctionnel."
+category: start
+order: 0
+badge: "5 min"
+draft: false
+---
+
+Lisible utilise Bun pour ses scripts et ses installations reproductibles. Une version récente de Git et Bun suffit pour démarrer.
+
+## Prérequis
+
+- Git ;
+- Bun ;
+- un navigateur moderne ;
+- facultatif : Node.js si votre environnement l’impose pour certains outils externes.
+
+```bash title="Installer Bun sur macOS ou Linux"
+curl -fsSL https://bun.sh/install | bash
+```
+
+## Cloner et initialiser
+
+```bash
+git clone https://github.com/didntchooseaname/lisible
+cd lisible
+bun run init
+```
+
+L’assistant propose la variante, le titre, l’URL publique, l’auteur, la couleur d’accent et le dépôt source. Il écrit `lisible.config.json`, met à jour la configuration partagée et installe les dépendances de la variante choisie.
+
+La page [Configuration initiale](/docs/getting-started/configuration/) détaille chaque valeur écrite par l’assistant, et [Commandes](/docs/getting-started/commands/) couvre le cycle quotidien.
+
+:::note[Ordre flexible]
+`bun run preview:all` fonctionne aussi sur un clone frais, avant ou après `init`. La commande installe et reconstruit les six variantes avant de les servir.
+:::
+
+## Démarrer le serveur
+
+```bash
+bun run dev
+```
+
+Le script racine lit la variante active et lance son serveur Astro. Les modifications du contenu partagé sont reflétées immédiatement.
+
+## Vérifier l’installation
+
+- la page française répond à `/` ;
+- la version anglaise répond à `/en/` ;
+- <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>K</kbd> ouvre la palette ;
+- le thème et l’accent persistent après navigation ;
+- aucun dossier `node_modules` ou `dist` n’est ajouté à Git.
+
+:::tip[Recherche en développement]
+Pagefind indexe les pages pendant le build. En mode `dev`, la palette reste fonctionnelle et explique que les résultats plein texte seront disponibles après `bun run build && bun run preview`.
+:::
