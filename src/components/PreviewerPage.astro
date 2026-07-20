@@ -12,8 +12,8 @@ const { locale } = Astro.props;
 const isFrench = locale === "fr";
 const canonical = isFrench ? "/preview/" : "/en/preview/";
 const title = isFrench
-  ? "Previewer Lisible — Testez chaque variante en direct"
-  : "Lisible Previewer — Customize every variant live";
+  ? "Previewer Lisible - Testez chaque variante en direct"
+  : "Lisible Previewer - Customize every variant live";
 const description = isFrench
   ? "Comparez les six variantes Lisible et ajustez thème, langue, couleur, identité et mise en page instantanément, sans compte ni installation."
   : "Compare all six Lisible variants and adjust theme, language, color, identity and layout instantly, with no account or installation.";
@@ -126,8 +126,8 @@ const alternates = { fr: "/preview/", en: "/en/preview/" };
     --previewer-stage-grid: rgb(9 13 10 / 0.055);
     --previewer-stage-glow: color-mix(in srgb, var(--color-accent) 13%, transparent);
     --previewer-frame: #fff;
-    --previewer-frame-border: rgb(9 13 10 / 0.15);
-    --previewer-frame-shadow: rgb(9 13 10 / 0.16);
+    --previewer-frame-border: color-mix(in srgb, var(--color-accent) 46%, rgb(9 13 10 / 0.15));
+    --previewer-frame-shadow: color-mix(in srgb, var(--color-accent) 14%, rgb(9 13 10 / 0.16));
     --previewer-loading: #34443a;
     --previewer-status: #172019;
     --previewer-status-border: rgb(9 13 10 / 0.14);
@@ -148,8 +148,8 @@ const alternates = { fr: "/preview/", en: "/en/preview/" };
     --previewer-stage-grid: rgb(255 255 255 / 0.025);
     --previewer-stage-glow: color-mix(in srgb, var(--color-accent) 10%, transparent);
     --previewer-frame: #101512;
-    --previewer-frame-border: rgb(255 255 255 / 0.13);
-    --previewer-frame-shadow: rgb(0 0 0 / 0.35);
+    --previewer-frame-border: color-mix(in srgb, var(--color-accent) 52%, rgb(255 255 255 / 0.13));
+    --previewer-frame-shadow: color-mix(in srgb, var(--color-accent) 16%, rgb(0 0 0 / 0.35));
     --previewer-loading: #d9e5dc;
     --previewer-status: #d7e2d9;
     --previewer-status-border: rgb(255 255 255 / 0.12);

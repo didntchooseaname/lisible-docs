@@ -603,7 +603,7 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
                 ref={(frame) => { frameRefs.current[index] = frame; }}
                 className={index === activeFrame ? "is-active" : ""}
                 src={frame.src}
-                title={`${variantNames[frame.variant ?? settings.variant]} — ${copy.title}`}
+                title={`${variantNames[frame.variant ?? settings.variant]} - ${copy.title}`}
                 referrerPolicy="strict-origin-when-cross-origin"
               />
             ))}
