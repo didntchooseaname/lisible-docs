@@ -6,6 +6,7 @@ import {
   Laptop,
   LoaderCircle,
   Monitor,
+  Palette,
   RefreshCw,
   RotateCcw,
   Settings2,
@@ -44,6 +45,53 @@ const variantNames: Record<PublicVariant, string> = {
 
 const pageOrder: PageKey[] = ["home", "blog", "post", "tags", "archives", "about"];
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
+
+type Hsv = [number, number, number];
+
+function hexToRgb(hex: string): [number, number, number] {
+  const value = Number.parseInt(hex.slice(1), 16);
+  return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+}
+
+function rgbToHsv([red, green, blue]: [number, number, number]): Hsv {
+  const r = red / 255;
+  const g = green / 255;
+  const b = blue / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const delta = max - min;
+  let hue = 0;
+  if (delta !== 0) {
+    if (max === r) hue = ((g - b) / delta) % 6;
+    else if (max === g) hue = (b - r) / delta + 2;
+    else hue = (r - g) / delta + 4;
+    hue *= 60;
+    if (hue < 0) hue += 360;
+  }
+  return [hue, max === 0 ? 0 : (delta / max) * 100, max * 100];
+}
+
+function hsvToHex([hue, saturation, value]: Hsv) {
+  const s = saturation / 100;
+  const v = value / 100;
+  const chroma = v * s;
+  const x = chroma * (1 - Math.abs(((hue / 60) % 2) - 1));
+  const match = v - chroma;
+  const [red, green, blue] = hue < 60
+    ? [chroma, x, 0]
+    : hue < 120
+      ? [x, chroma, 0]
+      : hue < 180
+        ? [0, chroma, x]
+        : hue < 240
+          ? [0, x, chroma]
+          : hue < 300
+            ? [x, 0, chroma]
+            : [chroma, 0, x];
+  return `#${[red, green, blue]
+    .map((channel) => Math.round((channel + match) * 255).toString(16).padStart(2, "0"))
+    .join("")}`;
+}
 
 const content = {
   fr: {
@@ -294,6 +342,144 @@ function Segmented<T extends string>({ value, items, onChange, label }: {
         ))}
       </div>
     </fieldset>
+  );
+}
+
+function PreviewAccentPicker({ value, onChange, label, locale }: {
+  value: string;
+  onChange: (value: string) => void;
+  label: string;
+  locale: Locale;
+}) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [hsv, setHsv] = useState<Hsv>(() => rgbToHsv(hexToRgb(value)));
+
+  useEffect(() => setHsv(rgbToHsv(hexToRgb(value))), [value]);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOutside = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const closeWithEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    document.addEventListener("keydown", closeWithEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("keydown", closeWithEscape);
+    };
+  }, [open]);
+
+  const commit = (next: Hsv) => {
+    setHsv(next);
+    onChange(hsvToHex(next));
+  };
+
+  const updateSv = (element: HTMLElement, clientX: number, clientY: number) => {
+    const rect = element.getBoundingClientRect();
+    const x = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    const y = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
+    commit([hsv[0], x * 100, (1 - y) * 100]);
+  };
+
+  const updateHue = (element: HTMLElement, clientX: number) => {
+    const rect = element.getBoundingClientRect();
+    const x = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    commit([Math.min(359.9, x * 360), hsv[1], hsv[2]]);
+  };
+
+  const startPointer = (event: React.PointerEvent<HTMLElement>, kind: "sv" | "hue") => {
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.currentTarget.focus();
+    if (kind === "sv") updateSv(event.currentTarget, event.clientX, event.clientY);
+    else updateHue(event.currentTarget, event.clientX);
+  };
+
+  const movePointer = (event: React.PointerEvent<HTMLElement>, kind: "sv" | "hue") => {
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+    if (kind === "sv") updateSv(event.currentTarget, event.clientX, event.clientY);
+    else updateHue(event.currentTarget, event.clientX);
+  };
+
+  const adjustWithKeyboard = (event: React.KeyboardEvent<HTMLElement>, kind: "sv" | "hue") => {
+    const step = event.shiftKey ? 10 : kind === "hue" ? 5 : 2;
+    let next: Hsv | null = null;
+    if (kind === "sv") {
+      if (event.key === "ArrowLeft") next = [hsv[0], Math.max(0, hsv[1] - step), hsv[2]];
+      else if (event.key === "ArrowRight") next = [hsv[0], Math.min(100, hsv[1] + step), hsv[2]];
+      else if (event.key === "ArrowUp") next = [hsv[0], hsv[1], Math.min(100, hsv[2] + step)];
+      else if (event.key === "ArrowDown") next = [hsv[0], hsv[1], Math.max(0, hsv[2] - step)];
+    } else {
+      if (event.key === "ArrowLeft" || event.key === "ArrowDown") next = [Math.max(0, hsv[0] - step), hsv[1], hsv[2]];
+      else if (event.key === "ArrowRight" || event.key === "ArrowUp") next = [Math.min(359.9, hsv[0] + step), hsv[1], hsv[2]];
+      else if (event.key === "Home") next = [0, hsv[1], hsv[2]];
+      else if (event.key === "End") next = [359.9, hsv[1], hsv[2]];
+    }
+    if (!next) return;
+    event.preventDefault();
+    commit(next);
+  };
+
+  const hex = value.toUpperCase();
+  const svLabel = locale === "fr" ? "Saturation et luminosité" : "Saturation and brightness";
+  const hueLabel = locale === "fr" ? "Teinte" : "Hue";
+
+  return (
+    <div className="previewer-accent-picker" ref={rootRef}>
+      <button
+        type="button"
+        className="previewer-color"
+        aria-label={label}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-controls="previewer-accent-popover"
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span className="previewer-color__wheel" aria-hidden="true">
+          <span style={{ backgroundColor: value }}><Palette size={14} /></span>
+        </span>
+        <code>{hex}</code>
+      </button>
+      {open && (
+        <div id="previewer-accent-popover" className="previewer-color-popover" role="dialog" aria-label={label}>
+          <div
+            className="previewer-color-sv"
+            role="slider"
+            tabIndex={0}
+            aria-label={svLabel}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(hsv[1])}
+            aria-valuetext={`${Math.round(hsv[1])}% / ${Math.round(hsv[2])}%`}
+            style={{ background: `linear-gradient(to bottom, transparent, #000), linear-gradient(to right, #fff, hsl(${Math.round(hsv[0])}deg 100% 50%))` }}
+            onPointerDown={(event) => startPointer(event, "sv")}
+            onPointerMove={(event) => movePointer(event, "sv")}
+            onKeyDown={(event) => adjustWithKeyboard(event, "sv")}
+          >
+            <span className="previewer-color-cursor" aria-hidden="true" style={{ left: `${hsv[1]}%`, top: `${100 - hsv[2]}%`, backgroundColor: value }} />
+          </div>
+          <div
+            className="previewer-color-hue"
+            role="slider"
+            tabIndex={0}
+            aria-label={hueLabel}
+            aria-valuemin={0}
+            aria-valuemax={360}
+            aria-valuenow={Math.round(hsv[0])}
+            onPointerDown={(event) => startPointer(event, "hue")}
+            onPointerMove={(event) => movePointer(event, "hue")}
+            onKeyDown={(event) => adjustWithKeyboard(event, "hue")}
+          >
+            <span className="previewer-color-cursor" aria-hidden="true" style={{ left: `${(hsv[0] / 360) * 100}%`, backgroundColor: `hsl(${Math.round(hsv[0])}deg 100% 50%)` }} />
+          </div>
+          <code className="previewer-color-hex">{hex}</code>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -727,21 +913,15 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
 
             <fieldset className="previewer-group">
               <legend>{copy.groups.appearance}</legend>
-              <Field label={copy.fields.accent}>
-                <span className="previewer-color">
-                  <span className="previewer-color__wheel">
-                    <input
-                      type="color"
-                      name="accent"
-                      value={settings.accent}
-                      onChange={(event) => set("accent", event.target.value)}
-                      aria-label={copy.fields.accent}
-                      title={copy.fields.accent}
-                    />
-                  </span>
-                  <code>{settings.accent.toUpperCase()}</code>
-                </span>
-              </Field>
+              <div className="previewer-field">
+                <span>{copy.fields.accent}</span>
+                <PreviewAccentPicker
+                  value={settings.accent}
+                  onChange={(accent) => set("accent", accent)}
+                  label={copy.fields.accent}
+                  locale={uiLocale}
+                />
+              </div>
               <Field label={copy.fields.density}>
                 <select name="density" value={settings.density} onChange={(event) => set("density", event.target.value as PreviewSettingsV1["density"])}>
                   <option value="comfortable">{copy.values.comfortable}</option>
