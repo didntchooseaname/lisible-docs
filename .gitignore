@@ -17,6 +17,7 @@ Thumbs.db
 .netlify/
 coverage/
 tmp/
+.cache/
 
 # Local design tooling
 .codex/

@@ -1,0 +1,319 @@
+---
+import appCssUrl from "@/styles/app.css?url";
+import { ClientRouter } from "astro:transitions";
+import SeoMeta from "@/components/SeoMeta.astro";
+import PreviewerApp from "@/components/PreviewerApp";
+import { SITE } from "@/site.config";
+import type { Locale } from "@/i18n/ui";
+
+interface Props { locale: Locale }
+
+const { locale } = Astro.props;
+const isFrench = locale === "fr";
+const canonical = isFrench ? "/preview/" : "/en/preview/";
+const title = isFrench
+  ? "Previewer Lisible — Testez chaque variante en direct"
+  : "Lisible Previewer — Customize every variant live";
+const description = isFrench
+  ? "Comparez les six variantes Lisible et ajustez thème, langue, couleur, identité et mise en page instantanément, sans compte ni installation."
+  : "Compare all six Lisible variants and adjust theme, language, color, identity and layout instantly, with no account or installation.";
+const image = `/open-graph/preview-${locale}.png`;
+const imageAlt = isFrench
+  ? "Le previewer Lisible avec un blog en direct et sa sidebar de réglages."
+  : "The Lisible previewer showing a live blog and its settings sidebar.";
+const alternates = { fr: "/preview/", en: "/en/preview/" };
+---
+
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href={appCssUrl} />
+    <script is:inline define:vars={{ siteAccent: SITE.accent }}>
+      (() => {
+        const storedTheme = localStorage.getItem("theme");
+        const dark = storedTheme ? storedTheme === "dark" : !matchMedia("(prefers-color-scheme: light)").matches;
+        document.documentElement.classList.toggle("dark", dark);
+        const storedAccent = localStorage.getItem("accent");
+        const accent = storedAccent && /^#[0-9a-f]{6}$/i.test(storedAccent) ? storedAccent : siteAccent;
+        document.documentElement.style.setProperty("--accent", accent);
+        document.documentElement.style.setProperty("--ring", accent);
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <SeoMeta
+      title={title}
+      description={description}
+      canonical={canonical}
+      locale={locale}
+      alternates={alternates}
+      xDefault="/preview/"
+      image={image}
+      imageAlt={imageAlt}
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": `${new URL(canonical, SITE.url)}#webpage`,
+          name: title,
+          description,
+          url: new URL(canonical, SITE.url).toString(),
+          inLanguage: locale,
+          isPartOf: { "@id": `${SITE.url}/#website` },
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": `${new URL(canonical, SITE.url)}#application`,
+          name: "Lisible Previewer",
+          description,
+          applicationCategory: "DeveloperApplication",
+          operatingSystem: "Any",
+          isAccessibleForFree: true,
+          url: new URL(canonical, SITE.url).toString(),
+        },
+      ],
+    })} />
+    <ClientRouter />
+  </head>
+  <body class="previewer-page">
+    <a class="docs-skip-link" href="#previewer-root">{isFrench ? "Aller au previewer" : "Skip to previewer"}</a>
+    <div id="previewer-root" data-pagefind-body>
+      <PreviewerApp client:load locale={locale} />
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  .previewer-page {
+    min-width: 20rem;
+    height: 100svh;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    overflow: hidden;
+    background: var(--color-background);
+  }
+
+  .previewer-app {
+    display: grid;
+    width: 100%;
+    height: 100svh;
+    height: 100dvh;
+    max-height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+    grid-template-rows: 4.25rem minmax(0, 1fr);
+    background: var(--color-background);
+  }
+
+  .previewer-header {
+    position: relative;
+    z-index: 50;
+    display: flex;
+    min-width: 0;
+    padding: 0.625rem 1rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--color-border);
+    background: color-mix(in srgb, var(--color-background) 94%, transparent);
+    backdrop-filter: blur(18px);
+  }
+
+  .previewer-header__identity,
+  .previewer-header__actions,
+  .previewer-title-row,
+  .previewer-back,
+  .previewer-source,
+  .previewer-button,
+  .previewer-sidebar__header > div {
+    display: flex;
+    align-items: center;
+  }
+
+  .previewer-header__identity { min-width: 0; gap: 0.9rem; }
+  .previewer-header__actions { flex: none; gap: 0.5rem; }
+  .previewer-title-row { gap: 0.55rem; }
+  .previewer-title-row h1 { margin: 0; font-size: 1rem; line-height: 1.15; letter-spacing: -0.02em; }
+  .previewer-header__identity p { margin: 0.2rem 0 0; color: var(--color-muted-foreground); font-size: 0.72rem; }
+  .previewer-header__divider { width: 1px; height: 1.75rem; background: var(--color-border); }
+  .brand-blob { width: 0.8rem; height: 0.8rem; flex: none; border-radius: 45% 55% 65% 35%; background: var(--color-accent); box-shadow: 0 0 1rem color-mix(in srgb, var(--color-accent) 42%, transparent); transform: rotate(-18deg); }
+
+  .previewer-back {
+    min-height: 2.75rem;
+    gap: 0.45rem;
+    border-radius: var(--radius-md);
+    color: var(--color-muted-foreground);
+    font-size: 0.78rem;
+    font-weight: 650;
+    text-decoration: none;
+    transition: color 160ms ease, background 160ms ease;
+  }
+  .previewer-back:hover { color: var(--color-foreground); }
+
+  .previewer-page-locales { display: flex; overflow: hidden; border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+  .previewer-page-locales a { display: grid; min-width: 2.75rem; min-height: 2.75rem; place-items: center; color: var(--color-muted-foreground); font: 700 0.68rem/1 var(--font-mono); text-decoration: none; transition: color 160ms ease, background 160ms ease; }
+  .previewer-page-locales a[aria-current="page"] { color: var(--color-foreground); background: var(--color-secondary); }
+
+  .previewer-theme-switch { min-width: 6.5rem; }
+
+  .previewer-source {
+    min-height: 2.75rem;
+    padding: 0 0.7rem;
+    gap: 0.45rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-muted-foreground);
+    font-size: 0.68rem;
+    text-decoration: none;
+  }
+  .previewer-source code { color: var(--color-foreground); font-size: 0.66rem; }
+  .previewer-source__dot { width: 0.42rem; height: 0.42rem; border-radius: 50%; background: var(--color-accent); box-shadow: 0 0 0.6rem var(--color-accent); }
+
+  .previewer-icon-button,
+  .previewer-button {
+    min-height: 2.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-foreground);
+    background: var(--color-card);
+    cursor: pointer;
+    transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+  }
+  .previewer-icon-button { display: inline-grid; width: 2.75rem; padding: 0; place-items: center; text-decoration: none; }
+  .previewer-button { padding: 0 0.85rem; justify-content: center; gap: 0.45rem; font-size: 0.75rem; font-weight: 700; }
+  .previewer-icon-button:hover,
+  .previewer-button:hover { border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-border)); background: var(--color-secondary); }
+  .previewer-button--primary { border-color: var(--color-accent); color: var(--color-accent-foreground); background: var(--color-accent); }
+  .previewer-button--primary:hover { color: var(--color-accent-foreground); background: color-mix(in srgb, var(--color-accent) 88%, black); }
+  .previewer-button--wide { flex: 1; }
+  .previewer-settings-open { display: none; }
+
+  .previewer-workspace { position: relative; display: grid; width: 100%; height: 100%; min-width: 0; min-height: 0; overflow: hidden; grid-template-columns: minmax(0, 1fr) 21.5rem; }
+  .previewer-canvas { position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; overflow: hidden; padding: clamp(0.55rem, 1.5vw, 1rem); background-color: #090d0a; background-image: linear-gradient(rgb(255 255 255 / 0.025) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 0.025) 1px, transparent 1px), radial-gradient(circle at 48% 10%, rgb(34 197 94 / 0.1), transparent 38rem); background-size: 2rem 2rem, 2rem 2rem, auto; }
+  .previewer-device { position: relative; width: 100%; height: 100%; max-height: 100%; margin: auto; overflow: hidden; border: 1px solid rgb(255 255 255 / 0.13); border-radius: 0.75rem; background: #101512; box-shadow: 0 1.8rem 5rem rgb(0 0 0 / 0.35); transition: width 220ms ease, max-width 220ms ease, border-radius 220ms ease; }
+  .previewer-device--desktop { max-width: 90rem; }
+  .previewer-device--tablet { width: min(48rem, 100%); }
+  .previewer-device--mobile { width: min(24.375rem, 100%); border-radius: 1.45rem; }
+  .previewer-device iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; opacity: 0; pointer-events: none; background: #fff; transition: opacity 180ms ease; }
+  .previewer-device iframe.is-active { z-index: 2; opacity: 1; pointer-events: auto; }
+  .previewer-empty { position: absolute; inset: 0; z-index: 1; display: grid; place-content: center; justify-items: center; gap: 0.75rem; color: #d9e5dc; text-align: center; }
+  .previewer-empty strong { max-width: 28rem; font-size: 0.84rem; }
+  .is-spinning { animation: previewer-spin 0.8s linear infinite; }
+  @keyframes previewer-spin { to { transform: rotate(360deg); } }
+
+  .previewer-status { position: absolute; z-index: 5; left: 50%; bottom: 1.65rem; display: flex; min-height: 2rem; padding: 0.35rem 0.7rem; align-items: center; gap: 0.42rem; border: 1px solid rgb(255 255 255 / 0.12); border-radius: 999px; color: #d7e2d9; background: rgb(10 15 11 / 0.88); box-shadow: 0 0.75rem 2rem rgb(0 0 0 / 0.28); opacity: 1; font-size: 0.67rem; transform: translateX(-50%); transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease; visibility: visible; backdrop-filter: blur(10px); }
+  .previewer-status.is-hidden { opacity: 0; pointer-events: none; transform: translate(-50%, 0.45rem); visibility: hidden; }
+  .previewer-status.is-error { max-width: min(34rem, calc(100% - 2rem)); border-color: rgb(239 68 68 / 0.45); color: #fecaca; border-radius: 0.6rem; }
+  .previewer-status button { display: inline-flex; min-height: 1.75rem; padding: 0 0.45rem; align-items: center; gap: 0.3rem; border: 0; border-radius: 0.35rem; color: inherit; background: rgb(255 255 255 / 0.09); cursor: pointer; }
+
+  .previewer-sidebar { position: relative; z-index: 20; display: grid; min-width: 0; min-height: 0; grid-template-rows: auto minmax(0, 1fr) auto; border-left: 1px solid var(--color-border); background: var(--color-background); }
+  .previewer-sidebar__header { display: flex; min-height: 3.25rem; padding: 0.45rem 0.75rem 0.45rem 1rem; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-border); }
+  .previewer-sidebar__header > div { gap: 0.5rem; font-size: 0.8rem; }
+  .previewer-sidebar__header .previewer-icon-button { display: none; }
+  .previewer-sidebar__body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .previewer-sidebar__footer { display: flex; padding: 0.75rem; gap: 0.55rem; border-top: 1px solid var(--color-border); background: var(--color-background); }
+
+  .previewer-group { min-width: 0; margin: 0; padding: 1rem; border: 0; border-bottom: 1px solid var(--color-border); }
+  .previewer-group > legend { width: 100%; margin: 0 0 0.9rem; color: var(--color-muted-foreground); font: 700 0.62rem/1 var(--font-mono); letter-spacing: 0.11em; text-transform: uppercase; }
+  .previewer-field { display: grid; margin-top: 0.75rem; gap: 0.38rem; }
+  .previewer-field:first-of-type { margin-top: 0; }
+  .previewer-field > span:first-child,
+  .previewer-segmented legend { color: var(--color-muted-foreground); font-size: 0.68rem; font-weight: 650; }
+  .previewer-field input:not([type="color"]),
+  .previewer-field select { width: 100%; min-height: 2.75rem; padding: 0 0.7rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); color: var(--color-foreground); background-color: var(--color-card); font: 500 0.78rem/1.2 var(--font-sans); transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease; }
+  .previewer-field select {
+    appearance: none;
+    padding-inline-end: 2.4rem;
+    color-scheme: dark;
+    background-image: linear-gradient(45deg, transparent 50%, var(--color-muted-foreground) 50%), linear-gradient(135deg, var(--color-muted-foreground) 50%, transparent 50%);
+    background-position: calc(100% - 1rem) calc(50% - 1px), calc(100% - 0.72rem) calc(50% - 1px);
+    background-repeat: no-repeat;
+    background-size: 0.32rem 0.32rem, 0.32rem 0.32rem;
+    cursor: pointer;
+  }
+  :root:not(.dark) .previewer-field select { color-scheme: light; }
+  .previewer-field select:hover { border-color: color-mix(in srgb, var(--color-accent) 42%, var(--color-border)); background-color: var(--color-secondary); }
+  .previewer-field select:focus-visible,
+  .previewer-field input:not([type="color"]):focus-visible { border-color: var(--color-accent); outline: 0; box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 20%, transparent); }
+  .previewer-field select:disabled { opacity: 0.55; cursor: wait; }
+  .previewer-field select option { color: var(--color-foreground); background: var(--color-card); }
+  .previewer-variant-description { margin: 0.45rem 0 0; color: var(--color-muted-foreground); font-size: 0.66rem; line-height: 1.45; }
+
+  .previewer-segmented { min-width: 0; margin: 0.85rem 0 0; padding: 0; border: 0; }
+  .previewer-segmented > div { display: grid; margin-top: 0.4rem; grid-auto-flow: column; grid-auto-columns: 1fr; overflow: hidden; border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+  .previewer-segmented button { display: flex; min-width: 0; min-height: 2.75rem; padding: 0.35rem; align-items: center; justify-content: center; gap: 0.28rem; border: 0; border-right: 1px solid var(--color-border); color: var(--color-muted-foreground); background: transparent; cursor: pointer; font-size: 0.62rem; transition: color 160ms ease, background 160ms ease; }
+  .previewer-segmented button:last-child { border-right: 0; }
+  .previewer-segmented button[aria-pressed="true"] { color: var(--color-foreground); background: var(--color-secondary); box-shadow: inset 0 -2px var(--color-accent); }
+
+  .previewer-accent-cluster { padding: 0.75rem; border: 1px solid color-mix(in srgb, var(--color-accent) 30%, var(--color-border)); border-radius: calc(var(--radius-md) + 0.2rem); background: color-mix(in srgb, var(--color-accent) 5%, var(--color-card)); box-shadow: inset 0 1px rgb(255 255 255 / 0.025); transition: border-color 160ms ease, background-color 160ms ease; }
+  .previewer-accent-cluster .previewer-field { margin-top: 0; }
+  .previewer-color { display: grid; min-height: 3rem; padding: 0.45rem 0.55rem; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 0.35rem 0.55rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-card); }
+  .previewer-color > input { width: 2.75rem; height: 2.75rem; padding: 0.42rem; overflow: hidden; border: 1px solid color-mix(in srgb, var(--color-accent) 48%, var(--color-border)); border-radius: 50%; outline-offset: 2px; background: var(--color-background); cursor: pointer; }
+  .previewer-color > input::-webkit-color-swatch-wrapper { padding: 0; }
+  .previewer-color > input::-webkit-color-swatch { border: 0; border-radius: 50%; }
+  .previewer-color > input::-moz-color-swatch { border: 0; border-radius: 50%; }
+  .previewer-color > input:focus-visible { outline: 2px solid var(--color-ring); }
+  .previewer-color__presets { display: grid; min-width: 0; grid-column: 1 / -1; grid-template-columns: repeat(6, minmax(0, 1fr)); align-items: center; gap: 0.2rem; }
+  .previewer-color__presets button { position: relative; display: grid; width: 100%; min-width: 0; height: 2.75rem; padding: 0; place-items: center; border: 0; border-radius: var(--radius-sm); background: transparent; cursor: pointer; }
+  .previewer-color__presets button::before { width: 1.15rem; height: 1.15rem; border: 2px solid var(--color-card); border-radius: 50%; outline: 1px solid color-mix(in srgb, var(--swatch) 58%, var(--color-border)); background: var(--swatch); content: ""; transition: scale 140ms ease, box-shadow 140ms ease; }
+  .previewer-color__presets button:hover::before { scale: 1.12; }
+  .previewer-color__presets button[aria-pressed="true"]::before { box-shadow: 0 0 0 2px var(--color-card), 0 0 0 4px var(--color-foreground); }
+  .previewer-color__presets button:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
+  .previewer-color code { justify-self: end; color: var(--color-muted-foreground); font-size: 0.61rem; }
+
+  .previewer-toggle { position: relative; display: grid; min-height: 2.9rem; padding: 0.4rem 0; grid-template-columns: 1fr auto; align-items: center; gap: 0.75rem; color: var(--color-foreground); cursor: pointer; font-size: 0.74rem; }
+  .previewer-toggle input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .previewer-toggle__track { position: relative; width: 2.25rem; height: 1.25rem; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-secondary); transition: background 160ms ease, border-color 160ms ease; }
+  .previewer-toggle__track > span { position: absolute; top: 0.17rem; left: 0.17rem; width: 0.8rem; height: 0.8rem; border-radius: 50%; background: var(--color-muted-foreground); transition: transform 160ms ease, background 160ms ease; }
+  .previewer-toggle input:checked + .previewer-toggle__track { border-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 24%, var(--color-secondary)); }
+  .previewer-toggle input:checked + .previewer-toggle__track > span { background: var(--color-accent); transform: translateX(0.98rem); }
+  .previewer-toggle input:focus-visible + .previewer-toggle__track { outline: 2px solid var(--color-ring); outline-offset: 2px; }
+
+  .previewer-scrim { display: none; }
+
+  @media (max-width: 63.99rem) {
+    .previewer-workspace { grid-template-columns: minmax(0, 1fr); }
+    .previewer-settings-open { display: inline-grid; }
+    .previewer-sidebar { position: fixed; z-index: 90; top: 0; right: 0; bottom: 0; width: min(23rem, calc(100vw - 1.5rem)); border-left: 1px solid var(--color-border); box-shadow: -2rem 0 5rem rgb(0 0 0 / 0.34); transform: translateX(105%); transition: transform 220ms ease; }
+    .previewer-sidebar.is-open { transform: translateX(0); }
+    .previewer-sidebar__header { padding-top: max(0.45rem, env(safe-area-inset-top)); }
+    .previewer-sidebar__header .previewer-icon-button { display: inline-grid; }
+    .previewer-sidebar__footer { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
+    .previewer-scrim { position: fixed; z-index: 80; inset: 0; display: block; border: 0; background: rgb(0 0 0 / 0.58); opacity: 0; visibility: hidden; cursor: pointer; transition: opacity 180ms ease, visibility 180ms ease; }
+    .previewer-scrim.is-open { opacity: 1; visibility: visible; }
+  }
+
+  @media (max-width: 47.99rem) {
+    .previewer-app { grid-template-rows: 3.75rem minmax(0, 1fr); }
+    .previewer-header { padding-inline: 0.65rem; }
+    .previewer-header__identity { gap: 0.55rem; }
+    .previewer-header__divider,
+    .previewer-header__identity p,
+    .previewer-source { display: none; }
+    .previewer-back { width: 2.75rem; flex: none; justify-content: center; }
+    .previewer-back span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .previewer-header__actions { gap: 0.35rem; }
+    .previewer-page-locales a { min-width: 2.75rem; min-height: 2.75rem; }
+    .previewer-share-button { display: none; }
+    .previewer-theme-switch { min-width: 2.75rem; }
+    .previewer-header__actions .previewer-button { width: 2.75rem; padding: 0; }
+    .previewer-header__actions .previewer-button span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .previewer-canvas { padding: 0.4rem; }
+    .previewer-device { border-radius: 0.55rem; }
+    .previewer-status { bottom: 1rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .previewer-device,
+    .previewer-device iframe,
+    .previewer-sidebar,
+    .previewer-scrim,
+    .previewer-toggle__track,
+    .previewer-toggle__track > span { transition: none; }
+    .is-spinning { animation: none; }
+  }
+</style>

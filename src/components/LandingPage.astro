@@ -28,6 +28,7 @@ const content = {
     ogAlt: "Aperçu de la documentation Lisible avec le message Publier devient plus simple et une interface de guide.",
     home: "Accueil Lisible",
     docs: "Documentation",
+    previewer: "Previewer",
     repository: "Dépôt GitHub",
     eyebrow: "Documentation officielle",
     title: "Publier devient plus simple quand tout est lisible.",
@@ -35,7 +36,10 @@ const content = {
     primary: "Commencer à lire",
     search: "Rechercher un sujet",
     highlights: ["18 chapitres", "Français et anglais", "Recherche instantanée"],
-    previewLabel: "Aperçu fidèle de la page Archives du thème Organique",
+    previewLabel: "Ouvrir le previewer interactif Lisible",
+    previewTitle: "Testez les six variantes en direct.",
+    previewBody: "Changez le thème, la langue, l’identité et la mise en page sans installer quoi que ce soit.",
+    previewAction: "Ouvrir le previewer",
     featureEyebrow: "Pensée pour avancer",
     featureTitle: "Tout le nécessaire, sans perdre le fil.",
     featureIntro: "La documentation transforme un framework riche en décisions simples à prendre, dans le bon ordre.",
@@ -105,6 +109,7 @@ const content = {
     ogAlt: "Lisible documentation preview with the message Publishing gets simpler and a guide interface.",
     home: "Lisible home",
     docs: "Documentation",
+    previewer: "Previewer",
     repository: "GitHub repository",
     eyebrow: "Official documentation",
     title: "Publishing gets simpler when everything stays clear.",
@@ -112,7 +117,10 @@ const content = {
     primary: "Start reading",
     search: "Search for a topic",
     highlights: ["18 chapters", "French and English", "Instant search"],
-    previewLabel: "Accurate preview of the Organique theme Archives page",
+    previewLabel: "Open the interactive Lisible previewer",
+    previewTitle: "Try all six variants live.",
+    previewBody: "Change theme, language, identity and layout without installing anything.",
+    previewAction: "Open the previewer",
     featureEyebrow: "Built for progress",
     featureTitle: "Everything you need, without losing the thread.",
     featureIntro: "The documentation turns a rich framework into simple decisions, presented in the right order.",
@@ -183,7 +191,7 @@ const landingUrl = locale === "fr" ? "/fr/" : "/en/";
 const canonicalUrl = new URL(autoLocale ? "/" : landingUrl, SITE.url);
 const docsUrl = localeUrl(locale, "docs");
 const docUrl = (slug: string) => localeUrl(locale, `docs/${slug}`);
-const blogPreviewUrl = localeUrl(locale, "preview/blog");
+const previewUrl = locale === "fr" ? "/preview/" : "/en/preview/";
 const alternates = { fr: "/fr/", en: "/en/" };
 const social = {
   fr: {
@@ -249,17 +257,9 @@ const social = {
           document.documentElement.style.setProperty("--accent", accent);
           document.documentElement.style.setProperty("--accent-foreground", foreground);
           document.documentElement.style.setProperty("--ring", accent);
-          if (typeof window.__syncOrganiquePreview === "function") window.__syncOrganiquePreview();
         }
         window.__applyAccent = applyPreferences;
         applyPreferences();
-        function syncPreview() {
-          document.querySelectorAll('iframe[data-organique-preview]').forEach(function (frame) {
-            if (frame.contentWindow) frame.contentWindow.postMessage({ type: "lisible:preferences" }, location.origin);
-          });
-        }
-        window.__syncOrganiquePreview = syncPreview;
-        document.addEventListener("lisible:preferences", syncPreview);
         document.addEventListener("astro:after-swap", applyPreferences);
       })();
     </script>
@@ -309,6 +309,13 @@ const social = {
 
         <nav class="landing-nav" aria-label={copy.docs}>
           <a href={docsUrl} data-locale-link>{copy.docs}</a>
+          <a class="landing-nav__preview" href={previewUrl} data-locale-link aria-label={copy.previewer}>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="14" rx="2" />
+              <path d="M8 22h8M12 18v4M15.5 8.5l-4.25 4.25L9 10.5" />
+            </svg>
+            <span>{copy.previewer}</span>
+          </a>
           <a href={SITE.repo} target="_blank" rel="noopener noreferrer" aria-label={copy.repository}>
             <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5A4.8 4.8 0 0 0 9 18v4" />
@@ -365,25 +372,32 @@ const social = {
             </ul>
           </div>
 
-          <div class="landing-preview landing-enter landing-enter--delay" data-pointer-card role="img" aria-label={copy.previewLabel}>
+          <a class="landing-preview landing-enter landing-enter--delay" data-pointer-card aria-label={copy.previewLabel} href={previewUrl} data-locale-link>
             <BorderBeam client:load duration={8} size={130} borderWidth={3} colorFrom="var(--accent)" colorTo="var(--accent)" />
             <div class="landing-preview__bar" aria-hidden="true">
               <span></span><span></span><span></span>
-              <div>blog.lisible.dev/archives</div>
+              <div>lisible.xsec.fr/preview</div>
             </div>
-            <div class="landing-preview__viewport" aria-hidden="true">
-              <iframe
-                class="landing-preview__frame"
-                data-organique-preview
-                data-locale-frame
-                src={blogPreviewUrl}
-                title={copy.previewLabel}
-                tabindex="-1"
-                loading="eager"
-                onload="window.__syncOrganiquePreview?.()"
-              ></iframe>
+            <div class="landing-preview__viewport">
+              <div class="landing-preview__site" aria-hidden="true">
+                <div class="landing-preview__site-nav"><strong>Lisible</strong><span>Blog</span><span>Tags</span><span>About</span></div>
+                <div class="landing-preview__site-copy"><span>THE INDEPENDENT WEB</span><strong>Ideas made<br />readable.</strong><i></i><i></i><i></i></div>
+              </div>
+              <div class="landing-preview__settings" aria-hidden="true">
+                <strong>SETTINGS</strong>
+                <span>Organique <i></i></span>
+                <small>APPEARANCE</small>
+                <span>Dark <i class="is-on"></i></span>
+                <span>Accent <b></b></span>
+                <small>CONTENT</small>
+                <span>Covers <i class="is-on"></i></span>
+              </div>
+              <div class="landing-preview__cta">
+                <div><strong>{copy.previewTitle}</strong><p>{copy.previewBody}</p></div>
+                <span>{copy.previewAction}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></span>
+              </div>
             </div>
-          </div>
+          </a>
         </div>
       </section>
 
@@ -500,6 +514,7 @@ const social = {
         <p>{copy.footer}</p>
         <div>
           <a href={docsUrl} data-locale-link>{copy.docs}</a>
+          <a href={previewUrl} data-locale-link>{copy.previewer}</a>
           <a href={SITE.repo} target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </div>
@@ -586,6 +601,8 @@ const social = {
             text(".landing-brand > span:last-child", copy.docs);
             attribute(".landing-nav", "aria-label", copy.docs);
             text(".landing-nav > a:first-child", copy.docs);
+            text(".landing-nav__preview span", copy.previewer);
+            attribute(".landing-nav__preview", "aria-label", copy.previewer);
             attribute(".landing-nav > a:last-child", "aria-label", copy.repository);
 
             const languageNav = document.querySelector(".landing-header__actions nav");
@@ -624,7 +641,11 @@ const social = {
             });
 
             attribute(".landing-preview", "aria-label", copy.previewLabel);
-            attribute("[data-organique-preview]", "title", copy.previewLabel);
+            text(".landing-preview__cta strong", copy.previewTitle);
+            text(".landing-preview__cta p", copy.previewBody);
+            const previewAction = document.querySelector(".landing-preview__cta > span");
+            const previewActionIcon = previewAction?.querySelector("svg");
+            if (previewAction && previewActionIcon) previewAction.replaceChildren(document.createTextNode(copy.previewAction), previewActionIcon);
             text(".landing-features .landing-eyebrow", copy.featureEyebrow);
             text("#features-title", copy.featureTitle);
             text(".landing-section__heading > p", copy.featureIntro);
@@ -661,14 +682,12 @@ const social = {
             text(".landing-final__actions > a:last-child", copy.finalSecondary);
             text(".landing-footer p", copy.footer);
             text(".landing-footer a:first-child", copy.docs);
+            text(".landing-footer a:nth-child(2)", copy.previewer);
 
             document.querySelectorAll("[data-locale-link]").forEach((link) => {
               const href = link.getAttribute("href");
               if (href) link.setAttribute("href", localizedPath(href, next));
             });
-            const preview = document.querySelector("[data-locale-frame]");
-            const previewSrc = preview?.getAttribute("src");
-            if (previewSrc) preview.setAttribute("src", localizedPath(previewSrc, next));
 
             const modal = document.querySelector("[data-search-modal]");
             if (modal) {
@@ -688,7 +707,6 @@ const social = {
               if (actionLabels[index]) label.textContent = actionLabels[index];
             });
 
-            window.__syncOrganiquePreview?.();
           }
 
           const initial = document.documentElement.dataset.landingLocale === "fr" ? "fr" : "en";

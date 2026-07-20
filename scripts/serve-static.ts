@@ -30,9 +30,11 @@ async function isFile(filePath: string): Promise<boolean> {
 }
 
 function cacheControl(pathname: string): string {
-  if (pathname.startsWith("/_astro/")) {
+  if (pathname.includes("/_astro/")) {
     return "public, max-age=31536000, immutable";
   }
+
+  if (pathname === "/_previews/manifest.json") return "no-store";
 
   if (/\.(?:html?|json|txt|xml)$/i.test(pathname) || pathname.endsWith("/")) {
     return "public, max-age=0, must-revalidate";
@@ -56,6 +58,9 @@ async function serveFile(
   headers.set("Cache-Control", cacheControl(pathname));
   headers.set("Content-Length", String(file.size));
   headers.set("Content-Type", file.type || "application/octet-stream");
+  if (pathname.startsWith("/_previews/")) {
+    headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  }
 
   return new Response(method === "HEAD" ? null : file, { headers, status });
 }

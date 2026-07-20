@@ -5,6 +5,16 @@
     "bun": "1.3.11",
     "node": "22"
   },
+  "caches": {
+    "bun": {
+      "directory": "/root/.bun/install/cache",
+      "type": "shared"
+    },
+    "previews": {
+      "directory": "/app/.cache/lisible-previews",
+      "type": "shared"
+    }
+  },
   "steps": {
     "build": {
       "commands": [
@@ -12,7 +22,8 @@
           "cmd": "bun run check:all",
           "customName": "Validate and build the documentation"
         }
-      ]
+      ],
+      "caches": ["bun", "previews"]
     }
   },
   "deploy": {

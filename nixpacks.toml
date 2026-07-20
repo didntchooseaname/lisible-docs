@@ -16,7 +16,7 @@ paths = ["/app/node_modules/.bin"]
 [phases.build]
 dependsOn = ["install"]
 cmds = ["bun run check:all"]
-cacheDirectories = ["node_modules/.astro"]
+cacheDirectories = ["node_modules/.astro", ".cache/lisible-previews"]
 
 [start]
 cmd = "bun run start"

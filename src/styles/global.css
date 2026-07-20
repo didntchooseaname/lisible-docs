@@ -2498,6 +2498,22 @@ body {
   margin-inline-start: auto;
 }
 
+.docs-preview-link {
+  display: inline-flex;
+  min-height: 2.75rem;
+  padding-inline: 0.7rem;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: var(--radius-md);
+  color: var(--color-muted-foreground);
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-decoration: none;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.docs-preview-link:hover { background: var(--color-secondary); color: var(--color-foreground); }
+
 .docs-icon-button {
   display: inline-flex;
   width: 2.75rem;
@@ -2801,6 +2817,8 @@ body {
 
 @media (max-width: 40rem) {
   .docs-brand > span:last-child { display: none; }
+  .docs-preview-link { width: 2.75rem; padding: 0; justify-content: center; }
+  .docs-preview-link span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .docs-header-actions [data-accent-picker] { display: none; }
   .docs-pager { grid-template-columns: 1fr; }
   .docs-pager-next { grid-column: 1; }

@@ -14,6 +14,7 @@ import remarkDirective from "remark-directive";
 import remarkMath from "remark-math";
 import { SITE } from "./src/site.config";
 import pagefindDev from "./src/lib/pagefind-dev";
+import previewAssetsDev from "./src/lib/preview-assets-dev";
 import remarkCallouts from "./src/lib/remark-callouts";
 import remarkDrawio from "./src/lib/remark-drawio";
 import remarkGithubCard from "./src/lib/remark-github-card";
@@ -82,8 +83,7 @@ export default defineConfig({
     sitemap({
       filter: (page) => {
         const pathname = new URL(page).pathname;
-        return !pathname.includes("/preview/blog/")
-          && !pathname.endsWith("/404/")
+        return !pathname.endsWith("/404/")
           && pathname !== "/architecture/"
           && pathname !== "/en/architecture/";
       },
@@ -91,7 +91,7 @@ export default defineConfig({
     pagefind(),
   ],
   vite: {
-    plugins: [pagefindDev(), tailwindcss()],
+    plugins: [pagefindDev(), previewAssetsDev(), tailwindcss()],
     optimizeDeps: {
       include: ["react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime", "mermaid"],
     },

@@ -11,8 +11,10 @@
     "#src/*": "./src/*"
   },
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "bun run build:previews && astro dev",
+    "build": "astro build && bun run build:previews",
+    "build:docs": "astro build",
+    "build:previews": "bun scripts/build-previews.ts",
     "generate:og": "bun scripts/generate-og.ts",
     "start": "bun scripts/serve-static.ts",
     "preview": "astro preview",

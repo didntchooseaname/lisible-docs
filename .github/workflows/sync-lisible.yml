@@ -1,0 +1,68 @@
+name: Sync Lisible preview sources
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact commit from didntchooseaname/lisible
+        required: true
+        type: string
+
+concurrency:
+  group: sync-lisible-preview-sources
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout lisible-docs
+        uses: actions/checkout@v4
+        with:
+          path: docs
+
+      - name: Checkout the requested Lisible revision
+        uses: actions/checkout@v4
+        with:
+          repository: didntchooseaname/lisible
+          ref: ${{ inputs.source_sha }}
+          path: source
+
+      - name: Verify and synchronize sources
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        run: |
+          test "$(git -C source rev-parse HEAD)" = "$SOURCE_SHA"
+          mkdir -p docs/vendor/lisible
+          rsync -a --delete \
+            --exclude node_modules \
+            --exclude dist \
+            --exclude .astro \
+            --exclude .cache \
+            --exclude research \
+            source/versions source/shared docs/vendor/lisible/
+          jq -n \
+            --arg repository "didntchooseaname/lisible" \
+            --arg ref "main" \
+            --arg sha "$SOURCE_SHA" \
+            --arg syncedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            '{repository: $repository, ref: $ref, sha: $sha, syncedAt: $syncedAt}' \
+            > docs/vendor/lisible/source.json
+
+      - name: Commit synchronized sources
+        working-directory: docs
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        run: |
+          git add vendor/lisible
+          if git diff --cached --quiet; then
+            echo "Preview sources already match $SOURCE_SHA"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(previews): sync lisible ${SOURCE_SHA:0:12}"
+          git push origin HEAD:main

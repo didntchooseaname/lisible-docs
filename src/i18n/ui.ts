@@ -20,6 +20,7 @@ const fr = {
   header: {
     documentation: "Documentation",
     home: "Accueil de la documentation",
+    previewer: "Previewer en direct",
     repository: "Dépôt GitHub",
   },
   sidebar: {
@@ -92,6 +93,7 @@ const en: Dictionary = {
   header: {
     documentation: "Documentation",
     home: "Documentation home",
+    previewer: "Live previewer",
     repository: "GitHub repository",
   },
   sidebar: {

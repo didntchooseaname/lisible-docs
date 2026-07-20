@@ -10,7 +10,7 @@ type Locale = "fr" | "en";
 type Variant = {
   name: string;
   locale: Locale;
-  kind: "landing" | "docs";
+  kind: "landing" | "docs" | "preview";
   eyebrow: string;
   title: string[];
   description: string;
@@ -48,6 +48,22 @@ const variants: Variant[] = [
     eyebrow: "BILINGUAL GUIDE",
     title: ["Lisible", "Documentation"],
     description: "Understand. Write. Customize. Publish.",
+  },
+  {
+    name: "preview-fr",
+    locale: "fr",
+    kind: "preview",
+    eyebrow: "PREVIEWER INTERACTIF",
+    title: ["Six variantes.", "En direct."],
+    description: "Testez chaque réglage sans compte ni installation.",
+  },
+  {
+    name: "preview-en",
+    locale: "en",
+    kind: "preview",
+    eyebrow: "INTERACTIVE PREVIEWER",
+    title: ["Six variants.", "Live."],
+    description: "Try every setting with no account or installation.",
   },
 ];
 
@@ -89,6 +105,41 @@ function interfacePanel(locale: Locale, kind: Variant["kind"]) {
         <path d="M48 258l20-20 17 14 29-34" fill="none" stroke="#22C55E" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M194 229h72M194 247h48M194 265h60" stroke="#A8B2AB" stroke-width="7" stroke-linecap="round"/>
         <rect x="24" y="307" width="276" height="12" rx="6" fill="#263129"/>
+      </g>`;
+  }
+
+  if (kind === "preview") {
+    const settings = locale === "fr"
+      ? ["Variante", "Thème", "Couleur", "Couvertures"]
+      : ["Variant", "Theme", "Color", "Covers"];
+    return `
+      <g transform="translate(716 120)">
+        <rect width="418" height="408" rx="24" fill="#101713" stroke="#2B3A30"/>
+        <rect x="18" y="18" width="260" height="372" rx="15" fill="#F4F7F4"/>
+        <rect x="18" y="18" width="260" height="42" rx="15" fill="#E9EFEA"/>
+        <circle cx="39" cy="39" r="5" fill="#22C55E"/>
+        <path d="M57 35h61M57 43h38" stroke="#56655B" stroke-width="5" stroke-linecap="round"/>
+        <rect x="40" y="91" width="74" height="7" rx="3.5" fill="#22C55E"/>
+        <path d="M40 125h180M40 146h154" stroke="#17231B" stroke-width="12" stroke-linecap="round"/>
+        <path d="M40 190h196" stroke="#C9D3CB"/>
+        <rect x="40" y="219" width="87" height="91" rx="12" fill="#DCE6DE"/>
+        <path d="M147 231h78M147 250h61M147 283h78M147 300h49" stroke="#859189" stroke-width="7" stroke-linecap="round"/>
+        <rect x="40" y="339" width="196" height="8" rx="4" fill="#CBD5CD"/>
+        <g transform="translate(296 22)">
+          <text x="0" y="14" class="label" font-size="12" fill="#7F8B82" letter-spacing="1.5">SETTINGS</text>
+          ${settings.map((label, index) => {
+            const y = 41 + index * 70;
+            return `<g transform="translate(0 ${y})">
+              <text x="0" y="13" class="label" font-size="12" fill="#A8B2AB">${escapeXml(label)}</text>
+              <rect y="23" width="102" height="35" rx="9" fill="#151F19" stroke="#2B3A30"/>
+              ${index === 2
+                ? '<circle cx="18" cy="40.5" r="8" fill="#22C55E"/><path d="M34 40.5h52" stroke="#566158" stroke-width="5" stroke-linecap="round"/>'
+                : `<path d="M12 40.5h${index === 3 ? 56 : 69}" stroke="${index === 3 ? "#22C55E" : "#D6DED8"}" stroke-width="6" stroke-linecap="round"/>`}
+            </g>`;
+          }).join("")}
+          <rect y="331" width="102" height="38" rx="10" fill="#22C55E"/>
+          <path d="M24 350h54" stroke="#07110A" stroke-width="6" stroke-linecap="round"/>
+        </g>
       </g>`;
   }
 
