@@ -6,9 +6,11 @@ import type { PreviewManifestV1, PreviewSettingsV1, PreviewVariantManifest } fro
 const root = resolve(import.meta.dirname, "..");
 const vendorRoot = resolve(root, "vendor/lisible");
 const distRoot = resolve(root, "dist/_previews");
-const cacheRoot = resolve(root, ".cache/lisible-previews");
+const cacheRoot = resolve(
+  Bun.env.LISIBLE_PREVIEW_CACHE_ROOT ?? resolve(root, ".cache/lisible-previews"),
+);
 const source = JSON.parse(await readFile(resolve(vendorRoot, "source.json"), "utf8")) as PreviewManifestV1["source"];
-const builderVersion = "1";
+const builderVersion = "2";
 
 const capabilities = [
   "version",
@@ -35,7 +37,7 @@ async function hashTree(paths: string[]): Promise<string> {
   async function visit(path: string) {
     const stats = await lstat(path);
     const name = path.split("/").at(-1) ?? "";
-    if (["node_modules", "dist", ".astro", ".cache"].includes(name)) return;
+    if (["node_modules", "dist", ".astro", ".cache"].includes(name) || name.startsWith(".lisible-preview-dist-")) return;
     hasher.update(relative(vendorRoot, path));
     if (stats.isSymbolicLink()) {
       hasher.update(`link:${await readlink(path)}`);
@@ -91,6 +93,7 @@ async function buildVariant(variant: (typeof VARIANTS)[number]): Promise<Preview
   const buildHash = await hashTree([resolve(vendorRoot, "shared"), variantRoot]);
   const cached = resolve(cacheRoot, buildHash, variant.id);
   const destination = resolve(distRoot, variant.id);
+  const staging = resolve(variantRoot, `.lisible-preview-dist-${process.pid}`);
   const basePath = `/_previews/${variant.id}/`;
 
   await rm(destination, { recursive: true, force: true });
@@ -101,12 +104,19 @@ async function buildVariant(variant: (typeof VARIANTS)[number]): Promise<Preview
     console.log(`[previews] ${variant.id}: installing dependencies`);
     await run(["bun", "install", "--frozen-lockfile"], variantRoot, {});
     console.log(`[previews] ${variant.id}: building ${buildHash.slice(0, 12)}`);
-    await mkdir(resolve(cacheRoot, buildHash), { recursive: true });
-    await run(["bun", "run", "build"], variantRoot, {
-      LISIBLE_PREVIEW: "1",
-      LISIBLE_PREVIEW_BASE: basePath,
-      LISIBLE_PREVIEW_OUT_DIR: cached,
-    });
+    await rm(staging, { recursive: true, force: true });
+    try {
+      await run(["bun", "run", "build"], variantRoot, {
+        LISIBLE_PREVIEW: "1",
+        LISIBLE_PREVIEW_BASE: basePath,
+        LISIBLE_PREVIEW_OUT_DIR: staging,
+      });
+      await rm(cached, { recursive: true, force: true });
+      await mkdir(resolve(cacheRoot, buildHash), { recursive: true });
+      await cp(staging, cached, { recursive: true, force: true });
+    } finally {
+      await rm(staging, { recursive: true, force: true });
+    }
   }
 
   await cp(cached, destination, { recursive: true, force: true });
