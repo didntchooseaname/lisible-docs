@@ -1,0 +1,42 @@
+{
+	auto_https off
+	servers {
+		protocols h1
+		trusted_proxies static private_ranges
+	}
+}
+
+:{$PORT:3000} {
+	root * {{.StaticFileRoot}}
+	encode zstd gzip
+
+	header {
+		-Server
+		Permissions-Policy "camera=(), geolocation=(), microphone=()"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Content-Type-Options "nosniff"
+	}
+
+	@health path /health
+	header @health Cache-Control "no-store"
+	respond @health "OK" 200
+
+	@immutable path /_astro/* /_previews/*/_astro/*
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	@manifest path /_previews/manifest.json
+	header @manifest Cache-Control "no-store"
+
+	@previews path /_previews/*
+	header @previews X-Robots-Tag "noindex, nofollow, noarchive"
+
+	file_server {
+		hide .git
+		hide .env*
+	}
+
+	handle_errors {
+		rewrite * /404.html
+		file_server
+	}
+}

@@ -1,6 +1,7 @@
 .git
 .github
 .astro
+.cache
 .codex
 .env
 .env.*
@@ -14,6 +15,10 @@ coverage
 design-system
 dist
 node_modules
+**/.astro
+**/.cache
+**/dist
+**/node_modules
 tmp
 *.log
 .DS_Store
