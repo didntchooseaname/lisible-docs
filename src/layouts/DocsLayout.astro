@@ -14,8 +14,9 @@ import DocsFooter from "@/components/DocsFooter.astro";
 import DocsSearch from "@/components/DocsSearch.astro";
 import ImageLightbox from "@/components/ImageLightbox.astro";
 import CursorAura from "@/components/CursorAura.astro";
+import SeoMeta from "@/components/SeoMeta.astro";
 import { ensureTrailingSlash } from "@/lib/utils";
-import { ogLocales, otherLocale, t, type Locale } from "@/i18n/ui";
+import { t, type Locale } from "@/i18n/ui";
 import { SITE } from "@/site.config";
 
 interface Props {
@@ -31,7 +32,11 @@ const dict = t(locale);
 const adjacent = adjacentDocs(docs, doc);
 const canonicalUrl = new URL(ensureTrailingSlash(Astro.url.pathname), SITE.url);
 const pageTitle = `${doc.data.title} | ${SITE.product}`;
-const alternateLocale = otherLocale(locale);
+const section = CATEGORY_LABELS[locale][doc.data.category];
+const socialImage = new URL(`/open-graph/docs-${locale}.png`, SITE.url);
+const socialImageAlt = locale === "fr"
+  ? "Aperçu de la documentation Lisible avec les rubriques Architecture, Rédaction MDX, SEO et Déploiement."
+  : "Lisible documentation preview with Architecture, MDX authoring, SEO and Deployment sections.";
 const editUrl = SITE.docsRepo
   ? `${SITE.docsRepo}/edit/main/src/content/docs/${locale}/${docSlug(doc)}.mdx`
   : null;
@@ -86,31 +91,38 @@ const editUrl = SITE.docsRepo
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <title>{pageTitle}</title>
-    <meta name="description" content={doc.data.description} />
-    <link rel="canonical" href={canonicalUrl} />
+    <SeoMeta
+      title={pageTitle}
+      description={doc.data.description}
+      canonical={canonicalUrl}
+      locale={locale}
+      alternates={alternates}
+      xDefault={alternates.fr ?? canonicalUrl.pathname}
+      image={socialImage.toString()}
+      imageAlt={socialImageAlt}
+      type="article"
+      section={section}
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="sitemap" href="/sitemap-index.xml" />
-    {alternates.fr && <link rel="alternate" hreflang="fr" href={new URL(alternates.fr, SITE.url)} />}
-    {alternates.en && <link rel="alternate" hreflang="en" href={new URL(alternates.en, SITE.url)} />}
-    {alternates.fr && <link rel="alternate" hreflang="x-default" href={new URL(alternates.fr, SITE.url)} />}
-    <meta property="og:type" content="article" />
-    <meta property="og:site_name" content={SITE.product} />
-    <meta property="og:title" content={pageTitle} />
-    <meta property="og:description" content={doc.data.description} />
-    <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:locale" content={ogLocales[locale]} />
-    {alternates[alternateLocale] && <meta property="og:locale:alternate" content={ogLocales[alternateLocale]} />}
-    <meta property="og:image" content={new URL("/og-default.png", SITE.url)} />
-    <meta name="twitter:card" content="summary_large_image" />
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "TechArticle",
+      "@id": `${canonicalUrl}#article`,
       headline: doc.data.title,
       description: doc.data.description,
       inLanguage: locale,
       url: canonicalUrl.toString(),
-      isPartOf: { "@type": "WebSite", name: SITE.product, url: SITE.url },
+      image: socialImage.toString(),
+      articleSection: section,
+      mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl.toString() },
+      author: {
+        "@type": "Organization",
+        "@id": `${SITE.url}/#organization`,
+        name: SITE.title,
+        url: SITE.url,
+      },
+      publisher: { "@id": `${SITE.url}/#organization` },
+      isPartOf: { "@type": "WebSite", "@id": `${SITE.url}/#website`, name: SITE.product, url: SITE.url },
     })} />
     <ClientRouter />
   </head>

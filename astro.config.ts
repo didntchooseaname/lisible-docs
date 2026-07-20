@@ -80,10 +80,12 @@ export default defineConfig({
     react(),
     mdx(),
     sitemap({
-      filter: (page) => !page.includes("/preview/blog/"),
-      i18n: {
-        defaultLocale: "fr",
-        locales: { fr: "fr-FR", en: "en-US" },
+      filter: (page) => {
+        const pathname = new URL(page).pathname;
+        return !pathname.includes("/preview/blog/")
+          && !pathname.endsWith("/404/")
+          && pathname !== "/architecture/"
+          && pathname !== "/en/architecture/";
       },
     }),
     pagefind(),

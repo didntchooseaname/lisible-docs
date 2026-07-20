@@ -52,7 +52,7 @@ Supported authoring tools include Markdown, MDX components, tabs, steps, spoiler
 - Keep every internal link absolute from the site root and point it to a published route.
 - Verify sidebar and previous/next links in French and English.
 - Language changes must use Astro client navigation without a full refresh.
-- Keep documentation URLs authoritative. The `/` landing defaults to English and may localize itself to French in place; the 404 uses the same stored/browser preference without navigating.
+- Keep documentation URLs authoritative. `/fr/` and `/en/` are the stable landing URLs; the `x-default` `/` entry defaults to English and may localize itself to French in place. The 404 uses the same stored/browser preference without navigating.
 - Keep page titles, descriptions, navigation labels, search, 404 content, and accessibility text localized.
 
 ## Quality checks

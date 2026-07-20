@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">Publishing gets simpler.</title>
+  <desc id="description">From the first file to a site ready to share.</desc>
+  <defs>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(897 188) rotate(138) scale(508 402)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22C55E" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#22C55E" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M42 0H0V42" fill="none" stroke="#D9FBE2" stroke-opacity=".045"/>
+    </pattern>
+    <style>
+      .display { fill: #F5F7F5; font-family: Inter, Arial, sans-serif; font-weight: 760; letter-spacing: -2.4px; }
+      .label { font-family: Inter, Arial, sans-serif; font-weight: 650; }
+      .copy { font-family: Inter, Arial, sans-serif; }
+    </style>
+  </defs>
+  <rect width="1200" height="630" fill="#080D0A"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <rect x="42" y="42" width="1116" height="546" rx="32" fill="none" stroke="#2B3A30"/>
+  <g transform="translate(82 78)">
+    <rect width="42" height="42" rx="11" fill="#F5F7F5"/>
+    <path d="M11 13h20M11 21h15M11 29h10" stroke="#080D0A" stroke-width="4" stroke-linecap="round"/>
+    <path d="M26 29h5" stroke="#22C55E" stroke-width="4" stroke-linecap="round"/>
+    <text x="58" y="27" class="label" font-size="19" fill="#F5F7F5" letter-spacing=".3">LISIBLE</text>
+    <text x="144" y="27" class="copy" font-size="16" fill="#7F8B82">/ DOCS</text>
+  </g>
+  <text x="82" y="186" class="label" font-size="14" fill="#22C55E" letter-spacing="2.2">OFFICIAL DOCUMENTATION</text>
+  <text x="82" y="270" class="display" font-size="70">Publishing gets</text>
+<text x="82" y="348" class="display" font-size="70">simpler.</text>
+  <text x="82" y="466" class="copy" font-size="23" fill="#A8B2AB">From the first file to a site ready to share.</text>
+  <g transform="translate(82 520)">
+    <circle cx="6" cy="6" r="6" fill="#22C55E"/>
+    <text x="24" y="12" class="label" font-size="15" fill="#D7DDD8" letter-spacing=".3">lisible.xsec.fr</text>
+  </g>
+
+      <g transform="translate(786 148)">
+        <rect width="324" height="344" rx="24" fill="#101713" stroke="#2B3A30"/>
+        <circle cx="28" cy="27" r="5" fill="#22C55E"/>
+        <circle cx="48" cy="27" r="5" fill="#35423A"/>
+        <circle cx="68" cy="27" r="5" fill="#35423A"/>
+        <path d="M24 61H300" stroke="#2B3A30"/>
+        <rect x="24" y="88" width="78" height="8" rx="4" fill="#22C55E"/>
+        <rect x="24" y="114" width="228" height="12" rx="6" fill="#F5F7F5"/>
+        <rect x="24" y="138" width="178" height="12" rx="6" fill="#F5F7F5"/>
+        <rect x="24" y="174" width="276" height="1" fill="#2B3A30"/>
+        <rect x="24" y="201" width="132" height="86" rx="14" fill="#151F19" stroke="#2B3A30"/>
+        <rect x="168" y="201" width="132" height="86" rx="14" fill="#151F19" stroke="#2B3A30"/>
+        <path d="M48 258l20-20 17 14 29-34" fill="none" stroke="#22C55E" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M194 229h72M194 247h48M194 265h60" stroke="#A8B2AB" stroke-width="7" stroke-linecap="round"/>
+        <rect x="24" y="307" width="276" height="12" rx="6" fill="#263129"/>
+      </g>
+</svg>

@@ -7,9 +7,10 @@ import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import AccentPicker from "@/components/AccentPicker.astro";
 import ThemeToggle from "@/components/ThemeToggle.astro";
 import CursorAura from "@/components/CursorAura.astro";
+import SeoMeta from "@/components/SeoMeta.astro";
 import { BorderBeam } from "@/components/ui/border-beam";
 import { InteractiveGridPattern } from "@/components/ui/interactive-grid-pattern";
-import { localeUrl, ogLocales, otherLocale, t, type Locale } from "@/i18n/ui";
+import { localeUrl, ogLocales, t, type Locale } from "@/i18n/ui";
 import { SITE } from "@/site.config";
 
 interface Props {
@@ -22,8 +23,9 @@ const dict = t(locale);
 
 const content = {
   fr: {
-    metaTitle: "Le guide complet pour publier avec Lisible",
+    metaTitle: "Lisible Documentation : installer, rédiger et publier",
     description: "Explorez la documentation bilingue de Lisible, de la première installation au déploiement d’un blog rapide, accessible et personnalisable.",
+    ogAlt: "Aperçu de la documentation Lisible avec le message Publier devient plus simple et une interface de guide.",
     home: "Accueil Lisible",
     docs: "Documentation",
     repository: "Dépôt GitHub",
@@ -98,8 +100,9 @@ const content = {
     footer: "Documentation officielle de Lisible.",
   },
   en: {
-    metaTitle: "The complete guide to publishing with Lisible",
+    metaTitle: "Lisible Documentation: install, write and publish",
     description: "Explore the bilingual Lisible documentation, from the first installation to deploying a fast, accessible and customizable blog.",
+    ogAlt: "Lisible documentation preview with the message Publishing gets simpler and a guide interface.",
     home: "Lisible home",
     docs: "Documentation",
     repository: "GitHub repository",
@@ -176,12 +179,22 @@ const content = {
 } as const;
 
 const copy = content[locale];
-const canonicalUrl = new URL(autoLocale ? "/" : localeUrl(locale), SITE.url);
-const alternateLocale = otherLocale(locale);
+const landingUrl = locale === "fr" ? "/fr/" : "/en/";
+const canonicalUrl = new URL(autoLocale ? "/" : landingUrl, SITE.url);
 const docsUrl = localeUrl(locale, "docs");
 const docUrl = (slug: string) => localeUrl(locale, `docs/${slug}`);
 const blogPreviewUrl = localeUrl(locale, "preview/blog");
-const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
+const alternates = { fr: "/fr/", en: "/en/" };
+const social = {
+  fr: {
+    image: new URL("/open-graph/landing-fr.png", SITE.url).toString(),
+    alt: content.fr.ogAlt,
+  },
+  en: {
+    image: new URL("/open-graph/landing-en.png", SITE.url).toString(),
+    alt: content.en.ogAlt,
+  },
+};
 ---
 
 <html lang={locale}>
@@ -252,30 +265,33 @@ const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <title>{SITE.title} | {copy.metaTitle}</title>
-    <meta name="description" content={copy.description} />
-    <link rel="canonical" href={canonicalUrl} />
+    <SeoMeta
+      title={copy.metaTitle}
+      description={copy.description}
+      canonical={canonicalUrl}
+      locale={locale}
+      alternates={alternates}
+      xDefault="/"
+      image={social[locale].image}
+      imageAlt={social[locale].alt}
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="sitemap" href="/sitemap-index.xml" />
-    <link rel="alternate" hreflang="fr" href={new URL(alternates.fr, SITE.url)} />
-    <link rel="alternate" hreflang="en" href={new URL(alternates.en, SITE.url)} />
-    <link rel="alternate" hreflang="x-default" href={new URL(alternates.fr, SITE.url)} />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content={SITE.product} />
-    <meta property="og:title" content={`${SITE.title} | ${copy.metaTitle}`} />
-    <meta property="og:description" content={copy.description} />
-    <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:locale" content={ogLocales[locale]} />
-    <meta property="og:locale:alternate" content={ogLocales[alternateLocale]} />
-    <meta property="og:image" content={new URL("/og-default.png", SITE.url)} />
-    <meta name="twitter:card" content="summary_large_image" />
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "WebSite",
+      "@id": `${canonicalUrl}#website`,
       name: SITE.product,
+      alternateName: "Lisible Docs",
       description: copy.description,
       inLanguage: locale,
       url: canonicalUrl.toString(),
+      image: social[locale].image,
+      publisher: {
+        "@type": "Organization",
+        "@id": `${SITE.url}/#organization`,
+        name: SITE.title,
+        url: SITE.url,
+      },
     })} />
     <ClientRouter />
   </head>
@@ -285,7 +301,7 @@ const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
 
     <header class="landing-header">
       <div class="landing-header__inner">
-        <a href={localeUrl(locale)} class="landing-brand" aria-label={copy.home} data-locale-link>
+        <a href={landingUrl} class="landing-brand" aria-label={copy.home} data-locale-link>
           <span class="brand-blob" aria-hidden="true"></span>
           <strong>{SITE.title}</strong>
           <span>{copy.docs}</span>
@@ -334,7 +350,7 @@ const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
                   <path d="M5 12h14M13 6l6 6-6 6" />
                 </svg>
               </a>
-              <button type="button" class="landing-button landing-button--secondary" data-search-open aria-label={dict.a11y.openSearch}>
+              <button type="button" class="landing-button landing-button--secondary" data-search-open aria-label={`${copy.search} — ${dict.a11y.openSearch}`}>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <circle cx="11" cy="11" r="8" />
                   <path d="m21 21-4.3-4.3" />
@@ -497,8 +513,10 @@ const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
           landingContent: content,
           landingUi: { fr: t("fr"), en: t("en") },
           landingOgLocales: ogLocales,
+          landingSocial: social,
           siteTitle: SITE.title,
           siteProduct: SITE.product,
+          siteUrl: SITE.url,
           canonical: canonicalUrl.toString(),
         }}
       >
@@ -529,21 +547,37 @@ const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
             document.documentElement.dataset.landingLocale = next;
             if (persist) localStorage.setItem("lisible-locale", next);
 
-            document.title = `${siteTitle} | ${copy.metaTitle}`;
+            document.title = copy.metaTitle;
             attribute('meta[name="description"]', "content", copy.description);
             attribute('meta[property="og:title"]', "content", document.title);
             attribute('meta[property="og:description"]', "content", copy.description);
             attribute('meta[property="og:locale"]', "content", landingOgLocales[next]);
             attribute('meta[property="og:locale:alternate"]', "content", landingOgLocales[other]);
+            attribute('meta[property="og:image"]', "content", landingSocial[next].image);
+            attribute('meta[property="og:image:secure_url"]', "content", landingSocial[next].image);
+            attribute('meta[property="og:image:alt"]', "content", landingSocial[next].alt);
+            attribute('meta[name="twitter:title"]', "content", document.title);
+            attribute('meta[name="twitter:description"]', "content", copy.description);
+            attribute('meta[name="twitter:image"]', "content", landingSocial[next].image);
+            attribute('meta[name="twitter:image:alt"]', "content", landingSocial[next].alt);
             const jsonLd = document.querySelector('script[type="application/ld+json"]');
             if (jsonLd) {
               jsonLd.textContent = JSON.stringify({
                 "@context": "https://schema.org",
                 "@type": "WebSite",
+                "@id": `${canonical}#website`,
                 name: siteProduct,
+                alternateName: "Lisible Docs",
                 description: copy.description,
                 inLanguage: next,
                 url: canonical,
+                image: landingSocial[next].image,
+                publisher: {
+                  "@type": "Organization",
+                  "@id": `${siteUrl}/#organization`,
+                  name: siteTitle,
+                  url: siteUrl,
+                },
               });
             }
 
@@ -582,7 +616,7 @@ const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
             text(".landing-hero__intro", copy.intro);
             text(".landing-hero__actions > a span", copy.primary);
             text("[data-search-open] span", copy.search);
-            attribute("[data-search-open]", "aria-label", ui.a11y.openSearch);
+            attribute("[data-search-open]", "aria-label", `${copy.search} — ${ui.a11y.openSearch}`);
             attribute(".landing-highlights", "aria-label", copy.eyebrow);
             document.querySelectorAll(".landing-highlights li").forEach((item, index) => {
               const dot = item.querySelector("span");
@@ -638,7 +672,7 @@ const alternates = { fr: localeUrl("fr"), en: localeUrl("en") };
 
             const modal = document.querySelector("[data-search-modal]");
             if (modal) {
-              modal.dataset.otherHome = next === "fr" ? "/en/" : "/";
+              modal.dataset.otherHome = next === "fr" ? "/en/" : "/fr/";
               modal.dataset.noResults = ui.search.noResults;
               modal.dataset.devNotice = ui.search.devNotice;
               modal.dataset.copied = ui.search.copied;
