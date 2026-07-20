@@ -278,7 +278,7 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
   const [showReady, setShowReady] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const hydrated = useRef(false);
+  const [initialized, setInitialized] = useState(false);
   const currentPath = useRef(settings.path);
 
   const activeVariant = manifest?.variants.find((variant) => variant.id === settings.variant) ?? null;
@@ -289,10 +289,10 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
       const stored = JSON.parse(localStorage.getItem("lisible-previewer:v1") ?? "null");
       if (isPreviewSettings(stored)) fallback = { ...stored, locale };
     } catch {}
-    const restored = settingsFromUrl(fallback) ?? fallback;
-    setSettings(restored);
-    settingsRef.current = restored;
-    hydrated.current = true;
+    const restoredSettings = settingsFromUrl(fallback) ?? fallback;
+    setSettings(restoredSettings);
+    settingsRef.current = restoredSettings;
+    setInitialized(true);
 
     fetch("/_previews/manifest.json", { cache: "no-store" })
       .then(async (response) => {
@@ -314,7 +314,7 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
 
   useEffect(() => {
     settingsRef.current = settings;
-    if (!hydrated.current) return;
+    if (!initialized) return;
     localStorage.setItem("lisible-previewer:v1", JSON.stringify(settings));
     window.history.replaceState({}, "", settingsUrl(settings));
     for (const frame of frameRefs.current) {
@@ -325,23 +325,29 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
         settings,
       }, window.location.origin);
     }
-  }, [settings]);
+  }, [initialized, settings]);
 
   useEffect(() => {
+    if (!initialized) return;
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const applyTheme = () => {
       const dark = settings.theme === "dark" || (settings.theme === "system" && media.matches);
-      document.documentElement.classList.toggle("dark", dark);
-      document.documentElement.dataset.theme = settings.theme;
+      const root = document.documentElement;
+      root.classList.toggle("dark", dark);
+      root.dataset.theme = settings.theme;
+      root.dataset.resolvedTheme = dark ? "dark" : "light";
+      root.style.colorScheme = dark ? "dark" : "light";
+      root.style.backgroundColor = dark ? "#000000" : "#ffffff";
       if (settings.theme === "system") localStorage.removeItem("theme");
       else localStorage.setItem("theme", settings.theme);
     };
     applyTheme();
     media.addEventListener("change", applyTheme);
     return () => media.removeEventListener("change", applyTheme);
-  }, [settings.theme]);
+  }, [initialized, settings.theme]);
 
   useEffect(() => {
+    if (!initialized) return;
     const red = Number.parseInt(settings.accent.slice(1, 3), 16);
     const green = Number.parseInt(settings.accent.slice(3, 5), 16);
     const blue = Number.parseInt(settings.accent.slice(5, 7), 16);
@@ -350,7 +356,7 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
     document.documentElement.style.setProperty("--ring", settings.accent);
     document.documentElement.style.setProperty("--accent-foreground", luminance > 0.58 ? "#07110a" : "#ffffff");
     localStorage.setItem("accent", settings.accent);
-  }, [settings.accent]);
+  }, [initialized, settings.accent]);
 
   useEffect(() => {
     if (!manifest || !activeVariant) return;
