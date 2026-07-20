@@ -43,7 +43,6 @@ const variantNames: Record<PublicVariant, string> = {
 };
 
 const pageOrder: PageKey[] = ["home", "blog", "post", "tags", "archives", "about"];
-const accentPresets = ["#22c55e", "#0ea5e9", "#6366f1", "#a855f7", "#e11d48", "#f97316"] as const;
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
 const content = {
@@ -72,7 +71,7 @@ const content = {
       siteTitle: "Titre du site",
       author: "Auteur",
       density: "Densité",
-      coverPosition: "Position des couvertures",
+      coverPosition: "Position de la bannière d’article",
       covers: "Afficher les couvertures",
       featured: "Afficher la sélection",
       related: "Afficher les articles liés",
@@ -120,7 +119,7 @@ const content = {
       siteTitle: "Site title",
       author: "Author",
       density: "Density",
-      coverPosition: "Cover position",
+      coverPosition: "Article banner position",
       covers: "Show covers",
       featured: "Show featured posts",
       related: "Show related posts",
@@ -728,9 +727,9 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
 
             <fieldset className="previewer-group">
               <legend>{copy.groups.appearance}</legend>
-              <div className="previewer-accent-cluster">
-                <Field label={copy.fields.accent}>
-                  <span className="previewer-color">
+              <Field label={copy.fields.accent}>
+                <span className="previewer-color">
+                  <span className="previewer-color__wheel">
                     <input
                       type="color"
                       name="accent"
@@ -739,22 +738,10 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
                       aria-label={copy.fields.accent}
                       title={copy.fields.accent}
                     />
-                    <span className="previewer-color__presets">
-                      {accentPresets.map((accent) => (
-                        <button
-                          key={accent}
-                          type="button"
-                          style={{ "--swatch": accent } as React.CSSProperties}
-                          aria-label={`${copy.fields.accent} ${accent}`}
-                          aria-pressed={settings.accent.toLowerCase() === accent}
-                          onClick={() => set("accent", accent)}
-                        />
-                      ))}
-                    </span>
-                    <code>{settings.accent.toUpperCase()}</code>
                   </span>
-                </Field>
-              </div>
+                  <code>{settings.accent.toUpperCase()}</code>
+                </span>
+              </Field>
               <Field label={copy.fields.density}>
                 <select name="density" value={settings.density} onChange={(event) => set("density", event.target.value as PreviewSettingsV1["density"])}>
                   <option value="comfortable">{copy.values.comfortable}</option>
