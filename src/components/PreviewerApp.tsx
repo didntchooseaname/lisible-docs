@@ -665,7 +665,6 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
                 title={`${variantNames[frame.variant ?? settings.variant]} - ${copy.title}`}
                 referrerPolicy="strict-origin-when-cross-origin"
                 allow="fullscreen"
-                allowFullScreen
               />
             ))}
             {!frames[activeFrame].ready && (
