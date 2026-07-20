@@ -48,10 +48,17 @@ const editUrl = SITE.docsRepo
     <link rel="stylesheet" href={appCssUrl} />
     <script is:inline define:vars={{ siteAccent: SITE.accent }}>
       (function () {
+        const media = window.matchMedia("(prefers-color-scheme: dark)");
         function applyTheme() {
           const stored = localStorage.getItem("theme");
-          const dark = stored ? stored === "dark" : !window.matchMedia("(prefers-color-scheme: light)").matches;
-          document.documentElement.classList.toggle("dark", dark);
+          const theme = stored === "light" || stored === "dark" ? stored : "system";
+          const dark = theme === "dark" || (theme === "system" && media.matches);
+          const root = document.documentElement;
+          root.classList.toggle("dark", dark);
+          root.dataset.theme = theme;
+          root.dataset.resolvedTheme = dark ? "dark" : "light";
+          root.style.colorScheme = dark ? "dark" : "light";
+          return dark;
         }
         function luminance(rgb) {
           const channels = rgb.map(function (value) {
@@ -84,9 +91,18 @@ const editUrl = SITE.docsRepo
           document.documentElement.style.setProperty("--ring", accent);
         }
         window.__applyAccent = applyAccent;
-        applyTheme();
-        applyAccent();
-        document.addEventListener("astro:after-swap", function () { applyTheme(); applyAccent(); });
+        function applyPreferences() { applyTheme(); applyAccent(); }
+        function syncPreferences(event) {
+          if (event.key === "theme" || event.key === "accent" || event.key === null) applyPreferences();
+        }
+        function syncSystemTheme() {
+          const stored = localStorage.getItem("theme");
+          if (stored !== "light" && stored !== "dark") applyPreferences();
+        }
+        applyPreferences();
+        media.addEventListener("change", syncSystemTheme);
+        window.addEventListener("storage", syncPreferences);
+        document.addEventListener("astro:after-swap", applyPreferences);
       })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -156,5 +172,6 @@ const editUrl = SITE.docsRepo
     <script>import "@/scripts/github-card";</script>
     <script>import "@/scripts/mermaid";</script>
     <script>import "@/scripts/drawio";</script>
+    <script>import "@/scripts/diagram-fullscreen";</script>
   </body>
 </html>

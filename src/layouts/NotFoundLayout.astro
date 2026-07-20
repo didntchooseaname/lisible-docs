@@ -72,11 +72,54 @@ const localeContent = {
     <title>{dict.title} | {SITE.product}</title>
     <script is:inline define:vars={{ siteAccent: SITE.accent, autoLocale: auto, initialLocale: locale }}>
       (function () {
-        const stored = localStorage.getItem("theme");
-        const dark = stored ? stored === "dark" : !window.matchMedia("(prefers-color-scheme: light)").matches;
-        document.documentElement.classList.toggle("dark", dark);
-        const accent = localStorage.getItem("accent");
-        document.documentElement.style.setProperty("--accent", accent && /^#[0-9a-f]{6}$/i.test(accent) ? accent : siteAccent);
+        const media = window.matchMedia("(prefers-color-scheme: dark)");
+        function luminance(rgb) {
+          const channels = rgb.map(function (value) {
+            value /= 255;
+            return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+          });
+          return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+        }
+        function contrast(a, b) {
+          return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+        }
+        function applyPreferences() {
+          const storedTheme = localStorage.getItem("theme");
+          const theme = storedTheme === "light" || storedTheme === "dark" ? storedTheme : "system";
+          const dark = theme === "dark" || (theme === "system" && media.matches);
+          const root = document.documentElement;
+          root.classList.toggle("dark", dark);
+          root.dataset.theme = theme;
+          root.dataset.resolvedTheme = dark ? "dark" : "light";
+          root.style.colorScheme = dark ? "dark" : "light";
+          const storedAccent = localStorage.getItem("accent");
+          const hex = storedAccent && /^#[0-9a-f]{6}$/i.test(storedAccent) ? storedAccent : siteAccent;
+          const value = parseInt(hex.slice(1), 16);
+          let rgb = [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+          for (let index = 0; index < 60; index += 1) {
+            if (dark ? contrast(luminance(rgb), 0) >= 3 : contrast(luminance(rgb), 1) >= 4.5) break;
+            rgb = rgb.map(function (channel) {
+              return dark
+                ? Math.min(255, Math.round(channel + (255 - channel) * 0.06) + 1)
+                : Math.max(0, Math.round(channel * 0.94) - 1);
+            });
+          }
+          const accent = "rgb(" + rgb.join(" ") + ")";
+          root.style.setProperty("--accent", accent);
+          root.style.setProperty("--accent-foreground", contrast(luminance(rgb), 0) >= 4.5 ? "#000000" : "#ffffff");
+          root.style.setProperty("--ring", accent);
+        }
+        function syncPreferences(event) {
+          if (event.key === "theme" || event.key === "accent" || event.key === null) applyPreferences();
+        }
+        function syncSystemTheme() {
+          const stored = localStorage.getItem("theme");
+          if (stored !== "light" && stored !== "dark") applyPreferences();
+        }
+        window.__applyAccent = applyPreferences;
+        applyPreferences();
+        media.addEventListener("change", syncSystemTheme);
+        window.addEventListener("storage", syncPreferences);
         const storedLocale = localStorage.getItem("lisible-locale");
         const pathLocale = /^\/en(?:\/|$)/.test(location.pathname) ? "en" : null;
         const detectedLocale = navigator.languages?.find((language) => /^(fr|en)(-|$)/i.test(language)) ?? navigator.language;

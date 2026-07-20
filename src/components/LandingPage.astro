@@ -226,6 +226,7 @@ const social = {
     <link rel="stylesheet" href={appCssUrl} />
     <script is:inline define:vars={{ siteAccent: SITE.accent }}>
       (function () {
+        const media = window.matchMedia("(prefers-color-scheme: dark)");
         function luminance(rgb) {
           var channels = rgb.map(function (value) {
             value /= 255;
@@ -238,8 +239,12 @@ const social = {
         }
         function applyPreferences() {
           const storedTheme = localStorage.getItem("theme");
-          const dark = storedTheme ? storedTheme === "dark" : !window.matchMedia("(prefers-color-scheme: light)").matches;
+          const theme = storedTheme === "light" || storedTheme === "dark" ? storedTheme : "system";
+          const dark = theme === "dark" || (theme === "system" && media.matches);
           document.documentElement.classList.toggle("dark", dark);
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.dataset.resolvedTheme = dark ? "dark" : "light";
+          document.documentElement.style.colorScheme = dark ? "dark" : "light";
           const storedAccent = localStorage.getItem("accent");
           const hex = storedAccent && /^#[0-9a-f]{6}$/i.test(storedAccent) ? storedAccent : siteAccent;
           const value = parseInt(hex.slice(1), 16);
@@ -259,7 +264,16 @@ const social = {
           document.documentElement.style.setProperty("--ring", accent);
         }
         window.__applyAccent = applyPreferences;
+        function syncPreferences(event) {
+          if (event.key === "theme" || event.key === "accent" || event.key === null) applyPreferences();
+        }
+        function syncSystemTheme() {
+          const stored = localStorage.getItem("theme");
+          if (stored !== "light" && stored !== "dark") applyPreferences();
+        }
         applyPreferences();
+        media.addEventListener("change", syncSystemTheme);
+        window.addEventListener("storage", syncPreferences);
         document.addEventListener("astro:after-swap", applyPreferences);
       })();
     </script>

@@ -44,6 +44,7 @@ const variantNames: Record<PublicVariant, string> = {
 
 const pageOrder: PageKey[] = ["home", "blog", "post", "tags", "archives", "about"];
 const accentPresets = ["#22c55e", "#0ea5e9", "#6366f1", "#a855f7", "#e11d48", "#f97316"] as const;
+const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
 const content = {
   fr: {
@@ -164,6 +165,43 @@ function defaults(locale: Locale): PreviewSettingsV1 {
   };
 }
 
+function storedAppearance(fallbackAccent: string): Pick<PreviewSettingsV1, "theme" | "accent"> {
+  try {
+    const storedTheme = localStorage.getItem("theme");
+    const storedAccent = localStorage.getItem("accent");
+    return {
+      theme: storedTheme === "light" || storedTheme === "dark" ? storedTheme : "system",
+      accent: storedAccent && HEX_COLOR.test(storedAccent) ? storedAccent.toLowerCase() : fallbackAccent,
+    };
+  } catch {
+    return { theme: "system", accent: fallbackAccent };
+  }
+}
+
+function accessibleAccent(hex: string, dark: boolean) {
+  const value = Number.parseInt(hex.slice(1), 16);
+  let rgb = [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+  const luminance = (channels: number[]) => {
+    const linear = channels.map((channel) => {
+      const normalized = channel / 255;
+      return normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * linear[0]! + 0.7152 * linear[1]! + 0.0722 * linear[2]!;
+  };
+  const contrast = (a: number, b: number) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  for (let index = 0; index < 60; index += 1) {
+    if (dark ? contrast(luminance(rgb), 0) >= 3 : contrast(luminance(rgb), 1) >= 4.5) break;
+    rgb = rgb.map((channel) => dark
+      ? Math.min(255, Math.round(channel + (255 - channel) * 0.06) + 1)
+      : Math.max(0, Math.round(channel * 0.94) - 1));
+  }
+  const resolvedLuminance = luminance(rgb);
+  return {
+    accent: `rgb(${rgb.join(" ")})`,
+    foreground: contrast(resolvedLuminance, 0) >= 4.5 ? "#000000" : "#ffffff",
+  };
+}
+
 function booleanParam(value: string | null, fallback: boolean) {
   return value === "1" ? true : value === "0" ? false : fallback;
 }
@@ -261,7 +299,8 @@ function Segmented<T extends string>({ value, items, onChange, label }: {
 }
 
 export default function PreviewerApp({ locale }: { locale: Locale }) {
-  const copy = content[locale];
+  const [uiLocale, setUiLocale] = useState<Locale>(locale);
+  const copy = content[uiLocale];
   const [settings, setSettings] = useState<PreviewSettingsV1>(() => defaults(locale));
   const settingsRef = useRef(settings);
   const [manifest, setManifest] = useState<PreviewManifestV1 | null>(null);
@@ -284,11 +323,13 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
   const activeVariant = manifest?.variants.find((variant) => variant.id === settings.variant) ?? null;
 
   useEffect(() => {
-    let fallback = defaults(locale);
+    const base = defaults(locale);
+    let fallback = base;
     try {
       const stored = JSON.parse(localStorage.getItem("lisible-previewer:v1") ?? "null");
       if (isPreviewSettings(stored)) fallback = { ...stored, locale };
     } catch {}
+    fallback = { ...fallback, ...storedAppearance(base.accent) };
     const restoredSettings = settingsFromUrl(fallback) ?? fallback;
     setSettings(restoredSettings);
     settingsRef.current = restoredSettings;
@@ -330,33 +371,39 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
   useEffect(() => {
     if (!initialized) return;
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const applyTheme = () => {
+    const applyAppearance = () => {
       const dark = settings.theme === "dark" || (settings.theme === "system" && media.matches);
       const root = document.documentElement;
+      const colors = accessibleAccent(settings.accent, dark);
       root.classList.toggle("dark", dark);
       root.dataset.theme = settings.theme;
       root.dataset.resolvedTheme = dark ? "dark" : "light";
       root.style.colorScheme = dark ? "dark" : "light";
       root.style.backgroundColor = dark ? "#000000" : "#ffffff";
+      root.style.setProperty("--accent", colors.accent);
+      root.style.setProperty("--ring", colors.accent);
+      root.style.setProperty("--accent-foreground", colors.foreground);
       if (settings.theme === "system") localStorage.removeItem("theme");
       else localStorage.setItem("theme", settings.theme);
+      localStorage.setItem("accent", settings.accent);
     };
-    applyTheme();
-    media.addEventListener("change", applyTheme);
-    return () => media.removeEventListener("change", applyTheme);
-  }, [initialized, settings.theme]);
+    applyAppearance();
+    media.addEventListener("change", applyAppearance);
+    return () => media.removeEventListener("change", applyAppearance);
+  }, [initialized, settings.theme, settings.accent]);
 
   useEffect(() => {
     if (!initialized) return;
-    const red = Number.parseInt(settings.accent.slice(1, 3), 16);
-    const green = Number.parseInt(settings.accent.slice(3, 5), 16);
-    const blue = Number.parseInt(settings.accent.slice(5, 7), 16);
-    const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
-    document.documentElement.style.setProperty("--accent", settings.accent);
-    document.documentElement.style.setProperty("--ring", settings.accent);
-    document.documentElement.style.setProperty("--accent-foreground", luminance > 0.58 ? "#07110a" : "#ffffff");
-    localStorage.setItem("accent", settings.accent);
-  }, [initialized, settings.accent]);
+    const syncAppearance = (event: StorageEvent) => {
+      if (event.key !== "theme" && event.key !== "accent" && event.key !== null) return;
+      const appearance = storedAppearance(defaults(locale).accent);
+      setSettings((previous) => previous.theme === appearance.theme && previous.accent === appearance.accent
+        ? previous
+        : { ...previous, ...appearance });
+    };
+    window.addEventListener("storage", syncAppearance);
+    return () => window.removeEventListener("storage", syncAppearance);
+  }, [initialized, locale]);
 
   useEffect(() => {
     if (!manifest || !activeVariant) return;
@@ -495,10 +542,22 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
     return `${route}?${settingsQuery(localizedSettings(nextLocale))}`;
   };
 
-  const prepareLocaleNavigation = (nextLocale: Locale) => {
+  const switchLocale = (event: React.MouseEvent<HTMLAnchorElement>, nextLocale: Locale) => {
+    event.preventDefault();
+    if (nextLocale === uiLocale) return;
     const next = localizedSettings(nextLocale);
     settingsRef.current = next;
     localStorage.setItem("lisible-previewer:v1", JSON.stringify(next));
+    localStorage.setItem("lisible-locale", nextLocale);
+    setUiLocale(nextLocale);
+    setSettings(next);
+    document.documentElement.lang = nextLocale;
+    document.documentElement.dataset.lisibleLocale = nextLocale;
+    document.title = nextLocale === "fr"
+      ? "Previewer Lisible - Testez chaque variante en direct"
+      : "Lisible Previewer - Customize every variant live";
+    const route = nextLocale === "fr" ? "/preview/" : "/en/preview/";
+    window.history.replaceState({}, "", `${route}?${settingsQuery(next)}`);
   };
 
   const cycleTheme = () => {
@@ -551,7 +610,7 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
     <div className="previewer-app">
       <header className="previewer-header">
         <div className="previewer-header__identity">
-          <a className="previewer-back" href={locale === "fr" ? "/docs/" : "/en/docs/"}>
+          <a className="previewer-back" href={uiLocale === "fr" ? "/docs/" : "/en/docs/"}>
             <ArrowLeft size={17} aria-hidden="true" /> <span>{copy.back}</span>
           </a>
           <span className="previewer-header__divider" aria-hidden="true" />
@@ -561,9 +620,9 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
           </div>
         </div>
         <div className="previewer-header__actions">
-          <nav className="previewer-page-locales" aria-label={locale === "fr" ? "Langue de la page et du rendu" : "Page and preview language"}>
-            <a href={localeHref("fr")} hrefLang="fr" aria-current={locale === "fr" ? "page" : undefined} onClick={() => prepareLocaleNavigation("fr")}>FR</a>
-            <a href={localeHref("en")} hrefLang="en" aria-current={locale === "en" ? "page" : undefined} onClick={() => prepareLocaleNavigation("en")}>EN</a>
+          <nav className="previewer-page-locales" aria-label={uiLocale === "fr" ? "Langue de la page et du rendu" : "Page and preview language"}>
+            <a href={localeHref("fr")} hrefLang="fr" aria-current={uiLocale === "fr" ? "page" : undefined} onClick={(event) => switchLocale(event, "fr")}>FR</a>
+            <a href={localeHref("en")} hrefLang="en" aria-current={uiLocale === "en" ? "page" : undefined} onClick={(event) => switchLocale(event, "en")}>EN</a>
           </nav>
           <button
             className="previewer-button previewer-theme-switch"
@@ -605,6 +664,8 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
                 src={frame.src}
                 title={`${variantNames[frame.variant ?? settings.variant]} - ${copy.title}`}
                 referrerPolicy="strict-origin-when-cross-origin"
+                allow="fullscreen"
+                allowFullScreen
               />
             ))}
             {!frames[activeFrame].ready && (
@@ -723,7 +784,7 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
             </fieldset>
           </div>
           <div className="previewer-sidebar__footer">
-            <button type="button" className="previewer-button previewer-button--wide" onClick={() => setSettings(defaults(locale))}><RotateCcw size={16} aria-hidden="true" />{copy.reset}</button>
+            <button type="button" className="previewer-button previewer-button--wide" onClick={() => setSettings(defaults(uiLocale))}><RotateCcw size={16} aria-hidden="true" />{copy.reset}</button>
             <button type="button" className="previewer-button previewer-button--primary previewer-button--wide" onClick={share}>{copied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}{copied ? copy.copied : copy.share}</button>
           </div>
         </aside>
