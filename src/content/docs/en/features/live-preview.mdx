@@ -1,0 +1,54 @@
+---
+title: "Live interactive preview"
+description: "Compare all six Lisible variants against an exact synchronized source revision and tune their live settings."
+category: features
+order: 0
+badge: "Interactive"
+draft: false
+---
+
+The [live previewer](/en/preview/) compares the six public variants without cloning or rebuilding the project. Each frame is a real static Lisible build, not a visual mockup, and the header links to the exact source commit used to generate it.
+
+## What you can compare
+
+| Group | Controls |
+| --- | --- |
+| Explore | variant, Home/Blog/Post/Tags/Archives/About page, responsive/desktop/tablet/mobile viewport |
+| Identity | site title and author |
+| Appearance | system/light/dark theme, accessible accent, comfortable/compact density, full/reduced motion |
+| Content | article banner above or below the body, covers, featured posts and related posts |
+
+The FR/EN selector changes both the previewer interface and the matching route inside the selected variant. Links clicked inside the frame stay interactive and update the previewer’s current path.
+
+:::note[Shared route selector]
+The page selector exposes routes common to every variant. Additive showcase routes, such as Organique’s bilingual Certifications and Friends pages, remain reachable through links inside that variant.
+:::
+
+## Save and share a state
+
+Every change is written to the page query string and saved locally. **Share** copies a URL containing the variant, route, language, theme, accent, identity, density, banner position, content toggles, motion preference and viewport.
+
+Opening that URL restores the same comparison. Reset returns to Organique with system theme, the default green accent and comfortable density.
+
+## Exact synchronized source
+
+Changes under `versions/` or runtime paths in `shared/` on Lisible’s `main` branch trigger the documentation synchronization workflow; the research catalogue is deliberately excluded. The workflow checks out the requested commit, replaces the generated `vendor/lisible/` snapshot and records its SHA in `vendor/lisible/source.json`.
+
+The documentation build then:
+
+1. installs each variant from its frozen lockfile;
+2. builds it below `/_previews/<variant>/` with `LISIBLE_PREVIEW=1`;
+3. marks every embedded page `noindex`;
+4. publishes a manifest containing the source SHA, routes, capabilities and content-based build hashes.
+
+The source badge in the previewer is therefore the freshness proof. Files under `vendor/lisible/` are generated and must not be edited by hand.
+
+## Online preview or local comparison
+
+Use the online previewer to select a direction, test content switches and share a configuration. Use the local command when validating uncommitted source changes:
+
+```bash
+bun run preview:all
+```
+
+`preview:all` installs, builds and serves all six variants on ports `4321` through `4326`. The online previewer serves isolated snapshots inside the documentation site; it does not modify a repository or replace the production build acceptance described in [Quality and accessibility](/en/docs/operations/quality/).

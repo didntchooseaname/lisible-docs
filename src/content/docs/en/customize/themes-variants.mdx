@@ -19,9 +19,15 @@ A variant is a complete skin over the same data model. It can change composition
 | `organique` | fluid shapes and draggable Knowledge Graph |
 | `h4x0r` | immersive terminal HUD |
 
-Run `bun run preview:all` to compare them with the same posts and settings.
+Open the [live interactive preview](/en/docs/features/live-preview/) to compare the same posts with shareable settings, or run `bun run preview:all` to validate local source changes.
 
 In `organique`, hold a Knowledge Graph node to move it. Tag-derived links follow its position live; the active node, its neighbours and unrelated relationships receive distinct visual states. The pointer aura and graph use the current accent and react to light or dark mode.
+
+## Landing showcases
+
+Every public variant now opens with a bilingual profile-oriented showcase before its editorial feed. Motion Primitives, Cult UI, Aceternity, ReactBits and Organique adapt the shared `DemoProfileHero`; H4X0R keeps a code-native `ProfileHero` shaped for its terminal HUD. The information contract stays aligned while layout, motion and controls remain variant-owned.
+
+Organique also demonstrates two additive bilingual surfaces: `/certifications` with a three-post certification series, and `/friends` with a local blogroll. Their English mirrors live at `/en/certifications` and `/en/friends`. The certification posts themselves stay in `shared/content/blog/<locale>/`, so every variant renders them even though the two showcase pages are Organique-specific.
 
 ## CSS tokens
 
@@ -47,9 +53,14 @@ Change roles, not occurrences. A component uses `var(--color-muted-foreground)`,
 
 The accent picker stores a color in `localStorage` and checks its contrast in light and dark modes. `SITE.accent` remains the initial fallback.
 
+## Appearance lifecycle
+
+Each layout mounts the shared `AppearanceBootstrap.astro` before the page becomes visible. It resolves system/light/dark mode, applies an accessible accent, reacts to operating-system and cross-tab changes, then reapplies the same state after Astro swaps. Theme and accent therefore stay stable without a wrong-theme flash, including inside the live previewer.
+
 ## Variant contract
 
-- identical routes and frontmatter;
+- identical shared baseline routes and frontmatter;
+- additive variant routes remain bilingual, accessible and never replace the baseline;
 - complete French and English dictionaries;
 - visible focus and keyboard access;
 - respect for `prefers-reduced-motion`;

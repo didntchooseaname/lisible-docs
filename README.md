@@ -10,7 +10,7 @@ Official, bilingual documentation for the Lisible framework. Built from the Orga
 
 ## What this repository contains
 
-- 18 French MDX chapters and 18 mirrored English MDX chapters;
+- 19 French MDX chapters and 19 mirrored English MDX chapters;
 - stable landing pages at `/fr/` and `/en/`, plus the adaptive `x-default` entry at `/`, with documentation under `/docs/` and `/en/docs/`;
 - a full-screen, zero-refresh previewer at `/preview/` and `/en/preview/` for all six Lisible variants and their live settings;
 - a category-based left navigation and per-page table of contents;

@@ -36,10 +36,11 @@ Cette page rassemble le contrat public de Lisible. Les chapitres précédents ex
 | `headingAnchors` | ancres copiables h2–h4 |
 | `relatedPosts` | recommandations par similarité de tags |
 | `math` | remark-math et KaTeX |
-| `mermaid` | diagrammes interactifs |
-| `drawio` | visionneuse draw.io |
+| `mermaid` | diagrammes interactifs avec zoom, déplacement et plein écran |
+| `drawio` | visionneuse draw.io avec zoom, déplacement et plein écran |
 | `ogPerPost` | image OG par article et locale |
 | `llmsTxt` | index, corpus et Markdown exporté |
+| `aiButtons` | copie Markdown et actions de lecture assistée par IA |
 | `socialShare` | intentions de partage |
 | `styledRss` | feuille XSL des flux |
 | `webmentions` | réactions webmention.io |
@@ -54,20 +55,37 @@ Cette page rassemble le contrat public de Lisible. Les chapitres précédents ex
 | `series` | pages et navigation de série |
 | `commandPalette` | recherche et actions Ctrl/Cmd+K |
 
+Le composant partagé `Tree` s’importe directement depuis `@shared/components/ui/file-tree` et ne possède pas de flag dédié.
+
 ## Routes françaises et anglaises
 
 | Français | English |
 | --- | --- |
 | `/` | `/en/` |
+| `/about` | `/en/about` |
 | `/blog` | `/en/blog` |
+| `/blog/<page>` | `/en/blog/<page>` |
 | `/blog/<slug>` | `/en/blog/<slug>` |
+| `/blog/<slug>.md` | `/en/blog/<slug>.md` |
 | `/tags` | `/en/tags` |
+| `/tags/<tag>` | `/en/tags/<tag>` |
+| `/tags/<tag>/<page>` | `/en/tags/<tag>/<page>` |
 | `/archives` | `/en/archives` |
+| `/archives/<page>` | `/en/archives/<page>` |
 | `/series` | `/en/series` |
 | `/series/<slug>` | `/en/series/<slug>` |
 | `/rss.xml` | `/en/rss.xml` |
 
 Routes globales : `/sitemap-index.xml`, `/robots.txt`, `/llms.txt`, `/llms-full.txt`, `/og/...` et `/pagefind/...`.
+
+### Routes de vitrine Organique
+
+| Français | English | Périmètre |
+| --- | --- | --- |
+| `/certifications` | `/en/certifications` | badges fictifs et série partagée de trois articles de certification |
+| `/friends` | `/en/friends` | blogroll local de démonstration |
+
+Ces deux paires sont des démonstrations additives d’Organique, pas des routes communes du socle. Elles doivent rester bilingues et ne doivent pas être supposées disponibles après un changement de variante.
 
 ## Commandes racine
 

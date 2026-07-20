@@ -39,7 +39,7 @@ bun run preview
 - route announcement after an Astro transition.[^route-announcer]
 
 :::tip[Test without a mouse]
-Open search, switch language, use MDX tabs, browse the table of contents, open and close the image viewer and return to the top using only the keyboard.
+Open search, switch language, use MDX tabs and the file tree, browse the table of contents, open and close image and diagram full-screen viewers, then return to the top using only the keyboard.
 :::
 
 ## Performance
@@ -56,7 +56,11 @@ Measure at least:
 
 ## Visual validation
 
-A visual feature must be tested in a real browser: mobile, desktop, light theme, dark theme and reduced motion. A Mermaid diagram is valid only when SVG boxes and arrows are visible, not when source code remains displayed. A draw.io diagram must expose its SVG or image, a non-zero viewport and working zoom controls in both dev and the served build.
+A visual feature must be tested in a real browser: mobile, desktop, light theme, dark theme and reduced motion. A Mermaid diagram is valid only when SVG boxes and arrows are visible, not when source code remains displayed. Mermaid and draw.io must expose a non-zero viewport, working zoom controls, full-screen entry and exit with <kbd>Escape</kbd> in both dev and the served build. A file tree must expand folders, select enabled items and preserve readable overflow on a narrow viewport.
+
+## Live preview acceptance
+
+When shared behavior or a variant changes, verify at least two variants in the [live preview workflow](/en/docs/features/live-preview/): switch between a shared route and the demo post, change FR/EN without a reload, exercise desktop and mobile viewports, then copy and reopen the share URL. The displayed source SHA must match the synchronized Lisible revision and every embedded route must remain `noindex`.
 
 ## Internal references
 

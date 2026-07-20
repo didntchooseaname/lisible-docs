@@ -1,6 +1,6 @@
 ---
 title: "MDX components"
-description: "Add tabs, steps and hidden content to a page without giving up Markdown simplicity."
+description: "Add file trees, tabs, steps and hidden content to a page without giving up Markdown simplicity."
 category: author
 order: 2
 badge: "Interactive"
@@ -10,6 +10,20 @@ draft: false
 import { Tabs, Tab } from "@/components/ui/tabs";
 import { Steps, Step } from "@/components/ui/steps";
 import Spoiler from "@/components/Spoiler.astro";
+import { Tree as FileTreeDemo } from "../../../../../vendor/lisible/shared/components/ui/file-tree";
+
+export const fileTreeDemoElements = [
+  {
+    id: "src",
+    name: "src",
+    type: "folder",
+    children: [
+      { id: "pages", name: "pages", type: "folder", children: [{ id: "home", name: "HomePage.astro", type: "file" }] },
+      { id: "styles", name: "styles.css", type: "file" },
+    ],
+  },
+  { id: "config", name: "lisible.config.json", type: "file" },
+];
 
 MDX is Lisible’s default article format. It keeps all syntax presented in [Extended Markdown](/en/docs/authoring/markdown/) and allows components inside prose. Every reference below shows complete copyable code, followed immediately by its actual rendering.
 
@@ -28,12 +42,70 @@ pubDate: 2026-07-19
 
 import { Tabs, Tab } from "@/components/ui/tabs";
 import { Steps, Step } from "@/components/ui/steps";
+import { Tree } from "@shared/components/ui/file-tree";
 import Spoiler from "@/components/Spoiler.astro";
 ```
 
 **Rendered output**
 
-Imports produce no visible element. They simply make `Tabs`, `Tab`, `Steps`, `Step` and `Spoiler` available to the examples that follow.
+Imports produce no visible element. They simply make `Tree`, `Tabs`, `Tab`, `Steps`, `Step` and `Spoiler` available to the examples that follow.
+
+## File tree
+
+`Tree` displays an interactive file hierarchy shared by all six variants. Folders can be opened independently, files can be selected and the global control expands or collapses every folder. Use it for project structures where a static text tree would hide useful detail.
+
+| Property | Type | Default | Purpose |
+| --- | --- | --- | --- |
+| `elements` | `TreeViewElement[]` | `[]` | nested files and folders |
+| `initialExpandedItems` | `string[]` | `[]` | folder IDs open on first render |
+| `initialSelectedId` | `string` | absent | initially highlighted item |
+| `indicator` | `boolean` | `true` | branch connector lines |
+| `sort` | `"default"`, `"none"` or comparator | `"default"` | folders-first natural sorting, source order or custom order |
+| `dir` | `"ltr"` or `"rtl"` | `"ltr"` | text direction |
+| `className` | `string` | empty | extra classes on the container |
+| `client:load` | Astro directive | required | enables selection and folder controls |
+
+Every element needs a unique `id` and a `name`. Set `type` to `file` or `folder`; an item with `children` is also inferred as a folder. `isSelectable: false` disables selection while preserving the item in the hierarchy.
+
+In an MDX island, use `"default"` or `"none"` for `sort` because Astro serializes properties across the server/client boundary. A comparator function belongs inside a React wrapper component.
+
+**Code**
+
+```mdx
+import { Tree } from "@shared/components/ui/file-tree";
+
+<Tree
+  client:load
+  initialExpandedItems={["src", "pages"]}
+  initialSelectedId="home"
+  elements={[
+    {
+      id: "src",
+      name: "src",
+      type: "folder",
+      children: [
+        {
+          id: "pages",
+          name: "pages",
+          type: "folder",
+          children: [{ id: "home", name: "HomePage.astro", type: "file" }],
+        },
+        { id: "styles", name: "styles.css", type: "file" },
+      ],
+    },
+    { id: "config", name: "lisible.config.json", type: "file" },
+  ]}
+/>
+```
+
+**Rendered output**
+
+<FileTreeDemo
+  client:load
+  initialExpandedItems={["src", "pages"]}
+  initialSelectedId="home"
+  elements={fileTreeDemoElements}
+/>
 
 ## Tabs
 
@@ -225,7 +297,7 @@ Use a single card when the repository is the primary destination. For a referenc
 
 ## draw.io diagram
 
-The `drawio` directive loads an SVG export created with draw.io into a viewer with zoom, pan and reset controls. The Markdown image nested inside the directive acts as a fallback if loading or script execution fails.
+The `drawio` directive loads an SVG export created with draw.io into a viewer with zoom, pan, reset and full-screen controls. Full screen uses the same browser API and viewport-overlay fallback as Mermaid and closes with <kbd>Escape</kbd>. The Markdown image nested inside the directive acts as a fallback if loading or script execution fails.
 
 | Attribute | Type | Required | Purpose |
 | --- | --- | :---: | --- |

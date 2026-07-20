@@ -21,9 +21,13 @@ lisible/
 │  ├─ site.config.ts
 │  ├─ features.ts
 │  ├─ variants.ts
+│  ├─ assets/
+│  ├─ components/
 │  ├─ content/
 │  ├─ markdown/
+│  ├─ preview/
 │  ├─ routes/
+│  ├─ scripts/
 │  └─ public/
 └─ versions/
    ├─ _core/
@@ -42,6 +46,9 @@ lisible/
 | Contenu | `shared/content/` | articles, schéma, images |
 | Identité | `shared/site.config.ts` | titre, URL, auteur, dépôt |
 | Capacités | `shared/features.ts` | recherche, séries, commentaires |
+| UI partagée | `shared/components/` | apparence, bridge de preview, hero de profil, arborescence |
+| Runtime navigateur | `shared/scripts/` | locale, cartes, plein écran des diagrammes |
+| Contrat de preview | `shared/preview/` | base de build, protocole de réglages, navigation de frame |
 | Routes communes | `shared/routes/` | accueil, blog, tags, RSS |
 | Design | `versions/*/src/` | layouts, composants, animations |
 | Orchestration | `scripts/` | init, preview global, contrôles |
@@ -68,10 +75,16 @@ sequenceDiagram
 
 ## Le rôle de `_core`
 
-`versions/_core` sert de référence fonctionnelle. Les six variantes publiques peuvent utiliser des composants différents, mais doivent conserver les mêmes routes, données, états d’erreur et exigences d’accessibilité.
+`versions/_core` sert de référence fonctionnelle. Les six variantes publiques peuvent utiliser des composants différents, mais doivent conserver le socle commun de routes, les données, les états d’erreur et les exigences d’accessibilité.
+
+Une variante peut ajouter une route de démonstration si elle reste additive et fournit une paire FR/EN complète. Les pages Certifications et Amis d’Organique respectent cette règle : elles ne remplacent ni Accueil, ni Blog, ni Tags, ni Archives, ni Séries, ni À propos.
+
+## Frontière du preview
+
+`PreviewBridge.astro` et `shared/preview/` restent inertes dans un build Lisible normal. Le builder de documentation les active avec `LISIBLE_PREVIEW=1`, attribue à chaque variante une base isolée `/_previews/<variante>/` et échange avec le previewer parent des réglages et messages de navigation validés. Les métadonnées `noindex`, options de contenu et réécritures d’URL propres au preview ne contaminent donc pas les sites lecteurs déployés.
 
 La [Configuration initiale](/docs/getting-started/configuration/) décrit les surfaces partagées et [Thèmes et variantes](/docs/customize/themes-variants/) formalise le contrat de présentation.
 
 ## Imports et alias
 
-Dans le code source Astro courant, `@/*` pointe vers `src/*` et `@shared/*` vers `shared/*`. Les modules chargés directement par la configuration Astro utilisent les alias d’import de paquet Node `#src/*` et `#shared/*`, résolus avant les alias TypeScript. La frontière locale `astro.config.ts` peut conserver des imports en `./`, mais les modules source ne remontent jamais l’arborescence avec `../`.
+Dans le code source Astro courant, `@/*` pointe vers `src/*` et `@shared/*` vers `shared/*`. Les composants MDX partagés utilisent donc des imports comme `@shared/components/ui/file-tree`. Les modules chargés directement par la configuration Astro utilisent les alias d’import de paquet Node `#src/*` et `#shared/*`, résolus avant les alias TypeScript. La frontière locale `astro.config.ts` peut conserver des imports en `./`, mais les modules source ne remontent jamais l’arborescence avec `../`.

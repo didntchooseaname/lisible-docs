@@ -19,9 +19,15 @@ Une variante est une peau complète au-dessus du même modèle de données. Elle
 | `organique` | formes souples et Knowledge Graph déplaçable |
 | `h4x0r` | terminal HUD immersif |
 
-Lancez `bun run preview:all` pour les comparer avec les mêmes articles et les mêmes réglages.
+Ouvrez le [preview interactif en direct](/docs/features/live-preview/) pour comparer les mêmes articles avec des réglages partageables, ou lancez `bun run preview:all` pour valider des changements source locaux.
 
 Dans `organique`, maintenez un nœud du Knowledge Graph pour le déplacer. Les liens issus des tags suivent sa position en direct ; le nœud actif, ses voisins et les relations non concernées prennent des états visuels distincts. La lueur de pointeur et le graphe utilisent l’accent courant et réagissent au thème clair ou sombre.
+
+## Vitrines d’accueil
+
+Chaque variante publique s’ouvre désormais sur une vitrine bilingue orientée profil avant son flux éditorial. Motion Primitives, Cult UI, Aceternity, ReactBits et Organique adaptent le composant partagé `DemoProfileHero` ; H4X0R conserve un `ProfileHero` natif conçu pour son terminal HUD. Le contrat d’information reste aligné tandis que la composition, les animations et les contrôles appartiennent à chaque variante.
+
+Organique présente aussi deux surfaces bilingues additives : `/certifications` avec une série de trois articles de certification, et `/friends` avec un blogroll local. Leurs miroirs anglais se trouvent à `/en/certifications` et `/en/friends`. Les articles de certification restent dans `shared/content/blog/<locale>/`, donc toutes les variantes les rendent même si les deux pages de vitrine sont spécifiques à Organique.
 
 ## Tokens CSS
 
@@ -47,9 +53,14 @@ Modifiez les rôles, pas les occurrences. Un composant utilise `var(--color-mute
 
 Le sélecteur d’accent stocke une couleur dans `localStorage` et vérifie son contraste en clair et sombre. La valeur `SITE.accent` reste le repli initial.
 
+## Cycle de vie de l’apparence
+
+Chaque layout monte le composant partagé `AppearanceBootstrap.astro` avant que la page devienne visible. Il résout le mode système/clair/sombre, applique un accent accessible, réagit aux changements du système et des autres onglets, puis réapplique le même état après les swaps Astro. Le thème et l’accent restent ainsi stables sans flash du mauvais thème, y compris dans le previewer en direct.
+
 ## Contrat d’une variante
 
-- mêmes routes et frontmatter ;
+- mêmes routes communes de référence et même frontmatter ;
+- routes additives d’une variante toujours bilingues, accessibles et sans remplacement du socle ;
 - dictionnaires FR/EN complets ;
 - focus visible et clavier ;
 - `prefers-reduced-motion` respecté ;

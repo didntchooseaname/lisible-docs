@@ -36,10 +36,11 @@ This page gathers Lisible’s public contract. Previous chapters explain the dec
 | `headingAnchors` | copyable h2–h4 anchors |
 | `relatedPosts` | recommendations by tag similarity |
 | `math` | remark-math and KaTeX |
-| `mermaid` | interactive diagrams |
-| `drawio` | draw.io viewer |
+| `mermaid` | interactive diagrams with zoom, pan and full screen |
+| `drawio` | draw.io viewer with zoom, pan and full screen |
 | `ogPerPost` | OG image per post and locale |
 | `llmsTxt` | index, corpus and exported Markdown |
+| `aiButtons` | copy Markdown and open AI-assisted reading actions |
 | `socialShare` | sharing intents |
 | `styledRss` | feed XSL stylesheet |
 | `webmentions` | webmention.io reactions |
@@ -54,20 +55,37 @@ This page gathers Lisible’s public contract. Previous chapters explain the dec
 | `series` | series pages and navigation |
 | `commandPalette` | search and Ctrl/Cmd+K actions |
 
+The shared `Tree` component is imported directly from `@shared/components/ui/file-tree` and has no separate feature flag.
+
 ## French and English routes
 
 | French | English |
 | --- | --- |
 | `/` | `/en/` |
+| `/about` | `/en/about` |
 | `/blog` | `/en/blog` |
+| `/blog/<page>` | `/en/blog/<page>` |
 | `/blog/<slug>` | `/en/blog/<slug>` |
+| `/blog/<slug>.md` | `/en/blog/<slug>.md` |
 | `/tags` | `/en/tags` |
+| `/tags/<tag>` | `/en/tags/<tag>` |
+| `/tags/<tag>/<page>` | `/en/tags/<tag>/<page>` |
 | `/archives` | `/en/archives` |
+| `/archives/<page>` | `/en/archives/<page>` |
 | `/series` | `/en/series` |
 | `/series/<slug>` | `/en/series/<slug>` |
 | `/rss.xml` | `/en/rss.xml` |
 
 Global routes: `/sitemap-index.xml`, `/robots.txt`, `/llms.txt`, `/llms-full.txt`, `/og/...` and `/pagefind/...`.
+
+### Organique showcase routes
+
+| French | English | Scope |
+| --- | --- | --- |
+| `/certifications` | `/en/certifications` | fictional badges and the shared three-post certification series |
+| `/friends` | `/en/friends` | local demo blogroll |
+
+These two pairs are additive Organique demonstrations, not shared baseline routes. They must remain bilingual and must not be assumed available after switching to another variant.
 
 ## Root commands
 

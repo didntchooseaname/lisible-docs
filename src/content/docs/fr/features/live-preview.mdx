@@ -1,0 +1,54 @@
+---
+title: "Preview interactif en direct"
+description: "Comparer les six variantes Lisible depuis une révision source exacte et synchronisée, puis ajuster leurs réglages en direct."
+category: features
+order: 0
+badge: "Interactif"
+draft: false
+---
+
+Le [previewer en direct](/preview/) compare les six variantes publiques sans cloner ni reconstruire le projet. Chaque frame est un véritable build statique de Lisible, pas une maquette visuelle, et l’en-tête pointe vers le commit source exact qui l’a généré.
+
+## Ce que vous pouvez comparer
+
+| Groupe | Contrôles |
+| --- | --- |
+| Explorer | variante, page Accueil/Blog/Article/Tags/Archives/À propos, viewport responsive/bureau/tablette/mobile |
+| Identité | titre du site et auteur |
+| Apparence | thème système/clair/sombre, accent accessible, densité confortable/compacte, animations complètes/réduites |
+| Contenu | bannière d’article au-dessus ou en dessous du corps, couvertures, sélection et articles liés |
+
+Le sélecteur FR/EN change à la fois l’interface du previewer et la route correspondante dans la variante choisie. Les liens activés dans la frame restent interactifs et mettent à jour le chemin courant du previewer.
+
+:::note[Sélecteur de routes communes]
+Le sélecteur de page expose les routes partagées par toutes les variantes. Les routes de démonstration additives, comme les pages bilingues Certifications et Amis d’Organique, restent accessibles depuis les liens de cette variante.
+:::
+
+## Enregistrer et partager un état
+
+Chaque changement est écrit dans la query string de la page et mémorisé localement. **Partager** copie une URL qui contient la variante, la route, la langue, le thème, l’accent, l’identité, la densité, la position de bannière, les options de contenu, la préférence d’animation et le viewport.
+
+L’ouverture de cette URL restaure la même comparaison. La réinitialisation revient à Organique avec le thème système, l’accent vert par défaut et la densité confortable.
+
+## Source exacte et synchronisée
+
+Les changements sous `versions/` ou dans les chemins runtime de `shared/` sur la branche `main` de Lisible déclenchent le workflow de synchronisation de la documentation ; le catalogue de recherche en est volontairement exclu. Le workflow récupère le commit demandé, remplace le snapshot généré `vendor/lisible/` et enregistre son SHA dans `vendor/lisible/source.json`.
+
+Le build de la documentation :
+
+1. installe chaque variante depuis son lockfile figé ;
+2. la construit sous `/_previews/<variante>/` avec `LISIBLE_PREVIEW=1` ;
+3. marque chaque page embarquée en `noindex` ;
+4. publie un manifeste contenant le SHA source, les routes, capacités et hashes de build calculés depuis le contenu.
+
+Le badge source du previewer constitue donc la preuve de fraîcheur. Les fichiers sous `vendor/lisible/` sont générés et ne doivent jamais être modifiés manuellement.
+
+## Preview en ligne ou comparaison locale
+
+Utilisez le previewer en ligne pour choisir une direction, tester les options de contenu et partager une configuration. Utilisez la commande locale pour valider des changements source non commités :
+
+```bash
+bun run preview:all
+```
+
+`preview:all` installe, build et sert les six variantes sur les ports `4321` à `4326`. Le previewer en ligne sert des snapshots isolés dans le site de documentation ; il ne modifie aucun dépôt et ne remplace pas la recette du build de production décrite dans [Qualité et accessibilité](/docs/operations/quality/).

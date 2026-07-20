@@ -1,6 +1,6 @@
 ---
 title: "Composants MDX"
-description: "Ajouter des onglets, étapes et contenus masqués dans une page sans abandonner la simplicité du Markdown."
+description: "Ajouter des arborescences, onglets, étapes et contenus masqués sans abandonner la simplicité du Markdown."
 category: author
 order: 2
 badge: "Interactif"
@@ -10,6 +10,20 @@ draft: false
 import { Tabs, Tab } from "@/components/ui/tabs";
 import { Steps, Step } from "@/components/ui/steps";
 import Spoiler from "@/components/Spoiler.astro";
+import { Tree as FileTreeDemo } from "../../../../../vendor/lisible/shared/components/ui/file-tree";
+
+export const fileTreeDemoElements = [
+  {
+    id: "src",
+    name: "src",
+    type: "folder",
+    children: [
+      { id: "pages", name: "pages", type: "folder", children: [{ id: "home", name: "HomePage.astro", type: "file" }] },
+      { id: "styles", name: "styles.css", type: "file" },
+    ],
+  },
+  { id: "config", name: "lisible.config.json", type: "file" },
+];
 
 MDX est le format d’article par défaut de Lisible. Il conserve toute la syntaxe présentée dans [Markdown enrichi](/docs/authoring/markdown/) et permet d’insérer des composants dans la prose. Chaque fiche ci-dessous montre le code complet à copier, puis son rendu réel immédiatement en dessous.
 
@@ -28,12 +42,70 @@ pubDate: 2026-07-19
 
 import { Tabs, Tab } from "@/components/ui/tabs";
 import { Steps, Step } from "@/components/ui/steps";
+import { Tree } from "@shared/components/ui/file-tree";
 import Spoiler from "@/components/Spoiler.astro";
 ```
 
 **Rendu**
 
-Les imports ne produisent aucun élément visible. Ils rendent simplement `Tabs`, `Tab`, `Steps`, `Step` et `Spoiler` disponibles pour les exemples placés après eux.
+Les imports ne produisent aucun élément visible. Ils rendent simplement `Tree`, `Tabs`, `Tab`, `Steps`, `Step` et `Spoiler` disponibles pour les exemples placés après eux.
+
+## Arborescence de fichiers
+
+`Tree` affiche une hiérarchie de fichiers interactive partagée par les six variantes. Chaque dossier peut être ouvert indépendamment, les fichiers peuvent être sélectionnés et le contrôle global déplie ou replie tous les dossiers. Utilisez-le pour une structure de projet où un arbre texte statique masquerait des détails utiles.
+
+| Propriété | Type | Défaut | Rôle |
+| --- | --- | --- | --- |
+| `elements` | `TreeViewElement[]` | `[]` | fichiers et dossiers imbriqués |
+| `initialExpandedItems` | `string[]` | `[]` | IDs des dossiers ouverts au premier rendu |
+| `initialSelectedId` | `string` | absent | élément initialement mis en avant |
+| `indicator` | `boolean` | `true` | connecteurs entre les branches |
+| `sort` | `"default"`, `"none"` ou comparateur | `"default"` | tri naturel dossiers d’abord, ordre source ou ordre personnalisé |
+| `dir` | `"ltr"` ou `"rtl"` | `"ltr"` | direction du texte |
+| `className` | `string` | vide | classes supplémentaires du conteneur |
+| `client:load` | directive Astro | requis | active la sélection et les contrôles de dossiers |
+
+Chaque élément exige un `id` unique et un `name`. Définissez `type` à `file` ou `folder` ; un élément avec `children` est aussi reconnu comme dossier. `isSelectable: false` désactive la sélection tout en conservant l’élément dans la hiérarchie.
+
+Dans un îlot MDX, utilisez `"default"` ou `"none"` pour `sort`, car Astro sérialise les propriétés entre serveur et client. Une fonction de comparaison doit rester dans un composant wrapper React.
+
+**Code**
+
+```mdx
+import { Tree } from "@shared/components/ui/file-tree";
+
+<Tree
+  client:load
+  initialExpandedItems={["src", "pages"]}
+  initialSelectedId="home"
+  elements={[
+    {
+      id: "src",
+      name: "src",
+      type: "folder",
+      children: [
+        {
+          id: "pages",
+          name: "pages",
+          type: "folder",
+          children: [{ id: "home", name: "HomePage.astro", type: "file" }],
+        },
+        { id: "styles", name: "styles.css", type: "file" },
+      ],
+    },
+    { id: "config", name: "lisible.config.json", type: "file" },
+  ]}
+/>
+```
+
+**Rendu**
+
+<FileTreeDemo
+  client:load
+  initialExpandedItems={["src", "pages"]}
+  initialSelectedId="home"
+  elements={fileTreeDemoElements}
+/>
 
 ## Onglets
 
@@ -225,7 +297,7 @@ Utilisez une seule carte lorsque le dépôt est la destination principale. Pour 
 
 ## Diagramme draw.io
 
-La directive `drawio` charge un export SVG créé avec draw.io dans une visionneuse dotée du zoom, du déplacement et de la réinitialisation. L’image Markdown placée dans la directive sert de repli si le chargement ou l’exécution du script échoue.
+La directive `drawio` charge un export SVG créé avec draw.io dans une visionneuse dotée du zoom, du déplacement, de la réinitialisation et du plein écran. Le plein écran utilise la même API navigateur et le même overlay de repli que Mermaid, puis se ferme avec <kbd>Échap</kbd>. L’image Markdown placée dans la directive sert de repli si le chargement ou l’exécution du script échoue.
 
 | Attribut | Type | Obligatoire | Rôle |
 | --- | --- | :---: | --- |

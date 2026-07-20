@@ -32,11 +32,12 @@ if (JSON.stringify(files.fr) !== JSON.stringify(files.en)) {
   errors.push("French and English documentation file sets differ.");
 }
 
-if (files.fr.length < 18) {
-  errors.push(`Expected at least 18 chapters per locale, found ${files.fr.length}.`);
+if (files.fr.length < 19) {
+  errors.push(`Expected at least 19 chapters per locale, found ${files.fr.length}.`);
 }
 
 const routes = new Set<string>();
+const siteRoutes = new Set(["/", "/en/", "/preview/", "/en/preview/"]);
 for (const locale of locales) {
   for (const file of files[locale]) {
     const slug = file.replace(/\.(md|mdx)$/, "");
@@ -66,7 +67,7 @@ for (const locale of locales) {
     for (const match of text.matchAll(/\]\((\/[^) #?]+)(?:[?#][^)]*)?\)/g)) {
       const route = match[1].endsWith("/") ? match[1] : `${match[1]}/`;
       const isDocRoute = routes.has(route);
-      if (!isDocRoute && !existsSync(join(import.meta.dirname, `../public${match[1]}`))) {
+      if (!isDocRoute && !siteRoutes.has(route) && !existsSync(join(import.meta.dirname, `../public${match[1]}`))) {
         errors.push(`${locale}/${file}: unresolved internal link ${match[1]}.`);
       }
       if (locale === "en" && isDocRoute && !route.startsWith("/en/docs/")) {

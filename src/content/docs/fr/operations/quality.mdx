@@ -39,7 +39,7 @@ bun run preview
 - route annoncée après une transition Astro.[^route-announcer]
 
 :::tip[Tester sans souris]
-Ouvrez la recherche, changez la langue, utilisez les tabs MDX, parcourez le sommaire, ouvrez puis fermez la visionneuse et revenez en haut uniquement au clavier.
+Ouvrez la recherche, changez la langue, utilisez les tabs MDX et l’arborescence, parcourez le sommaire, ouvrez puis fermez les visionneuses d’image et de diagramme en plein écran, puis revenez en haut uniquement au clavier.
 :::
 
 ## Performance
@@ -56,7 +56,11 @@ Mesurez au minimum :
 
 ## Validation visuelle
 
-Une fonctionnalité graphique doit être testée dans un vrai navigateur : mobile, desktop, thème clair, thème sombre et réduction de mouvement. Un diagramme Mermaid est valide seulement si les boîtes et flèches SVG sont visibles, pas si le code source reste affiché. Un diagramme draw.io doit afficher son SVG ou son image, une viewport non nulle et des contrôles de zoom fonctionnels en dev comme sur le build servi.
+Une fonctionnalité graphique doit être testée dans un vrai navigateur : mobile, desktop, thème clair, thème sombre et réduction de mouvement. Un diagramme Mermaid est valide seulement si les boîtes et flèches SVG sont visibles, pas si le code source reste affiché. Mermaid et draw.io doivent présenter une viewport non nulle, des contrôles de zoom fonctionnels, une entrée en plein écran et une sortie avec <kbd>Échap</kbd> en dev comme sur le build servi. Une arborescence doit déplier ses dossiers, sélectionner les éléments actifs et conserver un overflow lisible sur une viewport étroite.
+
+## Recette du preview en direct
+
+Lorsqu’un comportement partagé ou une variante change, vérifiez au moins deux variantes dans le [workflow de preview en direct](/docs/features/live-preview/) : passez d’une route commune à l’article de démonstration, changez FR/EN sans rechargement, testez les viewports bureau et mobile, puis copiez et rouvrez l’URL partagée. Le SHA source affiché doit correspondre à la révision Lisible synchronisée et chaque route embarquée doit rester en `noindex`.
 
 ## Références internes
 
