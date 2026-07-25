@@ -24,10 +24,13 @@ lisible/
 │  ├─ assets/
 │  ├─ components/
 │  ├─ content/
+│  ├─ integrations/
+│  ├─ lib/
 │  ├─ markdown/
 │  ├─ preview/
 │  ├─ routes/
 │  ├─ scripts/
+│  ├─ print.css
 │  └─ public/
 └─ versions/
    ├─ _core/
@@ -50,6 +53,9 @@ lisible/
 | Runtime navigateur | `shared/scripts/` | locale, cartes, plein écran des diagrammes |
 | Contrat de preview | `shared/preview/` | base de build, protocole de réglages, navigation de frame |
 | Routes communes | `shared/routes/` | accueil, blog, tags, RSS |
+| Pipeline de contenu | `shared/lib/` | requêtes sur les articles, formatage, RSS, llms.txt, Open Graph |
+| Intégrations de build | `shared/integrations/` | assets KaTeX auto-hébergés |
+| Impression | `shared/print.css` | rendu papier et export PDF |
 | Design | `versions/*/src/` | layouts, composants, animations |
 | Orchestration | `scripts/` | init, preview global, contrôles |
 
@@ -87,4 +93,8 @@ La [Configuration initiale](/docs/getting-started/configuration/) décrit les su
 
 ## Imports et alias
 
-Dans le code source Astro courant, `@/*` pointe vers `src/*` et `@shared/*` vers `shared/*`. Les composants MDX partagés utilisent donc des imports comme `@shared/components/ui/file-tree`. Les modules chargés directement par la configuration Astro utilisent les alias d’import de paquet Node `#src/*` et `#shared/*`, résolus avant les alias TypeScript. La frontière locale `astro.config.ts` peut conserver des imports en `./`, mais les modules source ne remontent jamais l’arborescence avec `../`.
+Le code source Astro utilise deux alias et deux seulement : `@/*` pointe vers `src/*` et `@shared/*` vers `shared/*`. Les composants MDX partagés utilisent donc des imports comme `@shared/components/ui/file-tree`, et les modules source ne remontent jamais l’arborescence avec `../`.
+
+Les modules chargés directement par `astro.config.ts` font exception : la configuration est évaluée avant que les alias soient disponibles, ils utilisent donc des chemins relatifs. C’est le cas des greffons remark et rehype, du badge de langage et des dictionnaires que la configuration importe.
+
+Les fichiers de `shared/` restent sans dépendance runtime autre que celles installées à la racine du dépôt : `shared/` n’a pas de `node_modules`, la résolution remonte donc jusqu’à la racine.

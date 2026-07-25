@@ -44,11 +44,12 @@ import { Tabs, Tab } from "@/components/ui/tabs";
 import { Steps, Step } from "@/components/ui/steps";
 import { Tree } from "@shared/components/ui/file-tree";
 import Spoiler from "@/components/Spoiler.astro";
+import Diagram from "@shared/components/Diagram.astro";
 ```
 
 **Rendered output**
 
-Imports produce no visible element. They simply make `Tree`, `Tabs`, `Tab`, `Steps`, `Step` and `Spoiler` available to the examples that follow.
+Imports produce no visible element. They simply make `Tree`, `Tabs`, `Tab`, `Steps`, `Step`, `Spoiler` and `Diagram` available to the examples that follow.
 
 ## File tree
 
@@ -319,6 +320,25 @@ The fallback image’s alternative text must describe the information in the dia
 :::drawio{src="/images/demo-ilots.svg" title="Islands pipeline"}
 ![Pipeline showing content flowing into the six Astro variants](/images/demo-ilots.svg)
 :::
+
+## Inline SVG schematics
+
+`Diagram` inserts a schematic straight into the HTML rather than loading it through `<img>`. That is what makes it live: an inline SVG inherits the page custom properties, so its strokes follow the accent the reader picks in the header and its surfaces follow the active theme, with no JavaScript and no extra request. An SVG served through `<img>` stays isolated from the page and cannot do that.
+
+Three schematics ship with the framework: `islands`, `pipeline` and `tokens`. Pass the locale so the labels and the caption match the article.
+
+**Code**
+
+```mdx
+import Diagram from "@shared/components/Diagram.astro";
+
+<Diagram id="islands" locale="en" />
+<Diagram id="pipeline" locale="en" caption="From source file to served page." />
+```
+
+**Rendered output**
+
+A figure with a caption, sized by aspect ratio so it reserves its space before paint. Add your own by extending the `copy` map and the drawing branches in `shared/components/Diagram.astro`.
 
 ## Choosing hydration
 

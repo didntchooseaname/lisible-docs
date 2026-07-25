@@ -57,6 +57,10 @@ The accent picker stores a color in `localStorage` and checks its contrast in li
 
 Each layout mounts the shared `AppearanceBootstrap.astro` before the page becomes visible. It resolves system/light/dark mode, applies an accessible accent, reacts to operating-system and cross-tab changes, then reapplies the same state after Astro swaps. Theme and accent therefore stay stable without a wrong-theme flash, including inside the live previewer.
 
+## Print and PDF
+
+`shared/print.css` is imported last by every variant, so it wins over variant styling. Printing a page drops the chrome, the navigation and the decoration, forces ink on paper regardless of the active theme, spells out the destination of external links, and keeps headings, tables and code blocks from splitting across pages. A blog built for reading has to survive being printed.
+
 ## Variant contract
 
 - identical shared baseline routes and frontmatter;

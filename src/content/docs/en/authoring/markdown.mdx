@@ -65,6 +65,8 @@ Read the [content model](/en/docs/authoring/content/) or the [Astro documentatio
 
 Put shared files in `public/images`, then reference them from the site root. Alternative text describes the information carried by the image; leave it empty only for a strictly decorative image. The quoted title is optional.
 
+Dimensions are not your responsibility: at build time Lisible reads the intrinsic size of every local image (SVG, PNG, JPEG, GIF) and sets `width`, `height`, `loading="lazy"` and `decoding="async"` on the emitted tag. Space is reserved before the image loads, so it never shifts the layout.
+
 **Code**
 
 ```markdown

@@ -57,6 +57,10 @@ Le sélecteur d’accent stocke une couleur dans `localStorage` et vérifie son 
 
 Chaque layout monte le composant partagé `AppearanceBootstrap.astro` avant que la page devienne visible. Il résout le mode système/clair/sombre, applique un accent accessible, réagit aux changements du système et des autres onglets, puis réapplique le même état après les swaps Astro. Le thème et l’accent restent ainsi stables sans flash du mauvais thème, y compris dans le previewer en direct.
 
+## Impression et PDF
+
+`shared/print.css` est importé en dernier par chaque variante, il prime donc sur le style de la variante. À l’impression, l’habillage, la navigation et la décoration disparaissent, le rendu repasse en encre sur papier quel que soit le thème actif, la destination des liens externes est écrite en toutes lettres, et les titres, tableaux et blocs de code ne se coupent pas entre deux pages. Un blog pensé pour la lecture doit survivre à l’impression.
+
 ## Contrat d’une variante
 
 - mêmes routes communes de référence et même frontmatter ;

@@ -44,11 +44,12 @@ import { Tabs, Tab } from "@/components/ui/tabs";
 import { Steps, Step } from "@/components/ui/steps";
 import { Tree } from "@shared/components/ui/file-tree";
 import Spoiler from "@/components/Spoiler.astro";
+import Diagram from "@shared/components/Diagram.astro";
 ```
 
 **Rendu**
 
-Les imports ne produisent aucun élément visible. Ils rendent simplement `Tree`, `Tabs`, `Tab`, `Steps`, `Step` et `Spoiler` disponibles pour les exemples placés après eux.
+Les imports ne produisent aucun élément visible. Ils rendent simplement `Tree`, `Tabs`, `Tab`, `Steps`, `Step`, `Spoiler` et `Diagram` disponibles pour les exemples placés après eux.
 
 ## Arborescence de fichiers
 
@@ -319,6 +320,25 @@ Le texte alternatif de l’image de repli doit décrire l’information du diagr
 :::drawio{src="/images/demo-ilots.svg" title="Pipeline en îlots"}
 ![Pipeline montrant le passage du contenu aux six variantes Astro](/images/demo-ilots.svg)
 :::
+
+## Schémas SVG intégrés
+
+`Diagram` insère un schéma directement dans le HTML au lieu de le charger via `<img>`. C’est ce qui le rend vivant : un SVG inline hérite des variables CSS de la page, donc ses traits suivent l’accent choisi par le lecteur dans l’en-tête et ses surfaces suivent le thème actif, sans JavaScript et sans requête supplémentaire. Un SVG servi via `<img>` reste isolé de la page et ne peut pas faire cela.
+
+Trois schémas sont fournis : `islands`, `pipeline` et `tokens`. Passez la locale pour que les libellés et la légende suivent l’article.
+
+**Code**
+
+```mdx
+import Diagram from "@shared/components/Diagram.astro";
+
+<Diagram id="islands" locale="fr" />
+<Diagram id="pipeline" locale="fr" caption="Du fichier source à la page servie." />
+```
+
+**Rendu**
+
+Une figure avec légende, dimensionnée par ratio d’aspect afin de réserver sa place avant le premier rendu. Pour en ajouter, étendez la table `copy` et les branches de dessin dans `shared/components/Diagram.astro`.
 
 ## Choisir l’hydratation
 

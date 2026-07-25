@@ -65,6 +65,8 @@ Consultez [le modèle de contenu](/docs/authoring/content/) ou la [documentation
 
 Placez les fichiers partagés dans `public/images`, puis référencez-les depuis la racine. Le texte alternatif décrit l’information portée par l’image ; laissez-le vide uniquement pour une image strictement décorative. Le titre entre guillemets est facultatif.
 
+Les dimensions ne sont pas à votre charge : au build, Lisible lit la taille intrinsèque de toute image locale (SVG, PNG, JPEG, GIF) et pose `width`, `height`, `loading="lazy"` et `decoding="async"` sur la balise produite. La place est donc réservée avant le chargement et l’image ne décale jamais la mise en page.
+
 **Code**
 
 ```markdown

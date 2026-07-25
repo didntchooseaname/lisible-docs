@@ -46,11 +46,18 @@ Les champs générés sont documentés dans [Modèle de contenu](/docs/authoring
 ```bash
 bun run check-links
 bun run check-assets
+bun run typecheck
 bun run check:all
 ```
 
+`check-links` et `check-assets` portent sur la variante active. `typecheck` exécute `astro check` sur chaque variante, et `check:all` typecheck, build, puis valide les liens, les budgets d’assets et les images Open Graph des sept. Passez un nom de variante pour restreindre l’exécution :
+
+```bash
+bun run check-variants organique
+```
+
 :::tip[CI]
-Utilisez `bun run check:all` comme étape bloquante avant un déploiement. Conservez `dev` pour l’itération et `preview` pour la recette du résultat statique.
+Utilisez `bun run check:all` comme étape bloquante avant un déploiement. Conservez `dev` pour l’itération et `preview` pour la recette du résultat statique. Le dépôt fournit un workflow GitHub Actions qui exécute la même commande sur une matrice de variantes.
 :::
 
 ## Gestion des dépendances

@@ -11,10 +11,19 @@ A successful build is necessary but not sufficient. Lisible separates automated 
 ## Recommended pipeline
 
 ```bash
+bun run typecheck
+bun run check:all
+bun run preview
+```
+
+`typecheck` runs `astro check` on the seven variants. `check:all` chains, for each of them, the typecheck, the build, then `check-links`, `check-assets` and the Open Graph output check. Running it across every variant rather than the active one is what keeps the shared core from drifting between them.
+
+The individual commands stay available for a faster loop on the active variant:
+
+```bash
 bun run check-links
 bun run check-assets
 bun run build
-bun run preview
 ```
 
 `check-links` inspects content references with limited concurrency and timeouts. `check-assets` applies budgets to the built result.

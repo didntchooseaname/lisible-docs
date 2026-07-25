@@ -24,10 +24,13 @@ lisible/
 │  ├─ assets/
 │  ├─ components/
 │  ├─ content/
+│  ├─ integrations/
+│  ├─ lib/
 │  ├─ markdown/
 │  ├─ preview/
 │  ├─ routes/
 │  ├─ scripts/
+│  ├─ print.css
 │  └─ public/
 └─ versions/
    ├─ _core/
@@ -50,6 +53,9 @@ lisible/
 | Browser runtime | `shared/scripts/` | locale, cards, diagram full screen |
 | Preview contract | `shared/preview/` | build base, settings protocol, frame navigation |
 | Shared routes | `shared/routes/` | home, blog, tags, RSS |
+| Content pipeline | `shared/lib/` | post queries, formatting, RSS, llms.txt, Open Graph |
+| Build integrations | `shared/integrations/` | self-hosted KaTeX assets |
+| Print | `shared/print.css` | paper rendering and PDF export |
 | Design | `versions/*/src/` | layouts, components, animation |
 | Orchestration | `scripts/` | init, global preview, checks |
 
@@ -87,4 +93,8 @@ A variant may add a showcase route when it stays additive and ships a complete F
 
 ## Imports and aliases
 
-In regular Astro source, `@/*` points to `src/*` and `@shared/*` to `shared/*`. Shared MDX components therefore use imports such as `@shared/components/ui/file-tree`. Modules loaded directly by Astro configuration use the Node package-import aliases `#src/*` and `#shared/*`, which are resolved before TypeScript aliases are available. The local `astro.config.ts` boundary may still use `./` imports, but source modules never navigate upward with `../`.
+Astro source uses two aliases and only two: `@/*` points to `src/*` and `@shared/*` to `shared/*`. Shared MDX components therefore use imports such as `@shared/components/ui/file-tree`, and source modules never navigate upward with `../`.
+
+Modules loaded directly by `astro.config.ts` are the exception: configuration is evaluated before aliases are available, so they use relative paths. That covers the remark and rehype plugins, the language badge and the dictionaries the configuration imports.
+
+Files under `shared/` take no runtime dependency beyond those installed at the repository root: `shared/` has no `node_modules`, so resolution walks up to the root.

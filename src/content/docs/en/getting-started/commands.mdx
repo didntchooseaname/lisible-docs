@@ -46,11 +46,18 @@ Generated fields are documented in [Content model](/en/docs/authoring/content/) 
 ```bash
 bun run check-links
 bun run check-assets
+bun run typecheck
 bun run check:all
 ```
 
+`check-links` and `check-assets` target the active variant. `typecheck` runs `astro check` on every variant, and `check:all` typechecks, builds, then validates links, asset budgets and Open Graph output for all seven. Pass a variant name to narrow the run:
+
+```bash
+bun run check-variants organique
+```
+
 :::tip[CI]
-Use `bun run check:all` as a blocking step before deployment. Keep `dev` for iteration and `preview` for validating the static result.
+Use `bun run check:all` as a blocking step before deployment. Keep `dev` for iteration and `preview` for validating the static result. The repository ships a GitHub Actions workflow that runs the same command across a variant matrix.
 :::
 
 ## Dependency management

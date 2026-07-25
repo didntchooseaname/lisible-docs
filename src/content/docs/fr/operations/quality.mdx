@@ -11,10 +11,19 @@ Un build réussi est nécessaire mais pas suffisant. Lisible sépare les contrô
 ## Pipeline recommandé
 
 ```bash
+bun run typecheck
+bun run check:all
+bun run preview
+```
+
+`typecheck` exécute `astro check` sur les sept variantes. `check:all` enchaîne, pour chacune, le typecheck, le build, puis `check-links`, `check-assets` et le contrôle des images Open Graph. C’est le fait de l’exécuter sur toutes les variantes, et non sur la seule variante active, qui empêche le socle commun de diverger entre elles.
+
+Les commandes individuelles restent disponibles pour une boucle plus rapide sur la variante active :
+
+```bash
 bun run check-links
 bun run check-assets
 bun run build
-bun run preview
 ```
 
 `check-links` inspecte les références du contenu avec concurrence et timeout limités. `check-assets` applique des budgets sur le résultat construit.
