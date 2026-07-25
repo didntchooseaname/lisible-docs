@@ -23,8 +23,10 @@
   "type": "module",
   "devDependencies": {
     "@astrojs/rss": "^4.0.19",
+    "@axe-core/playwright": "^4.12.1",
     "@biomejs/biome": "^2.5.5",
     "@happy-dom/global-registrator": "^20.11.1",
+    "@playwright/test": "^1.62.0",
     "@resvg/resvg-js": "^2.6.2",
     "clsx": "^2.1.1",
     "happy-dom": "^20.11.1",
