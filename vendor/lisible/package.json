@@ -23,7 +23,10 @@
   "type": "module",
   "devDependencies": {
     "@astrojs/rss": "^4.0.19",
+    "@biomejs/biome": "^2.5.5",
+    "@happy-dom/global-registrator": "^20.11.1",
     "@resvg/resvg-js": "^2.6.2",
+    "happy-dom": "^20.11.1",
     "satori": "^0.29.0",
     "sharp": "^0.35.3"
   }
