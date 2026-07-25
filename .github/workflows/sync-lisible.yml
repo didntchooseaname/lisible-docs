@@ -44,6 +44,13 @@ jobs:
             --exclude .cache \
             --exclude research \
             source/versions source/shared docs/vendor/lisible/
+          # shared/ sits beside the variants, so its bare imports resolve from the
+          # vendor root instead of versions/<id>/node_modules. Carry the framework's
+          # root dependency layer along, or the preview builds cannot resolve
+          # @astrojs/rss, satori and @resvg/resvg-js. The scripts are dropped: they
+          # drive the framework repository, which is not vendored.
+          jq 'del(.scripts)' source/package.json > docs/vendor/lisible/package.json
+          cp source/bun.lock docs/vendor/lisible/bun.lock
           jq -n \
             --arg repository "didntchooseaname/lisible" \
             --arg ref "main" \

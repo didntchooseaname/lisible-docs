@@ -1,0 +1,13 @@
+{
+  "name": "lisible",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lisible, un framework de blog minimaliste et rapide, pensé pour la lecture. Six variantes visuelles, un seul socle.",
+  "type": "module",
+  "devDependencies": {
+    "@astrojs/rss": "^4.0.19",
+    "@resvg/resvg-js": "^2.6.2",
+    "satori": "^0.29.0",
+    "sharp": "^0.35.3"
+  }
+}

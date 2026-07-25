@@ -88,9 +88,30 @@ function routes(basePath: string): PreviewVariantManifest["routes"] {
   };
 }
 
+/**
+ * `shared/` sits beside the variants rather than inside them, so its bare
+ * imports (@astrojs/rss, satori, @resvg/resvg-js) resolve from the vendor root
+ * and never from `versions/<id>/node_modules`. The framework repository carries
+ * that dependency layer at its own root; the vendored copy mirrors it here, and
+ * one install serves every variant. Memoised: variants build in parallel.
+ */
+let sharedInstall: Promise<void> | undefined;
+function installSharedDependencies(): Promise<void> {
+  sharedInstall ??= (async () => {
+    console.log("[previews] shared: installing dependencies");
+    await run(["bun", "install", "--frozen-lockfile"], vendorRoot, {});
+  })();
+  return sharedInstall;
+}
+
 async function buildVariant(variant: (typeof VARIANTS)[number]): Promise<PreviewVariantManifest> {
   const variantRoot = resolve(vendorRoot, "versions", variant.id);
-  const buildHash = await hashTree([resolve(vendorRoot, "shared"), variantRoot]);
+  const buildHash = await hashTree([
+    resolve(vendorRoot, "package.json"),
+    resolve(vendorRoot, "bun.lock"),
+    resolve(vendorRoot, "shared"),
+    variantRoot,
+  ]);
   const cached = resolve(cacheRoot, buildHash, variant.id);
   const destination = resolve(distRoot, variant.id);
   const staging = resolve(variantRoot, `.lisible-preview-dist-${process.pid}`);
@@ -102,6 +123,7 @@ async function buildVariant(variant: (typeof VARIANTS)[number]): Promise<Preview
     console.log(`[previews] ${variant.id}: reusing ${buildHash.slice(0, 12)}`);
   } catch {
     console.log(`[previews] ${variant.id}: installing dependencies`);
+    await installSharedDependencies();
     await run(["bun", "install", "--frozen-lockfile"], variantRoot, {});
     console.log(`[previews] ${variant.id}: building ${buildHash.slice(0, 12)}`);
     await rm(staging, { recursive: true, force: true });
