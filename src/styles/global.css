@@ -1411,11 +1411,11 @@ body {
 }
 
 :root[data-magicui-theme-vt="active"]::view-transition-new(root) {
-  clip-path: var(--magicui-theme-vt-clip-from);
+  clip-path: var(--magicui-theme-vt-clip-from, circle(0px at 50% 50%));
 }
 
 :root[data-magicui-theme-vt="active"]::view-transition-group(root) {
-  animation-duration: var(--magicui-theme-toggle-vt-duration);
+  animation-duration: var(--magicui-theme-toggle-vt-duration, 500ms);
 }
 :root {
   --callout-note: oklch(0.52 0.16 250);

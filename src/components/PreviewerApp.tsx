@@ -29,6 +29,7 @@ import {
   type PreviewViewport,
 } from "../../vendor/lisible/shared/preview/protocol";
 import type { PublicVariant } from "../../vendor/lisible/shared/variants";
+import { circularThemeTransition } from "@/lib/theme-transition";
 
 type Locale = "fr" | "en";
 type PageKey = "home" | "blog" | "post" | "tags" | "archives" | "about";
@@ -745,9 +746,27 @@ export default function PreviewerApp({ locale }: { locale: Locale }) {
     window.history.replaceState({}, "", `${route}?${settingsQuery(next)}`);
   };
 
-  const cycleTheme = () => {
+  const cycleTheme = (event: React.MouseEvent<HTMLElement>) => {
     const order: PreviewSettingsV1["theme"][] = ["system", "light", "dark"];
-    set("theme", order[(order.indexOf(settings.theme) + 1) % order.length]!);
+    const next = order[(order.indexOf(settings.theme) + 1) % order.length]!;
+    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const resolves = (theme: PreviewSettingsV1["theme"]) =>
+      theme === "dark" || (theme === "system" && systemDark);
+    if (resolves(next) === resolves(settings.theme)) {
+      set("theme", next);
+      return;
+    }
+    circularThemeTransition(event.currentTarget, () => {
+      // The settings effect re-applies the theme asynchronously; flip the
+      // document synchronously so the view transition captures the change.
+      const dark = resolves(next);
+      const root = document.documentElement;
+      root.classList.toggle("dark", dark);
+      root.dataset.resolvedTheme = dark ? "dark" : "light";
+      root.style.colorScheme = dark ? "dark" : "light";
+      root.style.backgroundColor = dark ? "#000000" : "#ffffff";
+      set("theme", next);
+    });
   };
 
   const changePage = (page: PageKey) => {

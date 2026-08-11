@@ -14,25 +14,23 @@ function decode(encoded: string): string {
   return new TextDecoder().decode(bytes);
 }
 
-let normCtx: CanvasRenderingContext2D | null = null;
-function normalizeColor(color: string): string {
-  if (!normCtx) {
-    const canvas = document.createElement("canvas");
-    canvas.width = 1;
-    canvas.height = 1;
-    normCtx = canvas.getContext("2d", { willReadFrequently: true });
-  }
-  if (!normCtx) return color;
-  normCtx.clearRect(0, 0, 1, 1);
-  normCtx.fillStyle = color;
-  normCtx.fillRect(0, 0, 1, 1);
-  const [r, g, b] = normCtx.getImageData(0, 0, 1, 1).data;
-  return `rgb(${r} ${g} ${b})`;
+let convertCtx: CanvasRenderingContext2D | null = null;
+function toRgb(color: string): string {
+  if (!color || color.startsWith("rgb")) return color;
+  convertCtx ??= document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+  const ctx = convertCtx;
+  if (!ctx) return color;
+  ctx.clearRect(0, 0, 1, 1);
+  ctx.fillStyle = "#000";
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, 1, 1);
+  const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+  return a === 255 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(3)})`;
 }
 
-function readToken(probe: HTMLElement, value: string): string {
-  probe.style.color = value;
-  return normalizeColor(getComputedStyle(probe).color);
+function readToken(probe: HTMLElement, token: string): string {
+  probe.style.color = `var(${token})`;
+  return toRgb(getComputedStyle(probe).color);
 }
 
 function themeConfig() {
@@ -40,34 +38,56 @@ function themeConfig() {
   const probe = document.createElement("span");
   probe.style.cssText = "position:absolute;visibility:hidden;pointer-events:none";
   document.body.appendChild(probe);
-  const card = readToken(probe, "var(--color-card)");
-  const fg = readToken(probe, "var(--color-foreground)");
-  const border = readToken(probe, "var(--color-border)");
-  const muted = readToken(probe, "var(--color-muted-foreground)");
-  const secondary = readToken(probe, "var(--color-secondary)");
-  const accent = readToken(probe, "var(--accent)");
-  const bg = readToken(probe, "var(--color-background)");
+  const card = readToken(probe, "--color-card");
+  const fg = readToken(probe, "--color-foreground");
+  const border = readToken(probe, "--color-border");
+  const muted = readToken(probe, "--color-muted-foreground");
+  const secondary = readToken(probe, "--color-secondary");
+  const accent = readToken(probe, "--accent");
+  const bg = readToken(probe, "--color-background");
   probe.remove();
   return {
-    theme: isDark ? "dark" : "default",
+    // "base" is the only mermaid theme meant to be fully driven by
+    // themeVariables; "default"/"dark" leak their own palette (purple
+    // lifelines, #ccc actor lines) around the overrides.
+    theme: "base",
     themeVariables: {
+      darkMode: isDark,
       background: bg,
+      mainBkg: secondary,
       primaryColor: secondary,
       primaryTextColor: fg,
       primaryBorderColor: border,
-      lineColor: muted,
-      secondaryColor: secondary,
+      secondaryColor: card,
+      secondaryTextColor: fg,
+      secondaryBorderColor: border,
       tertiaryColor: card,
-      mainBkg: secondary,
+      tertiaryTextColor: fg,
+      tertiaryBorderColor: border,
+      lineColor: muted,
+      textColor: fg,
+      titleColor: fg,
       nodeBorder: border,
+      nodeTextColor: fg,
       clusterBkg: card,
       clusterBorder: border,
-      titleColor: fg,
       edgeLabelBackground: bg,
       noteBkgColor: card,
       noteTextColor: fg,
       noteBorderColor: border,
+      actorBkg: secondary,
       actorBorder: accent,
+      actorTextColor: fg,
+      actorLineColor: muted,
+      signalColor: muted,
+      signalTextColor: fg,
+      labelBoxBkgColor: card,
+      labelBoxBorderColor: border,
+      labelTextColor: fg,
+      loopTextColor: fg,
+      activationBkgColor: secondary,
+      activationBorderColor: accent,
+      sequenceNumberColor: bg,
     },
   } as const;
 }
@@ -75,12 +95,15 @@ function themeConfig() {
 async function initMermaid(): Promise<MermaidApi> {
   const mermaid = await loadMermaid();
   const cfg = themeConfig();
+  const fontFamily =
+    getComputedStyle(document.documentElement).getPropertyValue("--font-sans").trim() ||
+    "sans-serif";
   mermaid.initialize({
     startOnLoad: false,
     theme: cfg.theme,
-    fontFamily: "var(--font-sans)",
+    fontFamily,
     securityLevel: "loose",
-    themeVariables: cfg.themeVariables as Record<string, string>,
+    themeVariables: cfg.themeVariables as Record<string, string | boolean>,
   });
   return mermaid;
 }
@@ -201,10 +224,11 @@ async function renderDiagram(container: HTMLElement) {
     const svgEl = target.querySelector<SVGSVGElement>("svg");
     if (svgEl) prepareSvg(svgEl);
     if (loading) loading.style.display = "none";
-  } catch {
+  } catch (error) {
     if (loading) loading.style.display = "none";
     container.classList.add("diagram-error");
     if (sourceEl) sourceEl.hidden = false;
+    console.error("Mermaid render error:", error);
     return;
   }
 
@@ -267,7 +291,8 @@ async function reRenderAll() {
       target.innerHTML = svg;
       const svgEl = target.querySelector<SVGSVGElement>("svg");
       if (svgEl) prepareSvg(svgEl);
-    } catch {
+    } catch (error) {
+      console.error("Mermaid re-render error:", error);
     }
   }
 }

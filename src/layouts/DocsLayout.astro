@@ -90,8 +90,8 @@ const editUrl = SITE.docsRepo
           document.documentElement.style.setProperty("--accent-foreground", foreground);
           document.documentElement.style.setProperty("--ring", accent);
         }
-        window.__applyAccent = applyAccent;
         function applyPreferences() { applyTheme(); applyAccent(); }
+        window.__applyAccent = applyPreferences;
         function syncPreferences(event) {
           if (event.key === "theme" || event.key === "accent" || event.key === null) applyPreferences();
         }

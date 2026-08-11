@@ -59,15 +59,7 @@ const dict = t(locale);
 </button>
 
 <script>
-  type ViewTransitionLike = {
-    ready: Promise<void>;
-    finished: Promise<void>;
-  };
-  type DocWithVT = Document & {
-    startViewTransition?: (cb: () => void) => ViewTransitionLike;
-  };
-
-  const TOGGLE_DURATION = 500;
+  import { circularThemeTransition } from "@/lib/theme-transition";
 
   function applyThemeToggle() {
     const next = document.documentElement.classList.contains("dark") ? "light" : "dark";
@@ -76,60 +68,10 @@ const dict = t(locale);
     (window as { __applyAccent?: () => void }).__applyAccent?.();
   }
 
-  function animatedToggle(button: HTMLElement) {
-    const doc = document as DocWithVT;
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (typeof doc.startViewTransition !== "function" || prefersReduced) {
-      applyThemeToggle();
-      return;
-    }
-
-    const vw = window.visualViewport?.width ?? window.innerWidth;
-    const vh = window.visualViewport?.height ?? window.innerHeight;
-    const rect = button.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
-    const maxRadius = Math.hypot(Math.max(x, vw - x), Math.max(y, vh - y));
-    const clipPath = [
-      `circle(0px at ${x}px ${y}px)`,
-      `circle(${maxRadius}px at ${x}px ${y}px)`,
-    ];
-
-    const root = document.documentElement;
-    root.dataset.magicuiThemeVt = "active";
-    root.style.setProperty("--magicui-theme-toggle-vt-duration", `${TOGGLE_DURATION}ms`);
-    root.style.setProperty("--magicui-theme-vt-clip-from", clipPath[0]);
-
-    const cleanup = () => {
-      delete root.dataset.magicuiThemeVt;
-      root.style.removeProperty("--magicui-theme-toggle-vt-duration");
-      root.style.removeProperty("--magicui-theme-vt-clip-from");
-    };
-
-    const transition = doc.startViewTransition(() => {
-      applyThemeToggle();
-    });
-
-    transition.finished.finally(cleanup);
-
-    transition.ready.then(() => {
-      document.documentElement.animate(
-        { clipPath },
-        {
-          duration: TOGGLE_DURATION,
-          easing: "ease-in-out",
-          fill: "forwards",
-          pseudoElement: "::view-transition-new(root)",
-        },
-      );
-    });
-  }
-
   document.addEventListener("click", (event) => {
     const target = event.target as HTMLElement | null;
-    const button = target?.closest("[data-theme-toggle]") as HTMLElement | null;
+    const button = target?.closest<HTMLElement>("[data-theme-toggle]");
     if (!button) return;
-    animatedToggle(button);
+    circularThemeTransition(button, applyThemeToggle);
   });
 </script>
