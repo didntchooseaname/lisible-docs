@@ -16,9 +16,9 @@ bun run check:all
 bun run preview
 ```
 
-`typecheck` exécute `astro check` sur les sept variantes. `check:all` enchaîne, pour chacune, le typecheck, le build, puis `check-links`, `check-assets` et le contrôle des images Open Graph. C’est le fait de l’exécuter sur toutes les variantes, et non sur la seule variante active, qui empêche le socle commun de diverger entre elles.
+`typecheck` exécute `astro check` sur les sept variantes. `check:all` valide d’abord les assets Open Graph, les règles de style éditorial et le contrat de conformité inter-variantes, puis enchaîne, pour chaque variante, le typecheck, le build, `check-links`, `check-assets` et le contrôle des images Open Graph. C’est le fait de l’exécuter sur toutes les variantes, et non sur la seule variante active, qui empêche le socle commun de diverger entre elles.
 
-Les commandes individuelles restent disponibles pour une boucle plus rapide sur la variante active :
+Les commandes individuelles restent disponibles pour une boucle plus rapide sur la variante active :
 
 ```bash
 bun run check-links
@@ -27,6 +27,22 @@ bun run build
 ```
 
 `check-links` inspecte les références du contenu avec concurrence et timeout limités. `check-assets` applique des budgets sur le résultat construit.
+
+## Couches de tests
+
+Au-delà des contrôles de build, quatre couches automatiques protègent le socle commun.
+
+**Tests unitaires.** `bun run test` exerce les helpers partagés (requêtes sur les articles, formatage, RSS, llms.txt, rendu Open Graph, focus trap) avec le runner de tests de Bun et happy-dom.
+
+**Tests de bout en bout.** `bun run test:e2e` lance la suite Playwright sur des variantes construites : scans d’accessibilité avec axe, switcher de thème, picker d’accent, palette de recherche, changement de langue, visionneuse d’images, rendu Mermaid, overlay de démarrage et pages portfolio. Construisez les variantes ciblées et installez Chromium (`bun x playwright install chromium`) avant de la lancer.
+
+**Lint et style éditorial.** `bun run lint` applique Biome à tout le dépôt. `bun run check-style` verrouille les règles éditoriales : aucun tiret long dans les sources et le contenu, aucun emoji dans la documentation Markdown.
+
+**Conformité et dérive.** `check-conformance` (inclus dans `check:all`) valide le contrat inter-variantes ; une déviation volontaire doit être déclarée dans `conformance-exceptions.json` avec sa raison, et une déviation non déclarée fait échouer la CI. Pour les refactors, `bun run check-drift --save` capture une base de référence du HTML normalisé de chaque page de chaque variante construite ; après le changement, `bun run check-drift` liste chaque page dont le rendu a bougé, et chaque écart doit être justifié par le changement en cours.
+
+## Intégration continue
+
+Chaque pull request exécute Biome, les tests unitaires et les règles de style, puis `check-variants` sur une matrice filtrée par chemins (une variante ne se reconstruit que si elle ou le socle commun a changé), la suite Playwright sur deux variantes et les budgets Lighthouse sur une. Un workflow nocturne exécute la matrice complète, les budgets Lighthouse par variante et la suite de bout en bout sur les six variantes publiques. Les budgets de `lighthouserc.json` exigent 90 en performance et 95 en accessibilité, bonnes pratiques et SEO.
 
 ## Audit de contenu
 

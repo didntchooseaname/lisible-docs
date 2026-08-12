@@ -1,15 +1,15 @@
 ---
 title: "Installation"
-description: "Clone Lisible, run the setup assistant and get a working development environment."
+description: "Scaffold or clone Lisible, run the setup assistant and get a working development environment."
 category: start
 order: 0
 badge: "5 min"
 draft: false
 ---
 
-Lisible uses Bun for scripts and reproducible installs. A recent Git and Bun installation is enough to start.
+Lisible uses Bun for scripts and reproducible installs. A recent Git and Bun installation is enough to start. Once Bun is present, the `run` scripts also work through npm or pnpm if you prefer them.
 
-:::tip[Try before cloning]
+:::tip[Try before installing]
 The [live interactive preview](/en/docs/features/live-preview/) runs all six variants from an exact synchronized source commit and lets you share the selected settings.
 :::
 
@@ -24,15 +24,35 @@ The [live interactive preview](/en/docs/features/live-preview/) runs all six var
 curl -fsSL https://bun.sh/install | bash
 ```
 
-## Clone and initialize
+## Scaffold a blog (recommended)
+
+The `lisible` package on npm creates a ready-to-edit blog in one command:
 
 ```bash
-git clone https://github.com/didntchooseaname/lisible
-cd lisible
+bun create lisible my-blog
+```
+
+`npm create lisible@latest my-blog` works the same way. The scaffolder downloads the template, detaches it from the framework history, initializes a fresh Git repository and starts the guided setup. Flags after the directory are forwarded to the setup for a non-interactive scaffold:
+
+```bash
+bun create lisible my-blog --yes --variant organique --title "My blog"
+```
+
+## Other ways to get the code
+
+- **GitHub template.** Use [Use this template](https://github.com/didntchooseaname/lisible/generate) to get your own repository with a clean history, then clone it.
+- **degit.** `bunx degit didntchooseaname/lisible my-blog` copies the files without any Git history.
+- **Contributing to Lisible itself.** Clone the repository and rename the remote to `upstream` so your own repository can become `origin` later.
+
+After any of these, run the guided setup yourself:
+
+```bash
 bun run init
 ```
 
-The assistant asks for the variant, title, public URL, author, accent color and source repository. It writes `lisible.config.json`, updates shared configuration and installs dependencies for the selected variant.
+## The setup assistant
+
+The assistant asks for the variant, title and public URL, then either stops there (quick mode) or lets you fine-tune author, accent color and repository (detailed mode). Everything is written to `lisible.config.json` and dependencies for the selected variant are installed automatically. Non-interactive setups pass the same flags as the scaffolder: `bun run init --yes --variant organique --title "My blog"`.
 
 [Initial configuration](/en/docs/getting-started/configuration/) details every value written by the assistant, and [Commands](/en/docs/getting-started/commands/) covers the daily cycle.
 

@@ -29,13 +29,13 @@ flowchart TD
 
 ## Variables de production
 
-Avant le build, vérifiez :
+Avant le build, vérifiez dans `lisible.config.json` :
 
-- `SITE.url` avec le domaine final ;
-- le dépôt et la branche pour les liens d’édition ;
-- les configurations publiques Giscus, Bluesky ou webmention.io ;
+- `site.url` avec le domaine final ;
+- l’objet `repo` pour les liens d’édition ;
+- les configurations publiques Giscus, Bluesky ou webmention.io sous `integrations` ;
 - les secrets injectés par l’environnement, jamais écrits dans le client ;
-- la variante choisie dans `lisible.config.json`.
+- la `variant` choisie, ou une variable d’environnement `LISIBLE_VARIANT` sur la plateforme pour la surcharger sans éditer le fichier.
 
 ## Stratégies d’hébergement
 
@@ -49,7 +49,9 @@ Avant le build, vérifiez :
 
 ## Déploiement en un clic
 
-Le README racine place côte à côte les boutons **Deploy with Vercel** et **Deploy to Netlify**. Tous deux clonent le dépôt public et sélectionnent `versions/organique` comme projet à construire ; les commandes et le dossier `dist/` sont préremplis, sans configuration manuelle dans le tableau de bord.
+Le README racine place côte à côte les boutons **Deploy with Vercel** et **Deploy to Netlify** ; `vercel.json` et `netlify.toml` préconfigurent les deux. Importez le dépôt à sa racine : chaque configuration de plateforme construit la variante choisie dans `lisible.config.json` (ou par `LISIBLE_VARIANT`) et publie le dossier `dist/` mis en miroir, sans configuration manuelle dans le tableau de bord.
+
+Railpack détecte automatiquement `railpack.json` et `Staticfile`, Nixpacks détecte `nixpacks.toml`, et le `PORT` fourni par la plateforme est utilisé automatiquement. Les outils d’exécution sont épinglés en version, Nixpacks vérifie la somme de contrôle de chaque artefact Node, Bun et Caddy téléchargé, et seuls le site compilé et son runtime Caddy atteignent l’image finale : elle sert les routes statiques directement, compresse les réponses, met en cache un an les assets empreintés et rend la page 404 du projet pour les routes inconnues.
 
 :::important[Ne publiez pas le dépôt entier]
 L’artefact déployable est `dist/`. `node_modules`, `.astro`, caches de cartes et sources ne doivent pas être envoyés au serveur statique.

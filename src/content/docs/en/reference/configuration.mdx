@@ -26,14 +26,39 @@ This page gathers Lisible’s public contract. Previous chapters explain the dec
 | `seriesOrder` | `number` | absent | order in series |
 | `bluesky` | `at://` URI | absent | per-post discussion |
 
+## lisible.config.json
+
+The whole user configuration lives in `lisible.config.json` at the repository root, validated by `shared/config.ts` and documented by the JSON schema in `docs/lisible.config.schema.json`. Every field except `variant` is optional.
+
+| Field | Type | Purpose |
+| --- | --- | --- |
+| `$schema` | `string` | schema path powering editor autocompletion |
+| `variant` | `string`, required | active variant among the six public ids |
+| `site.title` | `string` | site name in headers, feeds and metadata |
+| `site.url` | `string` | canonical URL with protocol |
+| `site.author` | `string` | author credited in metadata and JSON-LD |
+| `site.accent` | `string` | default accent color, hex |
+| `site.postsPerPage` | `number` | pagination size for lists |
+| `site.featuredCount` | `number` | featured posts on the home page |
+| `site.coverPosition` | `string` | default cover crop position |
+| `social.*` | `string` | `github`, `bluesky`, `mastodon`, `linkedin`, `email` profiles |
+| `features.*` | booleans and objects | the flags listed below |
+| `integrations.webmentions.domain` | `string` | webmention.io domain |
+| `integrations.comments.provider` | `string` | `giscus` or `bluesky` |
+| `integrations.comments.giscus` | object | `repo`, `repoId`, `category`, `categoryId`, `mapping` |
+| `integrations.comments.bluesky` | object | default `postUri` |
+| `repo.url`, `repo.branch` | `string` | repository behind edit links |
+
 ## Feature flags
+
+Flags live in the `features` object of `lisible.config.json`. A disabled feature leaves no trace in the built output.
 
 | Flag | Main effect |
 | --- | --- |
 | `callouts` | note/tip/warning/caution/important directives |
 | `mdxComponents` | Tabs, Steps and Spoiler |
 | `imageZoom` | full-screen image viewer |
-| `headingAnchors` | copyable h2–h4 anchors |
+| `headingAnchors` | copyable h2 to h4 anchors |
 | `relatedPosts` | recommendations by tag similarity |
 | `math` | remark-math and KaTeX |
 | `mermaid` | interactive diagrams with zoom, pan and full screen |
@@ -54,6 +79,7 @@ This page gathers Lisible’s public contract. Previous chapters explain the dec
 | `archives` | publication timeline |
 | `series` | series pages and navigation |
 | `commandPalette` | search and Ctrl/Cmd+K actions |
+| `portfolio` | `enabled`, `certifications` and `friends` showcase toggles |
 
 The shared `Tree` component is imported directly from `@shared/components/ui/file-tree` and has no separate feature flag.
 
@@ -90,17 +116,27 @@ These two pairs are additive Organique demonstrations, not shared baseline route
 ## Root commands
 
 ```text
-init          guided setup
-dev           active variant server
-build         active variant build
-preview       active build preview
-variant       print the variant
-preview:all   install, build and serve all six variants
-new-post      create MDX by default, or Markdown on request
-check-links   validate content links
-check-assets  apply asset budgets
-check:all     typecheck, build and validate all seven variants
-typecheck     astro check across the seven variants
+init            guided setup
+dev             active variant server
+build           active variant build
+preview         active build preview
+variant         print the variant
+preview:all     install, build and serve all six variants
+new-post        create MDX by default, or Markdown on request
+check-links     validate content links
+check-assets    apply asset budgets
+check-variants  full validation of the named variants
+check:all       style, conformance, typecheck, build and output checks, all seven variants
+typecheck       astro check across the seven variants
+test            unit tests for the shared helpers
+test:e2e        Playwright suite against built variants
+lint            Biome lint and format check
+format          apply Biome formatting
+check-style     no long dashes, no emoji in documentation
+check-drift     compare built HTML with the saved baseline
+sync-og-assets  regenerate the shared Open Graph assets
+check-og-assets verify the Open Graph assets are in sync
+check-og-output validate the generated Open Graph images
 ```
 
 ## Astro references

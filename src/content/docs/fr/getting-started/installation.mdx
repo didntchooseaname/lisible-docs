@@ -1,15 +1,15 @@
 ---
 title: "Installation"
-description: "Cloner Lisible, lancer l’assistant et obtenir un environnement de développement fonctionnel."
+description: "Générer ou cloner Lisible, lancer l’assistant et obtenir un environnement de développement fonctionnel."
 category: start
 order: 0
 badge: "5 min"
 draft: false
 ---
 
-Lisible utilise Bun pour ses scripts et ses installations reproductibles. Une version récente de Git et Bun suffit pour démarrer.
+Lisible utilise Bun pour ses scripts et ses installations reproductibles. Une version récente de Git et Bun suffit pour démarrer. Une fois Bun présent, les scripts `run` fonctionnent aussi via npm ou pnpm si vous les préférez.
 
-:::tip[Tester avant de cloner]
+:::tip[Tester avant d’installer]
 Le [preview interactif en direct](/docs/features/live-preview/) exécute les six variantes depuis un commit source exact et synchronisé, puis permet de partager les réglages choisis.
 :::
 
@@ -24,15 +24,35 @@ Le [preview interactif en direct](/docs/features/live-preview/) exécute les six
 curl -fsSL https://bun.sh/install | bash
 ```
 
-## Cloner et initialiser
+## Générer un blog (recommandé)
+
+Le paquet npm `lisible` crée un blog prêt à éditer en une commande :
 
 ```bash
-git clone https://github.com/didntchooseaname/lisible
-cd lisible
+bun create lisible mon-blog
+```
+
+`npm create lisible@latest mon-blog` fonctionne de la même façon. Le générateur télécharge le modèle, le détache de l’historique du framework, initialise un dépôt Git neuf et lance l’assistant guidé. Les options placées après le dossier sont transmises à l’assistant pour une génération non interactive :
+
+```bash
+bun create lisible mon-blog --yes --variant organique --title "Mon blog"
+```
+
+## Autres façons d’obtenir le code
+
+- **Modèle GitHub.** [Use this template](https://github.com/didntchooseaname/lisible/generate) crée votre propre dépôt avec un historique propre, à cloner ensuite.
+- **degit.** `bunx degit didntchooseaname/lisible mon-blog` copie les fichiers sans aucun historique Git.
+- **Contribuer à Lisible.** Clonez le dépôt et renommez le remote en `upstream` pour que votre propre dépôt puisse devenir `origin` plus tard.
+
+Après chacune de ces options, lancez l’assistant vous-même :
+
+```bash
 bun run init
 ```
 
-L’assistant propose la variante, le titre, l’URL publique, l’auteur, la couleur d’accent et le dépôt source. Il écrit `lisible.config.json`, met à jour la configuration partagée et installe les dépendances de la variante choisie.
+## L’assistant de configuration
+
+L’assistant demande la variante, le titre et l’URL publique, puis s’arrête là (mode rapide) ou permet d’affiner l’auteur, la couleur d’accent et le dépôt (mode détaillé). Tout est écrit dans `lisible.config.json` et les dépendances de la variante choisie sont installées automatiquement. Les configurations non interactives passent les mêmes options que le générateur : `bun run init --yes --variant organique --title "Mon blog"`.
 
 La page [Configuration initiale](/docs/getting-started/configuration/) détaille chaque valeur écrite par l’assistant, et [Commandes](/docs/getting-started/commands/) couvre le cycle quotidien.
 

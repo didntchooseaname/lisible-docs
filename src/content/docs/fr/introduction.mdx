@@ -10,7 +10,7 @@ draft: false
 Lisible est un framework de blog statique construit avec Astro. Il réunit un cœur fonctionnel audité, six expériences visuelles interchangeables et une chaîne éditoriale bilingue. Le contenu reste unique : changer de variante ne duplique ni les articles ni la configuration.
 
 :::tip[La promesse]
-Un clone, une commande d’initialisation, puis un site rapide, accessible, indexable et prêt à être personnalisé.
+Une commande, `bun create lisible`, puis un site rapide, accessible, indexable et prêt à être personnalisé.
 :::
 
 ## Ce que Lisible fournit
@@ -24,7 +24,7 @@ Un clone, une commande d’initialisation, puis un site rapide, accessible, inde
 - les tags, archives, séries, brouillons, couvertures et articles épinglés ;
 - une navigation sans rechargement grâce aux transitions Astro ;
 - un previewer en direct partageable et synchronisé sur un commit source exact ;
-- des contrôles de qualité pour les liens, les assets et les builds.
+- des garde-fous qualité : contrôles de liens et d’assets, tests unitaires et de bout en bout, conformité inter-variantes.
 
 ## Modèle mental
 
@@ -47,7 +47,7 @@ Le dossier `shared/` possède les données communes. Le dossier `versions/<varia
 2. Lisez [Architecture](/docs/discover/architecture/) pour savoir où placer chaque changement.
 3. Suivez [Installation](/docs/getting-started/installation/) et [Configuration](/docs/getting-started/configuration/).
 4. Consultez [Contenu](/docs/authoring/content/), [Markdown](/docs/authoring/markdown/) et [MDX](/docs/authoring/mdx/) avant de publier.
-5. Activez ou désactivez les capacités dans `shared/features.ts`.
+5. Activez ou désactivez les capacités dans `lisible.config.json`.
 6. Terminez par [Qualité](/docs/operations/quality/), [Build et déploiement](/docs/operations/build-deploy/), puis [Dépannage](/docs/operations/troubleshooting/).
 
 :::important[Documentation bilingue]

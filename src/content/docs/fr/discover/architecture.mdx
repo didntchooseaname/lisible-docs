@@ -17,7 +17,13 @@ lisible/
 ├─ lisible.config.json
 ├─ package.json
 ├─ scripts/
+├─ tests/
+├─ e2e/
+├─ packages/
+│  ├─ lisible/
+│  └─ create-lisible/
 ├─ shared/
+│  ├─ config.ts
 │  ├─ site.config.ts
 │  ├─ features.ts
 │  ├─ variants.ts
@@ -46,9 +52,10 @@ lisible/
 
 | Surface | Propriétaire | Exemples |
 | --- | --- | --- |
+| Configuration | `lisible.config.json` | variante, identité, flags, intégrations |
 | Contenu | `shared/content/` | articles, schéma, images |
-| Identité | `shared/site.config.ts` | titre, URL, auteur, dépôt |
-| Capacités | `shared/features.ts` | recherche, séries, commentaires |
+| Identité | `shared/site.config.ts` | valeurs dérivées de la configuration |
+| Capacités | `shared/features.ts` | flags dérivés de la configuration |
 | UI partagée | `shared/components/` | apparence, bridge de preview, hero de profil, arborescence |
 | Runtime navigateur | `shared/scripts/` | locale, cartes, plein écran des diagrammes |
 | Contrat de preview | `shared/preview/` | base de build, protocole de réglages, navigation de frame |
@@ -58,6 +65,8 @@ lisible/
 | Impression | `shared/print.css` | rendu papier et export PDF |
 | Design | `versions/*/src/` | layouts, composants, animations |
 | Orchestration | `scripts/` | init, preview global, contrôles |
+| Tests | `tests/`, `e2e/` | tests unitaires, suite Playwright de bout en bout |
+| Scaffolding | `packages/` | les CLIs npm `lisible` et `create-lisible` |
 
 :::warning[Éviter la dérive]
 Une fonctionnalité visible dans toutes les variantes ne doit pas être implémentée indépendamment sans contrat partagé. Commencez par le schéma, les helpers et les routes propriétaires, puis adaptez le rendu.
@@ -93,8 +102,8 @@ La [Configuration initiale](/docs/getting-started/configuration/) décrit les su
 
 ## Imports et alias
 
-Le code source Astro utilise deux alias et deux seulement : `@/*` pointe vers `src/*` et `@shared/*` vers `shared/*`. Les composants MDX partagés utilisent donc des imports comme `@shared/components/ui/file-tree`, et les modules source ne remontent jamais l’arborescence avec `../`.
+Le code source Astro utilise deux alias et deux seulement : `@/*` pointe vers `src/*` et `@shared/*` vers `shared/*`. Les composants MDX partagés utilisent donc des imports comme `@shared/components/ui/file-tree`, et les modules source ne remontent jamais l’arborescence avec `../`.
 
-Les modules chargés directement par `astro.config.ts` font exception : la configuration est évaluée avant que les alias soient disponibles, ils utilisent donc des chemins relatifs. C’est le cas des greffons remark et rehype, du badge de langage et des dictionnaires que la configuration importe.
+Les modules chargés directement par `astro.config.ts` font exception : la configuration est évaluée avant que les alias soient disponibles, ils utilisent donc des chemins relatifs. C’est le cas des greffons remark et rehype, du badge de langage et des dictionnaires que la configuration importe.
 
-Les fichiers de `shared/` restent sans dépendance runtime autre que celles installées à la racine du dépôt : `shared/` n’a pas de `node_modules`, la résolution remonte donc jusqu’à la racine.
+Le dépôt est un workspace Bun couvrant `shared`, `versions/*` et `packages/*`. Le cœur partagé est le paquet `@lisible/shared` ; chaque variante en dépend avec `workspace:*`, et un seul `bun install` à la racine les lie tous. Chaque paquet déclare les dépendances qu’il utilise réellement dans son propre `package.json` plutôt que de compter sur une résolution accidentelle vers la racine.

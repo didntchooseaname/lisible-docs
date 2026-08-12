@@ -1,6 +1,6 @@
 ---
 title: "Commands"
-description: "Quick reference for development, publishing, comparison and quality scripts."
+description: "Quick reference for development, publishing, comparison, testing and quality scripts."
 category: start
 order: 2
 draft: false
@@ -41,7 +41,7 @@ The scaffolder refuses to overwrite an existing file and creates a valid `.mdx` 
 
 Generated fields are documented in [Content model](/en/docs/authoring/content/) and the [Complete reference](/en/docs/reference/configuration/).
 
-## Quality
+## Cross-variant checks
 
 ```bash
 bun run check-links
@@ -50,16 +50,29 @@ bun run typecheck
 bun run check:all
 ```
 
-`check-links` and `check-assets` target the active variant. `typecheck` runs `astro check` on every variant, and `check:all` typechecks, builds, then validates links, asset budgets and Open Graph output for all seven. Pass a variant name to narrow the run:
+`check-links` and `check-assets` target the active variant. `typecheck` runs `astro check` on every variant. `check:all` first validates Open Graph assets, editorial style and cross-variant conformance, then typechecks, builds and validates links, asset budgets and Open Graph output for all seven. Pass a variant name to narrow the run:
 
 ```bash
 bun run check-variants organique
 ```
 
+## Tests, linting and drift
+
+| Command | Purpose |
+| --- | --- |
+| `bun run test` | unit tests for the shared helpers |
+| `bun run test:e2e` | Playwright end-to-end suite against built variants |
+| `bun run lint` | Biome lint and format check |
+| `bun run format` | apply Biome formatting |
+| `bun run check-style` | editorial rules: no em or en dash, no emoji in documentation |
+| `bun run check-drift` | compare built HTML against a saved baseline (`--save` captures it) |
+
+`test:e2e` expects the tested variants to be built and Chromium installed (`bun x playwright install chromium`). [Quality and accessibility](/en/docs/operations/quality/) explains when each check earns its place.
+
 :::tip[CI]
-Use `bun run check:all` as a blocking step before deployment. Keep `dev` for iteration and `preview` for validating the static result. The repository ships a GitHub Actions workflow that runs the same command across a variant matrix.
+The repository ships a GitHub Actions pipeline that runs Biome, the unit tests and the style rules, then `check-variants` on a path-filtered variant matrix, the Playwright suite and Lighthouse budgets. Locally, `bun run check:all` is the closest blocking equivalent before pushing.
 :::
 
 ## Dependency management
 
-Run `bun install` inside a variant only when working directly in that package. The normal root workflow installs missing dependencies automatically.
+The repository is a Bun workspace: a single `bun install` at the root covers the tooling, the shared core, every variant and the npm packages. The normal root workflow installs missing dependencies automatically.

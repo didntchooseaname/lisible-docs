@@ -16,7 +16,7 @@ bun run check:all
 bun run preview
 ```
 
-`typecheck` runs `astro check` on the seven variants. `check:all` chains, for each of them, the typecheck, the build, then `check-links`, `check-assets` and the Open Graph output check. Running it across every variant rather than the active one is what keeps the shared core from drifting between them.
+`typecheck` runs `astro check` on the seven variants. `check:all` first validates the Open Graph assets, the editorial style rules and the cross-variant conformance contract, then chains, for each variant, the typecheck, the build, `check-links`, `check-assets` and the Open Graph output check. Running it across every variant rather than the active one is what keeps the shared core from drifting between them.
 
 The individual commands stay available for a faster loop on the active variant:
 
@@ -27,6 +27,22 @@ bun run build
 ```
 
 `check-links` inspects content references with limited concurrency and timeouts. `check-assets` applies budgets to the built result.
+
+## Test layers
+
+Beyond the build checks, four automated layers guard the shared core.
+
+**Unit tests.** `bun run test` exercises the shared helpers (post queries, formatting, RSS, llms.txt, Open Graph rendering, focus trap) with Bun's test runner and happy-dom.
+
+**End-to-end tests.** `bun run test:e2e` runs the Playwright suite against built variants: accessibility scans with axe, theme toggle, accent picker, search palette, language switch, image lightbox, Mermaid rendering, boot overlay and portfolio pages. Build the target variants and install Chromium (`bun x playwright install chromium`) before running it.
+
+**Lint and editorial style.** `bun run lint` applies Biome to the whole repository. `bun run check-style` locks in the editorial rules: no em or en dash anywhere in source or content, no emoji in Markdown documentation.
+
+**Conformance and drift.** `check-conformance` (part of `check:all`) validates the cross-variant contract; a deliberate deviation must be declared in `conformance-exceptions.json` with a reason, and an undeclared one fails CI. For refactors, `bun run check-drift --save` captures a baseline of the normalized HTML of every page in every built variant; after the change, `bun run check-drift` lists every page whose rendering moved, and each hit must be justified by the change at hand.
+
+## Continuous integration
+
+Every pull request runs Biome, the unit tests and the style rules, then `check-variants` on a path-filtered matrix (a variant only rebuilds when it or the shared core changed), the Playwright suite on two variants and Lighthouse budgets on one. A nightly workflow runs the full matrix, Lighthouse budgets per variant and the end-to-end suite on all six public variants. The budgets in `lighthouserc.json` require performance at 90 and accessibility, best practices and SEO at 95.
 
 ## Content audit
 

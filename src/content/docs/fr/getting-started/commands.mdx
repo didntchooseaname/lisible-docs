@@ -1,6 +1,6 @@
 ---
 title: "Commandes"
-description: "Référence rapide des scripts de développement, publication, comparaison et contrôle qualité."
+description: "Référence rapide des scripts de développement, publication, comparaison, tests et contrôle qualité."
 category: start
 order: 2
 draft: false
@@ -41,7 +41,7 @@ Le scaffolder refuse d’écraser un fichier existant et crée par défaut un br
 
 Les champs générés sont documentés dans [Modèle de contenu](/docs/authoring/content/) et dans la [Référence complète](/docs/reference/configuration/).
 
-## Qualité
+## Contrôles inter-variantes
 
 ```bash
 bun run check-links
@@ -50,16 +50,29 @@ bun run typecheck
 bun run check:all
 ```
 
-`check-links` et `check-assets` portent sur la variante active. `typecheck` exécute `astro check` sur chaque variante, et `check:all` typecheck, build, puis valide les liens, les budgets d’assets et les images Open Graph des sept. Passez un nom de variante pour restreindre l’exécution :
+`check-links` et `check-assets` portent sur la variante active. `typecheck` exécute `astro check` sur chaque variante. `check:all` valide d’abord les assets Open Graph, le style éditorial et la conformité inter-variantes, puis typecheck, build et valide les liens, les budgets d’assets et les images Open Graph des sept. Passez un nom de variante pour restreindre l’exécution :
 
 ```bash
 bun run check-variants organique
 ```
 
+## Tests, lint et dérive
+
+| Commande | Rôle |
+| --- | --- |
+| `bun run test` | tests unitaires des helpers partagés |
+| `bun run test:e2e` | suite Playwright de bout en bout sur les variantes construites |
+| `bun run lint` | vérification lint et format Biome |
+| `bun run format` | application du format Biome |
+| `bun run check-style` | règles éditoriales : aucun tiret long, aucun emoji dans la documentation |
+| `bun run check-drift` | compare le HTML construit à une base de référence (`--save` la capture) |
+
+`test:e2e` attend des variantes construites et Chromium installé (`bun x playwright install chromium`). [Qualité et accessibilité](/docs/operations/quality/) explique quand chaque contrôle prend son sens.
+
 :::tip[CI]
-Utilisez `bun run check:all` comme étape bloquante avant un déploiement. Conservez `dev` pour l’itération et `preview` pour la recette du résultat statique. Le dépôt fournit un workflow GitHub Actions qui exécute la même commande sur une matrice de variantes.
+Le dépôt fournit un pipeline GitHub Actions qui exécute Biome, les tests unitaires et les règles de style, puis `check-variants` sur une matrice filtrée par chemins, la suite Playwright et les budgets Lighthouse. En local, `bun run check:all` reste l’équivalent bloquant le plus proche avant de pousser.
 :::
 
 ## Gestion des dépendances
 
-Exécutez `bun install` dans une variante seulement pour travailler directement dans son paquet. Le flux normal depuis la racine installe automatiquement ce qui manque.
+Le dépôt est un workspace Bun : un seul `bun install` à la racine couvre l’outillage, le cœur partagé, chaque variante et les paquets npm. Le flux normal depuis la racine installe automatiquement ce qui manque.

@@ -1,16 +1,36 @@
 ---
 title: "Initial configuration"
-description: "Configure the variant, site identity, repository, integrations and shared feature flags."
+description: "Configure the variant, site identity, repository, integrations and feature flags in lisible.config.json."
 category: start
 order: 1
 draft: false
 ---
 
-Configuration is deliberately concentrated in three surfaces. This separation keeps changes predictable.
+The whole user configuration lives in one file: `lisible.config.json` at the repository root. Every field except `variant` is optional; whatever is absent falls back to a sensible default, so a fresh checkout builds unchanged.
+
+The JSON schema referenced by `$schema` documents every field and powers editor autocompletion:
+
+```json title="lisible.config.json"
+{
+  "$schema": "./docs/lisible.config.schema.json",
+  "variant": "organique",
+  "site": {
+    "title": "My blog",
+    "url": "https://blog.example.com",
+    "author": "Ada Lovelace",
+    "accent": "#22C55E"
+  },
+  "social": { "github": "https://github.com/you" },
+  "features": { "comments": false, "portfolio": { "friends": false } },
+  "repo": { "url": "https://github.com/you/your-blog" }
+}
+```
+
+The [setup assistant](/en/docs/getting-started/installation/) writes this file for you; editing it by hand is equally supported.
 
 ## Active variant
 
-`lisible.config.json` contains only the visual selection:
+`variant` is the single required choice:
 
 ```json title="lisible.config.json"
 {
@@ -18,25 +38,11 @@ Configuration is deliberately concentrated in three surfaces. This separation ke
 }
 ```
 
-Public values: `motion-primitives`, `cult-ui`, `aceternity`, `reactbits`, `organique`, `h4x0r`.
+Public values: `motion-primitives`, `cult-ui`, `aceternity`, `reactbits`, `organique`, `h4x0r`. Deployment platforms can override it without touching the file through the `LISIBLE_VARIANT` environment variable.
 
-## Global identity
+## Site identity
 
-`shared/site.config.ts` defines the title, author, canonical URL, accent, repository and integrations.
-
-```ts title="shared/site.config.ts"
-export const SITE_DEFAULTS = {
-  title: "My site",
-  author: "Your name",
-  url: "https://example.com",
-  accent: "#22C55E",
-  coverPosition: "down",
-  repo: {
-    url: "https://github.com/owner/repo",
-    branch: "main",
-  },
-};
-```
+The `site` object defines the title, canonical URL, author, accent color, list sizes (`postsPerPage`, `featuredCount`) and default cover position. The `social` object holds the public profiles shown in the footer, and `repo` points edit links at your repository and branch.
 
 :::caution[Canonical URL]
 Use the final URL with its protocol and no temporary path. It feeds canonical links, hreflang, OpenGraph, JSON-LD, RSS and text exports.
@@ -44,25 +50,31 @@ Use the final URL with its protocol and no temporary path. It feeds canonical li
 
 ## Feature flags
 
-`shared/features.ts` enables common capabilities. A flag controls more than presentation: it may gate routes, Markdown plugins and client assets.
+The `features` object enables common capabilities. A flag controls more than presentation: it may gate routes, Markdown plugins and client assets, and a disabled feature leaves no trace in the built output. The [complete reference](/en/docs/reference/configuration/) lists every flag with its effect.
 
-```ts title="shared/features.ts"
-export const SHARED_FEATURES = {
-  imageZoom: true,
-  mermaid: true,
-  ogPerPost: true,
-  pagination: { enabled: true, pageSize: 6 },
-  comments: false,
-  webmentions: false,
-  demoPlaceholders: true,
-} as const;
+```json title="lisible.config.json (excerpt)"
+{
+  "features": {
+    "imageZoom": true,
+    "mermaid": true,
+    "ogPerPost": true,
+    "pagination": { "enabled": true, "pageSize": 6 },
+    "comments": false,
+    "webmentions": false,
+    "demoPlaceholders": true
+  }
+}
 ```
 
 ## Integrations with secrets
 
-Giscus, Bluesky or webmention.io identifiers belong in `INTEGRATIONS`. Never commit a private key. Public configuration values may stay in the repository, while secrets should come from environment variables.
+Giscus, Bluesky or webmention.io identifiers belong in the `integrations` object. Never commit a private key. Public configuration values may stay in the repository, while secrets should come from environment variables. Enabling `comments` or `webmentions` without their configuration fails the build with a clear error.
 
-A fresh clone displays fully local example comments and webmentions. Replace the social profiles in `SITE_DEFAULTS.social`, fill the live integration, enable its flag, then set `demoPlaceholders` to `false`. This keeps third-party scripts and invalid network calls out of the development server.
+A fresh clone displays fully local example comments and webmentions. Replace the profiles in `social`, fill the live integration, enable its flag, then set `demoPlaceholders` to `false`. This keeps third-party scripts and invalid network calls out of the development server.
+
+## Derived shared surfaces
+
+`shared/config.ts` reads and validates `lisible.config.json` at build time; `shared/site.config.ts` and `shared/features.ts` only re-export values derived from it. You should never need to edit files under `shared/` to configure a site: if a value seems missing, it belongs in the JSON file or in the schema, not in a shared module.
 
 ## Final check
 

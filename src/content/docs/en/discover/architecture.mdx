@@ -17,7 +17,13 @@ lisible/
 ├─ lisible.config.json
 ├─ package.json
 ├─ scripts/
+├─ tests/
+├─ e2e/
+├─ packages/
+│  ├─ lisible/
+│  └─ create-lisible/
 ├─ shared/
+│  ├─ config.ts
 │  ├─ site.config.ts
 │  ├─ features.ts
 │  ├─ variants.ts
@@ -46,9 +52,10 @@ lisible/
 
 | Surface | Owner | Examples |
 | --- | --- | --- |
+| Configuration | `lisible.config.json` | variant, identity, flags, integrations |
 | Content | `shared/content/` | posts, schema, images |
-| Identity | `shared/site.config.ts` | title, URL, author, repository |
-| Capabilities | `shared/features.ts` | search, series, comments |
+| Identity | `shared/site.config.ts` | values derived from the configuration |
+| Capabilities | `shared/features.ts` | flags derived from the configuration |
 | Shared UI | `shared/components/` | appearance, preview bridge, profile hero, file tree |
 | Browser runtime | `shared/scripts/` | locale, cards, diagram full screen |
 | Preview contract | `shared/preview/` | build base, settings protocol, frame navigation |
@@ -58,6 +65,8 @@ lisible/
 | Print | `shared/print.css` | paper rendering and PDF export |
 | Design | `versions/*/src/` | layouts, components, animation |
 | Orchestration | `scripts/` | init, global preview, checks |
+| Tests | `tests/`, `e2e/` | unit tests, Playwright end-to-end suite |
+| Scaffolding | `packages/` | the `lisible` and `create-lisible` npm CLIs |
 
 :::warning[Prevent drift]
 A feature visible in every variant should not be implemented independently without a shared contract. Start with the owning schema, helpers and routes, then adapt presentation.
@@ -97,4 +106,4 @@ Astro source uses two aliases and only two: `@/*` points to `src/*` and `@shared
 
 Modules loaded directly by `astro.config.ts` are the exception: configuration is evaluated before aliases are available, so they use relative paths. That covers the remark and rehype plugins, the language badge and the dictionaries the configuration imports.
 
-Files under `shared/` take no runtime dependency beyond those installed at the repository root: `shared/` has no `node_modules`, so resolution walks up to the root.
+The repository is a Bun workspace covering `shared`, `versions/*` and `packages/*`. The shared core is the `@lisible/shared` package; every variant depends on it with `workspace:*`, and a single root `bun install` links all of them. Each package declares the dependencies it actually uses in its own `package.json` instead of relying on accidental root resolution.

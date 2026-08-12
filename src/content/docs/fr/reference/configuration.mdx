@@ -26,14 +26,39 @@ Cette page rassemble le contrat public de Lisible. Les chapitres précédents ex
 | `seriesOrder` | `number` | absent | ordre dans la série |
 | `bluesky` | URI `at://` | absent | discussion par article |
 
+## lisible.config.json
+
+Toute la configuration utilisateur vit dans `lisible.config.json` à la racine du dépôt, validée par `shared/config.ts` et documentée par le schéma JSON de `docs/lisible.config.schema.json`. Chaque champ sauf `variant` est facultatif.
+
+| Champ | Type | Rôle |
+| --- | --- | --- |
+| `$schema` | `string` | chemin du schéma pour l’autocomplétion de l’éditeur |
+| `variant` | `string`, requis | variante active parmi les six identifiants publics |
+| `site.title` | `string` | nom du site dans les en-têtes, flux et métadonnées |
+| `site.url` | `string` | URL canonique avec protocole |
+| `site.author` | `string` | auteur crédité dans les métadonnées et le JSON-LD |
+| `site.accent` | `string` | couleur d’accent par défaut, hexadécimale |
+| `site.postsPerPage` | `number` | taille de pagination des listes |
+| `site.featuredCount` | `number` | articles mis en avant sur l’accueil |
+| `site.coverPosition` | `string` | position de cadrage des couvertures |
+| `social.*` | `string` | profils `github`, `bluesky`, `mastodon`, `linkedin`, `email` |
+| `features.*` | booléens et objets | les flags listés ci-dessous |
+| `integrations.webmentions.domain` | `string` | domaine webmention.io |
+| `integrations.comments.provider` | `string` | `giscus` ou `bluesky` |
+| `integrations.comments.giscus` | objet | `repo`, `repoId`, `category`, `categoryId`, `mapping` |
+| `integrations.comments.bluesky` | objet | `postUri` par défaut |
+| `repo.url`, `repo.branch` | `string` | dépôt derrière les liens d’édition |
+
 ## Flags
+
+Les flags vivent dans l’objet `features` de `lisible.config.json`. Une fonctionnalité désactivée ne laisse aucune trace dans le site construit.
 
 | Flag | Effet principal |
 | --- | --- |
 | `callouts` | directives note/tip/warning/caution/important |
 | `mdxComponents` | Tabs, Steps et Spoiler |
 | `imageZoom` | visionneuse plein écran |
-| `headingAnchors` | ancres copiables h2–h4 |
+| `headingAnchors` | ancres copiables h2 à h4 |
 | `relatedPosts` | recommandations par similarité de tags |
 | `math` | remark-math et KaTeX |
 | `mermaid` | diagrammes interactifs avec zoom, déplacement et plein écran |
@@ -54,6 +79,7 @@ Cette page rassemble le contrat public de Lisible. Les chapitres précédents ex
 | `archives` | timeline des publications |
 | `series` | pages et navigation de série |
 | `commandPalette` | recherche et actions Ctrl/Cmd+K |
+| `portfolio` | interrupteurs `enabled`, `certifications` et `friends` des pages vitrine |
 
 Le composant partagé `Tree` s’importe directement depuis `@shared/components/ui/file-tree` et ne possède pas de flag dédié.
 
@@ -90,17 +116,27 @@ Ces deux paires sont des démonstrations additives d’Organique, pas des routes
 ## Commandes racine
 
 ```text
-init          configuration guidée
-dev           serveur de la variante active
-build         build de la variante active
-preview       aperçu du build actif
-variant       affiche la variante
-preview:all   installe, build et sert les six variantes
-new-post      crée MDX par défaut, ou Markdown sur demande
-check-links   contrôle les liens du contenu
-check-assets  applique les budgets d’assets
-check:all     typecheck, build et validation des sept variantes
-typecheck     astro check sur les sept variantes
+init            configuration guidée
+dev             serveur de la variante active
+build           build de la variante active
+preview         aperçu du build actif
+variant         affiche la variante
+preview:all     installe, build et sert les six variantes
+new-post        crée MDX par défaut, ou Markdown sur demande
+check-links     contrôle les liens du contenu
+check-assets    applique les budgets d’assets
+check-variants  validation complète des variantes nommées
+check:all       style, conformité, typecheck, build et sorties des sept variantes
+typecheck       astro check sur les sept variantes
+test            tests unitaires des helpers partagés
+test:e2e        suite Playwright sur les variantes construites
+lint            vérification lint et format Biome
+format          application du format Biome
+check-style     aucun tiret long, aucun emoji dans la documentation
+check-drift     compare le HTML construit à la base de référence
+sync-og-assets  régénère les assets Open Graph partagés
+check-og-assets vérifie que les assets Open Graph sont synchronisés
+check-og-output valide les images Open Graph générées
 ```
 
 ## Références Astro
