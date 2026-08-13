@@ -36,6 +36,18 @@ const navLinks = [
     label: dict.series.listTitle,
     keywords: "series serie dossiers",
   },
+  FEATURES.portfolio.enabled &&
+    FEATURES.portfolio.certifications && {
+      href: localeUrl(locale, "certifications"),
+      label: dict.nav.certifications,
+      keywords: "certifications diplomes badges parcours",
+    },
+  FEATURES.portfolio.enabled &&
+    FEATURES.portfolio.friends && {
+      href: localeUrl(locale, "friends"),
+      label: dict.nav.friends,
+      keywords: "amis friends liens blogroll",
+    },
   { href: localeUrl(locale, "about"), label: dict.palette.goAbout, keywords: "about a propos" },
   { href: localeUrl(locale, "rss.xml"), label: dict.palette.openRss, keywords: "rss feed flux abonnement" },
 ].filter(Boolean) as { href: string; label: string; keywords: string }[];
@@ -70,6 +82,7 @@ function navArrowIcon(): string {
   aria-label={dict.search.title}
   data-hint={palette ? dict.palette.hint : dict.search.hint}
   data-no-results={palette ? dict.palette.empty : dict.search.noResults}
+  data-results-count={dict.search.resultsCount}
   data-dev-notice={dict.search.devNotice}
   data-url-copied={dict.palette.urlCopied}
   data-search-label={dict.palette.searchGroup}
@@ -130,14 +143,17 @@ function navArrowIcon(): string {
   </div>
 
   <div id="palette-listbox" role="listbox" aria-label={dict.search.title} class="palette-scroll">
+    {/* Structural wrappers are presentational so the listbox only owns
+        groups and options; visible labels stay visual, the groups carry
+        their name through aria-label. */}
     {
       palette && (
-        <div data-palette-static>
-          <div class="palette-group" data-group>
-            <p class="palette-group-label">{dict.palette.actionsGroup}</p>
-            <ul>
+        <div data-palette-static role="presentation">
+          <div class="palette-group" data-group role="group" aria-label={dict.palette.actionsGroup}>
+            <p class="palette-group-label" aria-hidden="true">{dict.palette.actionsGroup}</p>
+            <ul role="presentation">
               {actions.map((action) => (
-                <li>
+                <li role="presentation">
                   <button
                     type="button"
                     class="cmd-item"
@@ -153,11 +169,11 @@ function navArrowIcon(): string {
               ))}
             </ul>
           </div>
-          <div class="palette-group" data-group>
-            <p class="palette-group-label">{dict.palette.navGroup}</p>
-            <ul>
+          <div class="palette-group" data-group role="group" aria-label={dict.palette.navGroup}>
+            <p class="palette-group-label" aria-hidden="true">{dict.palette.navGroup}</p>
+            <ul role="presentation">
               {navLinks.map((link) => (
-                <li>
+                <li role="presentation">
                   <a
                     class="cmd-item"
                     role="option"
@@ -175,10 +191,12 @@ function navArrowIcon(): string {
         </div>
       )
     }
-    <div data-search-results>
+    <div data-search-results role="presentation">
       {
         !palette && (
-          <p class="px-3 py-6 text-center text-sm text-muted-foreground">{dict.search.hint}</p>
+          <p class="px-3 py-6 text-center text-sm text-muted-foreground" aria-hidden="true">
+            {dict.search.hint}
+          </p>
         )
       }
     </div>
@@ -186,6 +204,8 @@ function navArrowIcon(): string {
 </dialog>
 
 <script>
+  import { announce } from "@shared/scripts/announce";
+
   const PAGEFIND_URL = "/pagefind/pagefind.js";
   type PagefindResult = {
     data: () => Promise<{
@@ -253,6 +273,9 @@ function navArrowIcon(): string {
     if (!message) return;
     const p = document.createElement("p");
     p.className = "px-3 py-6 text-center text-sm text-muted-foreground";
+    // Visual only: empty states and hints are voiced through announce(),
+    // and a bare paragraph is not a valid listbox child.
+    p.setAttribute("aria-hidden", "true");
     p.textContent = message;
     container.appendChild(p);
   }
@@ -307,6 +330,7 @@ function navArrowIcon(): string {
 
   function makeResultItem(url: string, title: string, excerpt: string): HTMLLIElement {
     const item = document.createElement("li");
+    item.setAttribute("role", "presentation");
     const link = document.createElement("a");
     link.href = url;
     link.className = "cmd-item cmd-result";
@@ -363,19 +387,25 @@ function navArrowIcon(): string {
       if (!paletteMode || visibleItems(modal).length === 0) {
         renderMessage(modal, modal.dataset.noResults ?? "");
       }
+      announce(modal.dataset.noResults ?? "");
       setActive(modal, 0);
       return;
     }
+    announce((modal.dataset.resultsCount ?? "").replace("{n}", String(results.length)));
 
     const group = document.createElement("div");
     group.className = "palette-group";
+    group.setAttribute("role", "group");
+    group.setAttribute("aria-label", modal.dataset.searchLabel ?? "");
     if (paletteMode) {
       const label = document.createElement("p");
       label.className = "palette-group-label";
+      label.setAttribute("aria-hidden", "true");
       label.textContent = modal.dataset.searchLabel ?? "";
       group.appendChild(label);
     }
     const list = document.createElement("ul");
+    list.setAttribute("role", "presentation");
     for (const result of results) {
       list.appendChild(makeResultItem(result.url, result.meta.title ?? result.url, result.excerpt));
     }
@@ -419,7 +449,11 @@ function navArrowIcon(): string {
         modal.close();
         break;
       case "copy-url":
-        void navigator.clipboard?.writeText(location.href).then(() => flashCopied(el, modal));
+        void navigator.clipboard?.writeText(location.href).then(() => {
+          flashCopied(el, modal);
+          const copied = modal.dataset.urlCopied;
+          if (copied) announce(copied);
+        });
         break;
       default:
         break;

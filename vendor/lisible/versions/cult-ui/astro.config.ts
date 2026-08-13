@@ -67,6 +67,10 @@ pluginCollapsibleSectionsTexts.overrideTexts("en", {
 });
 
 export default defineConfig({
+  build: {
+    // One less render blocking request; the stylesheets are small.
+    inlineStylesheets: "always",
+  },
   ...previewAstroConfig(),
   devToolbar: { enabled: false },
   site: SITE.url,
@@ -169,6 +173,7 @@ export default defineConfig({
       ],
     },
     define: {
+      __MDX_COMPONENTS_ENABLED__: JSON.stringify(FEATURES.mdxComponents),
       __FEATURE_IMAGE_ZOOM__: JSON.stringify(FEATURES.imageZoom),
       __FEATURE_COMMAND_PALETTE__: JSON.stringify(FEATURES.commandPalette),
       __FEATURE_MERMAID__: JSON.stringify(FEATURES.mermaid),

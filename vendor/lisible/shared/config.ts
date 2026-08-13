@@ -34,6 +34,7 @@ const FEATURE_FLAG_SPEC = {
   llmsTxt: "boolean",
   aiButtons: "boolean",
   socialShare: "boolean",
+  newsletter: "boolean",
   styledRss: "boolean",
   webmentions: "boolean",
   comments: "boolean",
@@ -56,6 +57,7 @@ const FEATURE_FLAG_SPEC = {
 /** Allowed shape of lisible.config.json, mirrored by docs/lisible.config.schema.json. */
 const SPEC = {
   $schema: "string",
+  lisibleVersion: "string",
   variant: [...PUBLIC_VARIANT_IDS] as readonly string[],
   site: {
     title: "string",
@@ -76,6 +78,7 @@ const SPEC = {
   features: FEATURE_FLAG_SPEC,
   integrations: {
     webmentions: { domain: "string" },
+    newsletter: { provider: "string", action: "string" },
     comments: {
       provider: ["giscus", "bluesky"] as readonly string[],
       giscus: {
@@ -242,6 +245,7 @@ export const PROFILE = {
 } as const;
 
 const DEFAULTS = {
+  lisibleVersion: "",
   variant: "organique",
   site: {
     title: "Lisible",
@@ -253,11 +257,13 @@ const DEFAULTS = {
     coverPosition: "down" as "up" | "down",
   },
   social: {
-    github: "https://github.com/didntchooseaname/lisible",
-    bluesky: `https://bsky.app/profile/${profileHandle}.example.com`,
-    mastodon: `https://mastodon.social/@${profileHandle}`,
-    linkedin: `https://www.linkedin.com/in/${profileSlug}/`,
-    email: "mailto:hello@example.com",
+    // Empty by default: a fabricated handle can point at a real stranger, so
+    // a link only appears once the author writes their own in the config.
+    github: "",
+    bluesky: "",
+    mastodon: "",
+    linkedin: "",
+    email: "",
   },
   features: {
     callouts: true,
@@ -272,6 +278,7 @@ const DEFAULTS = {
     llmsTxt: true,
     aiButtons: true,
     socialShare: true,
+    newsletter: false,
     styledRss: true,
     webmentions: false,
     comments: false,
@@ -288,6 +295,7 @@ const DEFAULTS = {
   },
   integrations: {
     webmentions: { domain: "" },
+    newsletter: { provider: "", action: "" },
     comments: {
       provider: "giscus" as "giscus" | "bluesky",
       giscus: {

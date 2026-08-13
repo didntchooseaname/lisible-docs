@@ -1258,3 +1258,29 @@ dialog[data-search-modal]::backdrop {
   outline: 2px solid var(--color-ring);
   outline-offset: 2px;
 }
+
+/* Light mode legibility: callout titles sit on a surface tinted with their
+   own hue, which drags the accent and destructive colors under 4.5:1 there;
+   mixing toward the foreground restores the ratio. */
+html:not(.dark) .prose .callout-title {
+  color: color-mix(in oklab, var(--callout-color) 60%, var(--color-foreground));
+}
+
+/* Theme toggle icon states: the icon previews the next step of the light,
+   dark, system cycle; without JS the moon fallback matches the light
+   default. */
+[data-theme-toggle] .tt-sun,
+[data-theme-toggle] .tt-moon,
+[data-theme-toggle] .tt-monitor {
+  display: none;
+}
+html[data-theme="light"] [data-theme-toggle] .tt-moon,
+html:not([data-theme]) [data-theme-toggle] .tt-moon {
+  display: block;
+}
+html[data-theme="dark"] [data-theme-toggle] .tt-monitor {
+  display: block;
+}
+html[data-theme="system"] [data-theme-toggle] .tt-sun {
+  display: block;
+}

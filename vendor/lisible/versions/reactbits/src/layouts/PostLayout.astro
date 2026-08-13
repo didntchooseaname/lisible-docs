@@ -77,6 +77,7 @@ const jsonLd = {
 ---
 
 <BaseLayout
+  preloadMono
   locale={locale}
   title={post.data.title}
   description={post.data.description}
@@ -86,7 +87,15 @@ const jsonLd = {
 >
   <Fragment slot="head">
     <JsonLd data={jsonLd} />
-    {hasMath && <link rel="stylesheet" href="/katex/katex.min.css" />}
+    {hasMath && <link
+      rel="stylesheet"
+      href="/katex/katex.min.css"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="/katex/katex.min.css" />
+    </noscript>}
   </Fragment>
 
   

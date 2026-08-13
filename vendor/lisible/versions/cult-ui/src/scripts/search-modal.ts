@@ -1,3 +1,5 @@
+import { announce } from "../../../../shared/scripts/announce";
+
 // Pagefind is emitted into dist/ at build time; keep the specifier out of
 // static resolution so it is looked up at runtime only.
 const PAGEFIND_URL = "/pagefind/pagefind.js";
@@ -28,6 +30,9 @@ function renderMessage(modal: HTMLDialogElement, message: string) {
   if (!container) return;
   container.innerHTML = "";
   const p = document.createElement("p");
+  // Hints and empty states are voiced through announce(); a bare paragraph is
+  // not a valid listbox child, so keep it out of the accessibility tree.
+  p.setAttribute("aria-hidden", "true");
   p.className = "px-3 py-6 text-center text-sm text-muted-foreground";
   p.textContent = message;
   container.appendChild(p);
@@ -79,15 +84,20 @@ async function runSearch(input: HTMLInputElement): Promise<void> {
 
   if (results.length === 0) {
     renderMessage(modal, modal.dataset.noResults ?? "");
+    announce(modal.dataset.noResults ?? "");
     return;
   }
 
   const list = document.createElement("ul");
+  list.setAttribute("role", "presentation");
   list.className = "flex flex-col gap-1";
   for (const result of results) {
     const item = document.createElement("li");
+    item.setAttribute("role", "presentation");
     const link = document.createElement("a");
     link.href = result.url;
+    link.setAttribute("role", "option");
+    link.setAttribute("aria-selected", "false");
     link.className =
       "block rounded-md px-3 py-2.5 transition-colors hover:bg-secondary focus-visible:bg-secondary";
     const title = document.createElement("span");
@@ -102,6 +112,7 @@ async function runSearch(input: HTMLInputElement): Promise<void> {
   }
   container.innerHTML = "";
   container.appendChild(list);
+  announce((modal.dataset.resultsCount ?? "").replace("{n}", String(results.length)));
 }
 
 document.addEventListener("click", (event) => {
@@ -141,5 +152,3 @@ document.addEventListener("input", (event) => {
 document.addEventListener("astro:before-swap", () => {
   getModal()?.close();
 });
-
-export {};

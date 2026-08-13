@@ -78,6 +78,7 @@ const fr = {
     placeholder: "Rechercher un article...",
     hint: "Tapez pour rechercher dans les articles.",
     noResults: "Aucun résultat.",
+    resultsCount: "{n} résultat(s)",
     devNotice:
       "La recherche est indexée au build: lancez bun run build puis bun run preview pour l'essayer.",
   },
@@ -88,7 +89,7 @@ const fr = {
     emailLabel: "Adresse email",
     placeholder: "vous@exemple.fr",
     button: "S'abonner",
-    note: "Composant de démonstration: aucune inscription n'est réellement envoyée.",
+    note: "Pas de spam. Désinscription en un clic.",
   },
   notFound: {
     title: "Page introuvable",
@@ -229,6 +230,9 @@ const fr = {
   a11y: {
     skipToContent: "Aller au contenu principal",
     toggleTheme: "Changer de thème",
+    themeLightOn: "Thème clair activé",
+    themeDarkOn: "Thème sombre activé",
+    themeSystemOn: "Thème système activé (suit vos préférences)",
     openSearch: "Ouvrir la recherche (Ctrl+K)",
     closeSearch: "Fermer la recherche",
     backToTop: "Retour en haut de page",
@@ -299,6 +303,7 @@ const en: Dict = {
     placeholder: "Search articles...",
     hint: "Type to search the articles.",
     noResults: "No results.",
+    resultsCount: "{n} result(s)",
     devNotice: "Search is indexed at build time: run bun run build then bun run preview to try it.",
   },
   newsletter: {
@@ -307,7 +312,7 @@ const en: Dict = {
     emailLabel: "Email address",
     placeholder: "you@example.com",
     button: "Subscribe",
-    note: "Demo component: no signup is actually sent.",
+    note: "No spam. One click unsubscribe.",
   },
   notFound: {
     title: "Page not found",
@@ -447,6 +452,9 @@ const en: Dict = {
   a11y: {
     skipToContent: "Skip to main content",
     toggleTheme: "Toggle theme",
+    themeLightOn: "Light theme on",
+    themeDarkOn: "Dark theme on",
+    themeSystemOn: "System theme on (follows your device)",
     openSearch: "Open search (Ctrl+K)",
     closeSearch: "Close search",
     backToTop: "Back to top",

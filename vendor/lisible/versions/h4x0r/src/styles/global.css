@@ -1684,3 +1684,33 @@ details.callout > :last-child:not(summary) {
     transition: none;
   }
 }
+
+/* Light mode legibility: the accent and destructive hues pass 4.5:1 against
+   the page background but not against their own tinted surfaces, so callout
+   titles and the active tab mix toward the foreground there. */
+html:not(.dark) .callout .callout-title {
+  color: color-mix(in oklab, var(--co-accent) 60%, var(--color-foreground));
+}
+
+html:not(.dark) .tabs-tab[aria-selected="true"] {
+  color: color-mix(in oklab, var(--color-accent) 60%, var(--color-foreground));
+}
+
+/* Theme toggle icon states: the icon previews the next step of the light,
+   dark, system cycle; without JS the moon fallback matches the light
+   default. */
+[data-theme-toggle] .tt-sun,
+[data-theme-toggle] .tt-moon,
+[data-theme-toggle] .tt-monitor {
+  display: none;
+}
+html[data-theme="light"] [data-theme-toggle] .tt-moon,
+html:not([data-theme]) [data-theme-toggle] .tt-moon {
+  display: block;
+}
+html[data-theme="dark"] [data-theme-toggle] .tt-monitor {
+  display: block;
+}
+html[data-theme="system"] [data-theme-toggle] .tt-sun {
+  display: block;
+}
