@@ -70,7 +70,7 @@ function routes(basePath: string): PreviewVariantManifest["routes"] {
   const at = (path: string) => `${basePath}${path.replace(/^\/+/, "")}`;
   return {
     fr: {
-      home: at("/landing/french/"),
+      home: at("/"),
       blog: at("/blog/"),
       post: at("/blog/demo-fonctionnalites/"),
       tags: at("/tags/"),

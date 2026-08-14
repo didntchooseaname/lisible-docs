@@ -15,6 +15,10 @@
 		Permissions-Policy "camera=(), geolocation=(), microphone=()"
 		Referrer-Policy "strict-origin-when-cross-origin"
 		X-Content-Type-Options "nosniff"
+		# Without an explicit policy, browsers cache HTML heuristically and
+		# keep serving pages from before a deploy. Force revalidation for
+		# everything, then re-open long cache for the hashed assets below.
+		Cache-Control "public, max-age=0, must-revalidate"
 	}
 
 	@health path /health
