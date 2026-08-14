@@ -31,13 +31,22 @@ jobs:
           ref: ${{ inputs.source_sha }}
           path: source
 
+      - name: Install the Lisible toolchain
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: source/.bun-version
+
       - name: Verify and synchronize sources
         env:
           SOURCE_SHA: ${{ inputs.source_sha }}
         run: |
           test "$(git -C source rev-parse HEAD)" = "$SOURCE_SHA"
           mkdir -p docs/vendor/lisible
-          rsync -a --delete \
+          # --checksum: both trees are fresh checkouts, so rsync's default
+          # size+mtime quick check can skip files whose edit keeps the same
+          # size (dependency bumps in package.json did exactly that). Compare
+          # content instead.
+          rsync -a --checksum --delete \
             --exclude node_modules \
             --exclude dist \
             --exclude .astro \
@@ -48,9 +57,16 @@ jobs:
           # vendor root instead of versions/<id>/node_modules. Carry the framework's
           # root dependency layer along, or the preview builds cannot resolve
           # @astrojs/rss, satori and @resvg/resvg-js. The scripts are dropped: they
-          # drive the framework repository, which is not vendored.
-          jq 'del(.scripts)' source/package.json > docs/vendor/lisible/package.json
+          # drive the framework repository, which is not vendored. The workspaces
+          # are narrowed to the vendored members: packages/* holds the published
+          # CLIs, which stay behind in the framework repository.
+          jq 'del(.scripts) | .workspaces = ["shared", "versions/*"]' source/package.json > docs/vendor/lisible/package.json
+          # Regenerate the lockfile on top of the framework's copy: starting from
+          # it keeps the upstream resolutions pinned, while the regeneration drops
+          # the packages/* workspace entries that are not vendored. Copying it
+          # verbatim would fail every frozen install at build time.
           cp source/bun.lock docs/vendor/lisible/bun.lock
+          (cd docs/vendor/lisible && bun install --lockfile-only)
           jq -n \
             --arg repository "didntchooseaname/lisible" \
             --arg ref "main" \
