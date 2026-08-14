@@ -57,24 +57,26 @@ function themeConfig() {
       mainBkg: secondary,
       primaryColor: secondary,
       primaryTextColor: fg,
-      primaryBorderColor: border,
+      // The border token matches the node background in dark mode, so the
+      // object outlines follow the user accent instead.
+      primaryBorderColor: accent,
       secondaryColor: card,
       secondaryTextColor: fg,
-      secondaryBorderColor: border,
+      secondaryBorderColor: accent,
       tertiaryColor: card,
       tertiaryTextColor: fg,
-      tertiaryBorderColor: border,
+      tertiaryBorderColor: accent,
       lineColor: muted,
       textColor: fg,
       titleColor: fg,
-      nodeBorder: border,
+      nodeBorder: accent,
       nodeTextColor: fg,
       clusterBkg: card,
       clusterBorder: border,
       edgeLabelBackground: bg,
       noteBkgColor: card,
       noteTextColor: fg,
-      noteBorderColor: border,
+      noteBorderColor: accent,
       actorBkg: secondary,
       actorBorder: accent,
       actorTextColor: fg,
@@ -82,7 +84,7 @@ function themeConfig() {
       signalColor: muted,
       signalTextColor: fg,
       labelBoxBkgColor: card,
-      labelBoxBorderColor: border,
+      labelBoxBorderColor: accent,
       labelTextColor: fg,
       loopTextColor: fg,
       activationBkgColor: secondary,
@@ -113,6 +115,13 @@ function prepareSvg(svgEl: SVGSVGElement) {
   if (vb?.width && vb?.height) {
     svgEl.setAttribute("width", `${vb.width}`);
     svgEl.setAttribute("height", `${vb.height}`);
+    // The pan layer is a flex container, so without a fixed basis the diagram
+    // shrinks to the column width and the fit transform then scales that down
+    // again: the result is an off-center, unreadable thumbnail. Pin the
+    // intrinsic size and let the transform be the only thing that scales.
+    svgEl.style.width = `${vb.width}px`;
+    svgEl.style.height = `${vb.height}px`;
+    svgEl.style.flex = "0 0 auto";
   }
   svgEl.style.display = "block";
   svgEl.style.maxWidth = "none";

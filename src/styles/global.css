@@ -1404,14 +1404,27 @@ body {
   box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.18);
 }
 
-:root[data-magicui-theme-vt="active"]::view-transition-old(root),
-:root[data-magicui-theme-vt="active"]::view-transition-new(root) {
+:root[data-magicui-theme-vt="active"]::view-transition-old(root) {
   animation: none;
   mix-blend-mode: normal;
 }
 
+/* The circular reveal must be a CSS animation: programmatic animate() on
+   view transition pseudo-elements is not available in every engine that
+   ships view transitions (Firefox). */
 :root[data-magicui-theme-vt="active"]::view-transition-new(root) {
+  mix-blend-mode: normal;
   clip-path: var(--magicui-theme-vt-clip-from, circle(0px at 50% 50%));
+  animation: magicui-theme-vt-reveal var(--magicui-theme-toggle-vt-duration, 500ms) ease-in-out forwards;
+}
+
+@keyframes magicui-theme-vt-reveal {
+  from {
+    clip-path: var(--magicui-theme-vt-clip-from, circle(0px at 50% 50%));
+  }
+  to {
+    clip-path: var(--magicui-theme-vt-clip-to, circle(150% at 50% 50%));
+  }
 }
 
 :root[data-magicui-theme-vt="active"]::view-transition-group(root) {

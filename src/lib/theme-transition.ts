@@ -11,8 +11,12 @@ const DURATION = 500;
 /**
  * Runs `apply` inside a view transition that reveals the new theme in a
  * circle growing from `origin`, matching the lisible blog theme toggle.
- * Falls back to a plain `apply()` without animation when view transitions
- * are unavailable or reduced motion is requested.
+ * The clip geometry is exposed as custom properties and the reveal itself
+ * is a CSS animation on ::view-transition-new(root): unlike programmatic
+ * animate() on view transition pseudo-elements, CSS animations run in every
+ * engine that ships view transitions, Firefox included. Falls back to a
+ * plain `apply()` without animation when view transitions are unavailable
+ * or reduced motion is requested.
  */
 export function circularThemeTransition(origin: HTMLElement, apply: () => void): void {
   const doc = document as DocWithVT;
@@ -36,11 +40,13 @@ export function circularThemeTransition(origin: HTMLElement, apply: () => void):
   root.dataset.magicuiThemeVt = "active";
   root.style.setProperty("--magicui-theme-toggle-vt-duration", `${DURATION}ms`);
   root.style.setProperty("--magicui-theme-vt-clip-from", from);
+  root.style.setProperty("--magicui-theme-vt-clip-to", to);
 
   const cleanup = () => {
     delete root.dataset.magicuiThemeVt;
     root.style.removeProperty("--magicui-theme-toggle-vt-duration");
     root.style.removeProperty("--magicui-theme-vt-clip-from");
+    root.style.removeProperty("--magicui-theme-vt-clip-to");
   };
 
   const transition = doc.startViewTransition(() => {
@@ -51,19 +57,5 @@ export function circularThemeTransition(origin: HTMLElement, apply: () => void):
     transition.finished.finally(cleanup);
   } else {
     cleanup();
-  }
-
-  if (transition.ready && typeof transition.ready.then === "function") {
-    transition.ready.then(() => {
-      root.animate(
-        { clipPath: [from, to] },
-        {
-          duration: DURATION,
-          easing: "ease-in-out",
-          fill: "forwards",
-          pseudoElement: "::view-transition-new(root)",
-        },
-      );
-    });
   }
 }
