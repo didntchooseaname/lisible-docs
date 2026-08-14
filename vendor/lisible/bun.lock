@@ -20,23 +20,6 @@
         "unist-util-visit": "^5.1.0",
       },
     },
-    "packages/create-lisible": {
-      "name": "create-lisible",
-      "version": "0.1.1",
-      "bin": {
-        "create-lisible": "bin.mjs",
-      },
-      "dependencies": {
-        "lisible": "^0.1.1",
-      },
-    },
-    "packages/lisible": {
-      "name": "lisible",
-      "version": "0.1.1",
-      "bin": {
-        "lisible": "bin.mjs",
-      },
-    },
     "shared": {
       "name": "@lisible/shared",
       "version": "0.0.0",
@@ -1136,8 +1119,6 @@
 
     "cose-base": ["cose-base@1.0.3", "", { "dependencies": { "layout-base": "^1.0.0" } }, "sha512-s9whTXInMSgAp/NVXVNuVxVKzGH2qck3aQlVHxDCdAEPgtMKwc4Wq6/QKhgdEdgbLSi9rBTAcPoRa6JpiG4ksg=="],
 
-    "create-lisible": ["create-lisible@workspace:packages/create-lisible"],
-
     "crossws": ["crossws@0.3.5", "", { "dependencies": { "uncrypto": "^0.1.3" } }, "sha512-ojKiDvcmByhwa8YYqbQI/hg7MEU0NC03+pSdEq4ZUnZR9xXpwk7E43SMNGkn+JxJGPFtNvQ48+vV2p+P1ml5PA=="],
 
     "css-background-parser": ["css-background-parser@0.1.0", "", {}, "sha512-2EZLisiZQ+7m4wwur/qiYJRniHX4K5Tc9w93MT3AS0WS1u5kaZ4FKXlOTBhOjc+CgEgPiGY+fX1yWD8UwpEqUA=="],
@@ -1485,8 +1466,6 @@
     "lightningcss-win32-x64-msvc": ["lightningcss-win32-x64-msvc@1.32.0", "", { "os": "win32", "cpu": "x64" }, "sha512-Amq9B/SoZYdDi1kFrojnoqPLxYhQ4Wo5XiL8EVJrVsB8ARoC1PWW6VGtT0WKCemjy8aC+louJnjS7U18x3b06Q=="],
 
     "linebreak": ["linebreak@1.1.0", "", { "dependencies": { "base64-js": "0.0.8", "unicode-trie": "^2.0.0" } }, "sha512-MHp03UImeVhB7XZtjd0E4n6+3xr5Dq/9xI/5FptGk5FrbDR3zagPa2DS6U8ks/3HjbKWG9Q1M2ufOzxV2qLYSQ=="],
-
-    "lisible": ["lisible@workspace:packages/lisible"],
 
     "lisible-aceternity": ["lisible-aceternity@workspace:versions/aceternity"],
 
