@@ -93,7 +93,9 @@ function routes(basePath: string): PreviewVariantManifest["routes"] {
  * imports (@astrojs/rss, satori, @resvg/resvg-js) resolve from the vendor root
  * and never from `versions/<id>/node_modules`. The framework repository carries
  * that dependency layer at its own root; the vendored copy mirrors it here, and
- * one install serves every variant. Memoised: variants build in parallel.
+ * one install serves every variant. Memoised: variants build in parallel, and
+ * the vendored copy is a single workspace, so a second install from a variant
+ * directory would rerun the whole workspace install and race the other one.
  */
 let sharedInstall: Promise<void> | undefined;
 function installSharedDependencies(): Promise<void> {
@@ -124,7 +126,6 @@ async function buildVariant(variant: (typeof VARIANTS)[number]): Promise<Preview
   } catch {
     console.log(`[previews] ${variant.id}: installing dependencies`);
     await installSharedDependencies();
-    await run(["bun", "install", "--frozen-lockfile"], variantRoot, {});
     console.log(`[previews] ${variant.id}: building ${buildHash.slice(0, 12)}`);
     await rm(staging, { recursive: true, force: true });
     try {
