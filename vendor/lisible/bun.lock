@@ -42,7 +42,7 @@
     },
     "versions/_core": {
       "name": "lisible-core",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "dependencies": {
         "@astrojs/markdown-remark": "^7.3.10",
         "@astrojs/mdx": "^8.1.6",
@@ -90,7 +90,7 @@
     },
     "versions/aceternity": {
       "name": "lisible-aceternity",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "dependencies": {
         "@astrojs/markdown-remark": "^7.3.10",
         "@astrojs/mdx": "^8.1.6",
@@ -136,7 +136,7 @@
     },
     "versions/cult-ui": {
       "name": "lisible-cult-ui",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "dependencies": {
         "@astrojs/markdown-remark": "^7.3.10",
         "@astrojs/mdx": "^8.1.6",
@@ -186,7 +186,7 @@
     },
     "versions/h4x0r": {
       "name": "lisible-h4x0r",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "dependencies": {
         "@astrojs/markdown-remark": "^7.3.10",
         "@astrojs/mdx": "^8.1.6",
@@ -240,7 +240,7 @@
     },
     "versions/motion-primitives": {
       "name": "lisible-motion-primitives",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "dependencies": {
         "@astrojs/markdown-remark": "^7.3.10",
         "@astrojs/mdx": "^8.1.6",
@@ -284,7 +284,7 @@
     },
     "versions/organique": {
       "name": "lisible-organique",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "dependencies": {
         "@astrojs/markdown-remark": "^7.3.10",
         "@astrojs/mdx": "^8.1.6",
@@ -331,7 +331,7 @@
     },
     "versions/reactbits": {
       "name": "lisible-reactbits",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "dependencies": {
         "@astrojs/markdown-remark": "^7.3.10",
         "@astrojs/mdx": "^8.1.6",
